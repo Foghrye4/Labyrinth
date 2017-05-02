@@ -1,0 +1,16 @@
+[
+{
+  "modid": "labyrinth",
+  "name": "Labyrinth",
+  "description": "labyrinth generator for CubicChunks.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Foghrye4"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
