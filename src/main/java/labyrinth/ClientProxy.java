@@ -17,4 +17,10 @@ public class ClientProxy extends ServerProxy {
 	public File getMinecraftDir() {
 		return Minecraft.getMinecraft().mcDataDir;
 	}
+	
+	@Override
+	public void preInit() {
+		
+	}
+
 }

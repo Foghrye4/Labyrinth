@@ -2,6 +2,7 @@ package labyrinth.worldgen;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,12 +11,25 @@ import java.util.Random;
 import cubicchunks.api.ICubicWorldGenerator;
 import cubicchunks.util.CubePos;
 import cubicchunks.world.ICubicWorld;
+import labyrinth.entity.EntityZombieLeveled;
+import labyrinth.util.LevelUtil;
+import net.minecraft.block.BlockColored;
+import net.minecraft.block.BlockHardenedClay;
+import net.minecraft.block.BlockLever;
+import net.minecraft.block.BlockLever.EnumOrientation;
+import net.minecraft.block.BlockPistonBase;
 import net.minecraft.block.BlockQuartz;
+import net.minecraft.block.BlockSkull;
 import net.minecraft.block.BlockStainedGlassPane;
+import net.minecraft.block.BlockStairs;
+import net.minecraft.block.BlockStairs.EnumHalf;
+import net.minecraft.block.BlockStairs.EnumShape;
+import net.minecraft.block.BlockStone;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -75,78 +89,118 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 		
 	}
 
-	@SuppressWarnings("unchecked")
-	List<IBlockState>[] blockstateList = new List[] {
-			new ArrayList<IBlockState>(),
-			new ArrayList<IBlockState>(),
-			new ArrayList<IBlockState>()};
+	public IBlockState[][] blockstateList = new IBlockState[8][256];
 	
-	private static final int CACHE_SIZE=8192;
+	private static final int CACHE_SIZE=256;
 	Map<CubePos, DungeonCube> dtype_cache = new HashMap<CubePos, DungeonCube>(CACHE_SIZE+1);
 	private final Random random = new Random();
+	private final IBlockState AIR = Blocks.AIR.getDefaultState();
 	public static LabyrinthWorldGen instance;
 	
 	public LabyrinthWorldGen() {
 		instance=this;
+		Arrays.fill(blockstateList[0], Blocks.AIR.getDefaultState());
+		blockstateList[0][1] = Blocks.QUARTZ_BLOCK.getDefaultState();
+		blockstateList[0][2] = Blocks.QUARTZ_BLOCK.getDefaultState().withProperty(BlockQuartz.VARIANT, BlockQuartz.EnumType.CHISELED);
+		blockstateList[0][18] = Blocks.STAINED_GLASS_PANE.getBlockState().getBaseState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.RED);
+		IBlockState stair = Blocks.QUARTZ_STAIRS.getBlockState().getBaseState().withProperty(BlockStairs.SHAPE, EnumShape.STRAIGHT);
+		blockstateList[0][19] = stair.withProperty(BlockStairs.FACING, EnumFacing.NORTH).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[0][24] = stair.withProperty(BlockStairs.FACING, EnumFacing.NORTH).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[0][29] = stair.withProperty(BlockStairs.FACING, EnumFacing.SOUTH).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[0][34] = stair.withProperty(BlockStairs.FACING, EnumFacing.SOUTH).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[0][39] = stair.withProperty(BlockStairs.FACING, EnumFacing.WEST).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[0][44] = stair.withProperty(BlockStairs.FACING, EnumFacing.WEST).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[0][49] = stair.withProperty(BlockStairs.FACING, EnumFacing.EAST).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[0][54] = stair.withProperty(BlockStairs.FACING, EnumFacing.EAST).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[0][120] = Blocks.ACACIA_FENCE.getDefaultState();
+		blockstateList[0][129] = Blocks.STICKY_PISTON.getBlockState().getBaseState().withProperty(BlockPistonBase.EXTENDED, Boolean.valueOf(true)).withProperty(BlockPistonBase.FACING, EnumFacing.NORTH);
+		blockstateList[0][137] = Blocks.LEVER.getBlockState().getBaseState().withProperty(BlockLever.POWERED, Boolean.valueOf(true)).withProperty(BlockLever.FACING, EnumOrientation.EAST);
+		blockstateList[0][255] = Blocks.SKULL.getBlockState().getBaseState().withProperty(BlockSkull.FACING, EnumFacing.UP).withProperty(BlockSkull.NODROP, Boolean.valueOf(false));
 
-		blockstateList[0].add(Blocks.AIR.getDefaultState());
-		blockstateList[0].add(Blocks.QUARTZ_BLOCK.getDefaultState());
-		blockstateList[0].add(Blocks.QUARTZ_BLOCK.getDefaultState().withProperty(BlockQuartz.VARIANT, BlockQuartz.EnumType.CHISELED));
-		for (IBlockState bs : Blocks.STAINED_GLASS_PANE.getBlockState().getValidStates()) {
-			if(bs.getProperties().get(BlockStainedGlassPane.COLOR).equals(EnumDyeColor.RED))
-				blockstateList[0].add(bs);
-		}
-		for (IBlockState bs : Blocks.QUARTZ_STAIRS.getBlockState().getValidStates()) {
-			blockstateList[0].add(bs);
-		}
-		for (IBlockState bs : Blocks.ACACIA_FENCE.getBlockState().getValidStates()) {
-			blockstateList[0].add(bs);
-		}
-		for (IBlockState bs : Blocks.STICKY_PISTON.getBlockState().getValidStates()) {
-			blockstateList[0].add(bs);
-		}
-		for (IBlockState bs : Blocks.LEVER.getBlockState().getValidStates()) {
-			blockstateList[0].add(bs);
-		}
-
-		blockstateList[2].add(Blocks.AIR.getDefaultState());
-		blockstateList[2].add(Blocks.COBBLESTONE.getDefaultState());
-		blockstateList[2].add(Blocks.STONE.getDefaultState());
-		for (IBlockState bs : Blocks.IRON_BARS.getBlockState().getValidStates()) {
-			blockstateList[2].add(bs);
-		}
-		for (IBlockState bs : Blocks.STONE_STAIRS.getBlockState().getValidStates()) {
-			blockstateList[2].add(bs);
-		}
-		for (IBlockState bs : Blocks.COBBLESTONE_WALL.getBlockState().getValidStates()) {
-			blockstateList[2].add(bs);
-		}
-		for (IBlockState bs : Blocks.STICKY_PISTON.getBlockState().getValidStates()) {
-			blockstateList[2].add(bs);
-		}
-		for (IBlockState bs : Blocks.LEVER.getBlockState().getValidStates()) {
-			blockstateList[2].add(bs);
-		}
+		for(int i=1;i<blockstateList.length;i++)
+			blockstateList[i]=Arrays.copyOf(blockstateList[0], 256);
 		
-		blockstateList[1].add(Blocks.AIR.getDefaultState());
-		blockstateList[1].add(Blocks.STONEBRICK.getDefaultState());
-		blockstateList[1].add(Blocks.STONE.getDefaultState());
-		for (IBlockState bs : Blocks.IRON_BARS.getBlockState().getValidStates()) {
-			blockstateList[1].add(bs);
-		}
-		for (IBlockState bs : Blocks.STONE_BRICK_STAIRS.getBlockState().getValidStates()) {
-			blockstateList[1].add(bs);
-		}
-		for (IBlockState bs : Blocks.COBBLESTONE_WALL.getBlockState().getValidStates()) {
-			blockstateList[1].add(bs);
-		}
-		for (IBlockState bs : Blocks.STICKY_PISTON.getBlockState().getValidStates()) {
-			blockstateList[1].add(bs);
-		}
-		for (IBlockState bs : Blocks.LEVER.getBlockState().getValidStates()) {
-			blockstateList[1].add(bs);
-		}
-	}
+		blockstateList[1][1] = Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE_SMOOTH);
+		blockstateList[1][2] = Blocks.QUARTZ_BLOCK.getDefaultState().withProperty(BlockQuartz.VARIANT, BlockQuartz.EnumType.CHISELED);
+		blockstateList[1][18] = Blocks.OAK_FENCE.getDefaultState();
+		blockstateList[1][120] = Blocks.OAK_FENCE.getDefaultState();
+		
+		blockstateList[2][1] = Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE_SMOOTH);
+		blockstateList[2][2] = Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE);
+		blockstateList[2][18] = Blocks.IRON_BARS.getDefaultState();
+		blockstateList[2][120] = Blocks.DARK_OAK_FENCE.getDefaultState();
+		stair = Blocks.RED_SANDSTONE_STAIRS.getBlockState().getBaseState().withProperty(BlockStairs.SHAPE, EnumShape.STRAIGHT);
+		blockstateList[2][19] = stair.withProperty(BlockStairs.FACING, EnumFacing.NORTH).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[2][24] = stair.withProperty(BlockStairs.FACING, EnumFacing.NORTH).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[2][29] = stair.withProperty(BlockStairs.FACING, EnumFacing.SOUTH).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[2][34] = stair.withProperty(BlockStairs.FACING, EnumFacing.SOUTH).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[2][39] = stair.withProperty(BlockStairs.FACING, EnumFacing.WEST).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[2][44] = stair.withProperty(BlockStairs.FACING, EnumFacing.WEST).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[2][49] = stair.withProperty(BlockStairs.FACING, EnumFacing.EAST).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[2][54] = stair.withProperty(BlockStairs.FACING, EnumFacing.EAST).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+
+		
+		blockstateList[3][1] = Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.LIGHT_BLUE);
+		blockstateList[3][2] = Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.WHITE);
+		blockstateList[3][18] = Blocks.IRON_BARS.getDefaultState();
+		blockstateList[3][120] = Blocks.DARK_OAK_FENCE.getDefaultState();
+
+		blockstateList[4][1] = Blocks.STONEBRICK.getDefaultState();
+		blockstateList[4][2] = Blocks.STONE.getDefaultState();
+		blockstateList[4][18] = Blocks.IRON_BARS.getDefaultState();
+		blockstateList[4][120] = Blocks.COBBLESTONE_WALL.getDefaultState();
+		stair = Blocks.STONE_BRICK_STAIRS.getBlockState().getBaseState().withProperty(BlockStairs.SHAPE, EnumShape.STRAIGHT);
+		blockstateList[4][19] = stair.withProperty(BlockStairs.FACING, EnumFacing.NORTH).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[4][24] = stair.withProperty(BlockStairs.FACING, EnumFacing.NORTH).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[4][29] = stair.withProperty(BlockStairs.FACING, EnumFacing.SOUTH).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[4][34] = stair.withProperty(BlockStairs.FACING, EnumFacing.SOUTH).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[4][39] = stair.withProperty(BlockStairs.FACING, EnumFacing.WEST).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[4][44] = stair.withProperty(BlockStairs.FACING, EnumFacing.WEST).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[4][49] = stair.withProperty(BlockStairs.FACING, EnumFacing.EAST).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[4][54] = stair.withProperty(BlockStairs.FACING, EnumFacing.EAST).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+
+		blockstateList[5][1] = Blocks.COBBLESTONE.getDefaultState();
+		blockstateList[5][2] = Blocks.STONE.getDefaultState();
+		blockstateList[5][18] = Blocks.IRON_BARS.getDefaultState();
+		blockstateList[5][120] = Blocks.COBBLESTONE_WALL.getDefaultState();
+		stair = Blocks.STONE_STAIRS.getBlockState().getBaseState().withProperty(BlockStairs.SHAPE, EnumShape.STRAIGHT);
+		blockstateList[5][19] = stair.withProperty(BlockStairs.FACING, EnumFacing.NORTH).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[5][24] = stair.withProperty(BlockStairs.FACING, EnumFacing.NORTH).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[5][29] = stair.withProperty(BlockStairs.FACING, EnumFacing.SOUTH).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[5][34] = stair.withProperty(BlockStairs.FACING, EnumFacing.SOUTH).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[5][39] = stair.withProperty(BlockStairs.FACING, EnumFacing.WEST).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[5][44] = stair.withProperty(BlockStairs.FACING, EnumFacing.WEST).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[5][49] = stair.withProperty(BlockStairs.FACING, EnumFacing.EAST).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[5][54] = stair.withProperty(BlockStairs.FACING, EnumFacing.EAST).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+
+		blockstateList[6][1] = Blocks.NETHER_BRICK.getDefaultState();
+		blockstateList[6][2] = Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE_SMOOTH);
+		blockstateList[6][18] = Blocks.IRON_BARS.getDefaultState();
+		blockstateList[6][120] = Blocks.NETHER_BRICK_FENCE.getDefaultState();
+		stair = Blocks.NETHER_BRICK_STAIRS.getBlockState().getBaseState().withProperty(BlockStairs.SHAPE, EnumShape.STRAIGHT);
+		blockstateList[6][19] = stair.withProperty(BlockStairs.FACING, EnumFacing.NORTH).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[6][24] = stair.withProperty(BlockStairs.FACING, EnumFacing.NORTH).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[6][29] = stair.withProperty(BlockStairs.FACING, EnumFacing.SOUTH).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[6][34] = stair.withProperty(BlockStairs.FACING, EnumFacing.SOUTH).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[6][39] = stair.withProperty(BlockStairs.FACING, EnumFacing.WEST).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[6][44] = stair.withProperty(BlockStairs.FACING, EnumFacing.WEST).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[6][49] = stair.withProperty(BlockStairs.FACING, EnumFacing.EAST).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[6][54] = stair.withProperty(BlockStairs.FACING, EnumFacing.EAST).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+
+		blockstateList[7][1] = Blocks.RED_NETHER_BRICK.getDefaultState();
+		blockstateList[7][2] = Blocks.MAGMA.getDefaultState();
+		blockstateList[7][18] = Blocks.NETHER_BRICK_FENCE.getDefaultState();
+		blockstateList[7][120] = Blocks.NETHER_BRICK_FENCE.getDefaultState();
+		stair = Blocks.NETHER_BRICK_STAIRS.getBlockState().getBaseState().withProperty(BlockStairs.SHAPE, EnumShape.STRAIGHT);
+		blockstateList[7][19] = stair.withProperty(BlockStairs.FACING, EnumFacing.NORTH).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[7][24] = stair.withProperty(BlockStairs.FACING, EnumFacing.NORTH).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[7][29] = stair.withProperty(BlockStairs.FACING, EnumFacing.SOUTH).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[7][34] = stair.withProperty(BlockStairs.FACING, EnumFacing.SOUTH).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[7][39] = stair.withProperty(BlockStairs.FACING, EnumFacing.WEST).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[7][44] = stair.withProperty(BlockStairs.FACING, EnumFacing.WEST).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[7][49] = stair.withProperty(BlockStairs.FACING, EnumFacing.EAST).withProperty(BlockStairs.HALF, EnumHalf.TOP);
+		blockstateList[7][54] = stair.withProperty(BlockStairs.FACING, EnumFacing.EAST).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+}
 
 	@Override
 	public void generate(Random random, int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator,
@@ -155,9 +209,9 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 
 	@Override
 	public void generate(Random random, BlockPos pos, World world) {
-		if (pos.getY() < -0) {
-			int level = -pos.getY()/32;
-			List<IBlockState> bl = this.blockstateList[this.blockstateList.length-1];
+		int level = LevelUtil.getLevel(pos);
+		if (level>=0) {
+			IBlockState[] bl = this.blockstateList[this.blockstateList.length-1];
 			if(level < this.blockstateList.length) {
 				bl = this.blockstateList[level];
 			}
@@ -169,7 +223,17 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 				int dx = index >>> 8;
 				int dy = (index >>> 4) & 15;
 				int dz = index & 15;
-				world.setBlockState(pos.east(dx).up(dy).south(dz), bl.get(Byte.toUnsignedInt(is[index])));
+				int bstate = Byte.toUnsignedInt(is[index]);
+				BlockPos bpos = pos.east(dx).up(dy).south(dz);
+				if (bstate == 255) {
+					world.setBlockState(bpos, AIR);
+					EntityZombieLeveled zombie = new EntityZombieLeveled(world);
+					zombie.setPosition(bpos.getX(), bpos.getY(), bpos.getZ());
+					zombie.setLevel(level);
+					world.spawnEntity(zombie);
+				} else {
+					world.setBlockState(bpos, bl[bstate]);
+				}
 			}
 		}
 	}
@@ -184,6 +248,7 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 		}
 		if (d_type == DungeonCube.NOTHING)
 			return null;
+		
 		return d_type.data;
 	}
 
@@ -192,6 +257,10 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 			return DungeonCube.NOTHING;
 		random.setSeed(world.getSeed()^cpos.getX()<<8^cpos.getY()<<4^cpos.getZ());
 		int typedefiner = random.nextInt()&31;
+		DungeonCube cached_value = dtype_cache.get(cpos);
+		if(cached_value!=null) {
+			return cached_value;
+		}
 		if(dtype_cache.size()>CACHE_SIZE){
 			dtype_cache.clear();
 		}
