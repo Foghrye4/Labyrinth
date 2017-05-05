@@ -5,44 +5,21 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
 
 import cubicchunks.util.CubePos;
 import labyrinth.LabyrinthMod;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.init.Blocks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
-public class LWriteCubeCommand extends CommandBase {
+public class LWriteCubeCommand extends LCubeEditCommandBase {
 
-	Map<IBlockState, Integer> blockstateMap = new HashMap<IBlockState, Integer>();
 	public LWriteCubeCommand(){
-		int index = 0;
-		blockstateMap.put(Blocks.AIR.getDefaultState(), index++);
-		blockstateMap.put(Blocks.STONE.getDefaultState(), index++);
-		blockstateMap.put(Blocks.IRON_BARS.getDefaultState(), index++);
-		for(IBlockState bs:Blocks.IRON_BARS.getBlockState().getValidStates()){
-			blockstateMap.put(bs, index++);
-		}
-		for(IBlockState bs:Blocks.STONE_STAIRS.getBlockState().getValidStates()){
-			blockstateMap.put(bs, index++);
-		}
-		for(IBlockState bs:Blocks.COBBLESTONE_WALL.getBlockState().getValidStates()){
-			blockstateMap.put(bs, index++);
-		}
-		for(IBlockState bs:Blocks.STICKY_PISTON.getBlockState().getValidStates()){
-			blockstateMap.put(bs, index++);
-		}
-		for(IBlockState bs:Blocks.LEVER.getBlockState().getValidStates()){
-			blockstateMap.put(bs, index++);
-		}
+		super();
 	}
 	@Override
 	public String getName() {
@@ -70,14 +47,14 @@ public class LWriteCubeCommand extends CommandBase {
 				for (int z = cpos.getMinBlockZ(); z <= cpos.getMaxBlockZ(); z++) {
 					int bsid = 0;
 					IBlockState bs = world.getBlockState(new BlockPos(x, y, z));
-					if (blockstateMap.containsKey(bs)) {
-						bsid = blockstateMap.get(bs);
+					if (blockstateList.contains(bs)) {
+						bsid = blockstateList.indexOf(bs);
 					}
 					bf.put((byte) bsid);
 				}
 		DataOutputStream osWriter = null;
 		try {
-			osWriter = new DataOutputStream(new FileOutputStream(getFile(filename)));
+			osWriter = new DataOutputStream(new FileOutputStream(getFile("cubes",filename)));
 			osWriter.write(bf.array());
 			osWriter.close();
 		} catch (IOException e) {
@@ -85,11 +62,4 @@ public class LWriteCubeCommand extends CommandBase {
 		}
 		sender.sendMessage(new TextComponentString("Done"));
 	}
-
-	private static File getFile(String filename) {
-		File folder = new File(LabyrinthMod.proxy.getMinecraftDir(), "cubes");
-		folder.mkdirs();
-		return new File(folder, filename);
-	}
-
 }

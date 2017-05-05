@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.logging.log4j.Logger;
 
 import labyrinth.command.LPlaceCubeCommand;
+import labyrinth.command.LReplaceCubeFloorCommand;
 import labyrinth.command.LWriteCubeCommand;
 import labyrinth.worldgen.LabyrinthWorldGen;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -44,6 +45,7 @@ public class LabyrinthMod {
     {
         event.registerServerCommand(new LWriteCubeCommand());
         event.registerServerCommand(new LPlaceCubeCommand());
+        //event.registerServerCommand(new LReplaceCubeFloorCommand());
     }
 
 }

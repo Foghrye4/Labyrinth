@@ -5,43 +5,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import cubicchunks.util.CubePos;
 import labyrinth.LabyrinthMod;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.init.Blocks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
-public class LPlaceCubeCommand extends CommandBase {
+public class LPlaceCubeCommand extends LCubeEditCommandBase {
 
-	List<IBlockState> blockstateList = new ArrayList<IBlockState>();
 	public LPlaceCubeCommand(){
-		blockstateList.add(Blocks.AIR.getDefaultState());
-		blockstateList.add(Blocks.STONE.getDefaultState());
-		blockstateList.add(Blocks.IRON_BARS.getDefaultState());
-		for(IBlockState bs:Blocks.IRON_BARS.getBlockState().getValidStates()){
-			blockstateList.add(bs);
-		}
-		for(IBlockState bs:Blocks.STONE_STAIRS.getBlockState().getValidStates()){
-			blockstateList.add(bs);
-		}
-		for(IBlockState bs:Blocks.COBBLESTONE_WALL.getBlockState().getValidStates()){
-			blockstateList.add(bs);
-		}
-		for(IBlockState bs:Blocks.STICKY_PISTON.getBlockState().getValidStates()){
-			blockstateList.add(bs);
-		}
-		for(IBlockState bs:Blocks.LEVER.getBlockState().getValidStates()){
-			blockstateList.add(bs);
-		}
+		super();
 	}
 	@Override
 	public String getName() {
@@ -63,7 +40,7 @@ public class LPlaceCubeCommand extends CommandBase {
 		BlockPos pos = CubePos.fromBlockCoords(sender.getPosition()).getMinBlockPos();
 		try {
 			int index = 0;
-			InputStream is = new FileInputStream(getFile(args[0]));
+			InputStream is = new FileInputStream(getFile("cubes",args[0]));
 			DataInputStream dis = new DataInputStream(is);
 			while(dis.available()>0){
 				int dx = index>>>8;
@@ -83,11 +60,4 @@ public class LPlaceCubeCommand extends CommandBase {
 			e.printStackTrace();
 		}		sender.sendMessage(new TextComponentString("Done"));
 	}
-
-	private static File getFile(String filename) {
-		File folder = new File(LabyrinthMod.proxy.getMinecraftDir(), "cubes");
-		folder.mkdirs();
-		return new File(folder, filename);
-	}
-
 }
