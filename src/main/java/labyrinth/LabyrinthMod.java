@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import labyrinth.command.LGetStructureBlockStateCommand;
 import labyrinth.command.LPlaceCubeCommand;
+import labyrinth.command.LPlaceStructureBlock;
 import labyrinth.command.LReplaceCubeFloorCommand;
 import labyrinth.command.LWriteCubeCommand;
 import labyrinth.entity.EntityZombieLeveled;
@@ -35,7 +36,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 public class LabyrinthMod {
 	public static final String MODID = "labyrinth";
 	public static final String NAME = "Labyrinth";
-	public static final String VERSION = "0.002";
+	public static final String VERSION = "0.003";
 
 	public static Logger log;
 	@SidedProxy(clientSide = "labyrinth.ClientProxy", serverSide = "labyrinth.ServerProxy")
@@ -66,7 +67,7 @@ public class LabyrinthMod {
         event.registerServerCommand(new LWriteCubeCommand());
         event.registerServerCommand(new LPlaceCubeCommand());
         event.registerServerCommand(new LGetStructureBlockStateCommand());
-        //event.registerServerCommand(new LReplaceCubeFloorCommand());
+        event.registerServerCommand(new LPlaceStructureBlock());
     }
 
 }

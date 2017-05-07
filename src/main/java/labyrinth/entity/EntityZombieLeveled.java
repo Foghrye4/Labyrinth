@@ -23,9 +23,9 @@ public class EntityZombieLeveled extends EntityZombie {
 	public void setLevel(int levelIn) {
 		level = levelIn;
 		int sql = levelIn*levelIn;
-		this.experienceValue=5+sql;
-        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(5.0d+sql);
-        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.2d+levelIn*0.01d);
+		this.experienceValue=5*(1+sql);
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(5.0d+levelIn);
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.2d+levelIn*0.02d);
         this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(3.0d+sql);
         this.getEntityAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(levelIn);
         this.setHealth(this.getMaxHealth());

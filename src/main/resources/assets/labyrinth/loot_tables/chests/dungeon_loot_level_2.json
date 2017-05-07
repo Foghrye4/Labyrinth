@@ -1,0 +1,38 @@
+{
+    "pools": [
+        {
+	    "name":"labyrinth",
+            "rolls": 2,
+            "entries": [
+                {
+                    "type": "loot_table",
+                    "weight": 1,
+                    "name": "labyrinth:chests/dungeon_loot_level_1",
+                    "min": 10
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:bone",
+                    "weight": 1,
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 1,
+                                "max": 16
+                            }
+                        },
+                        {
+                            "function": "looting_enchant",
+                            "count": {
+                                "min": 0,
+                                "max": 1
+                            }
+                        }
+                    ]
+                }
+
+            ]
+        }
+    ]
+}

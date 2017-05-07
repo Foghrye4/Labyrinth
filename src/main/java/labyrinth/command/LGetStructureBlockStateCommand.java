@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,10 +63,12 @@ public class LGetStructureBlockStateCommand extends LCubeEditCommandBase {
 			int dz = pos.getZ()-cpos.getMinBlockZ();
 			int index = dx<<8|dy<<4|dz;
 			String name = LPlaceCubeCommand.last_placed_dungeon_type;
-			byte[] data = new byte[4096];
 			try {
-				Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("labyrinth","cubes/"+name)).getInputStream().read(data);
+				InputStream is = new FileInputStream(getFile("cubes",name));
+				byte[] data = new byte[4096];
+				is.read(data);
 				sender.sendMessage(new TextComponentString("Byte place = "+Byte.toUnsignedInt(data[index])));
+				sender.sendMessage(new TextComponentString("Index of = "+this.blockstateList.indexOf(bs)));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

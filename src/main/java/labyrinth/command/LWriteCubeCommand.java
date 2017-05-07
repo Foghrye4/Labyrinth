@@ -17,7 +17,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
-import scala.actors.threadpool.Arrays;
 
 public class LWriteCubeCommand extends LCubeEditCommandBase {
 

@@ -105,6 +105,7 @@ build
 # other
 eclipse
 run
+*.sh
 
 .nb-gradle-properties
 VERSION
