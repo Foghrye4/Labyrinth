@@ -1,11 +1,10 @@
 package labyrinth.worldgen;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -15,16 +14,17 @@ import cubicchunks.util.CubePos;
 import cubicchunks.world.ICubicWorld;
 import cubicchunks.world.cube.Cube;
 import labyrinth.LabyrinthMod;
-import labyrinth.entity.EntityZombieLeveled;
+import labyrinth.entity.IMobLeveled;
+import labyrinth.entity.ISlime;
+import labyrinth.init.LabyrinthBlocks;
+import labyrinth.init.LabyrinthEntities;
 import labyrinth.util.LevelUtil;
 import net.minecraft.block.BlockAnvil;
 import net.minecraft.block.BlockChest;
 import net.minecraft.block.BlockColored;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.BlockFurnace;
-import net.minecraft.block.BlockHardenedClay;
 import net.minecraft.block.BlockLever;
-import net.minecraft.block.BlockLever.EnumOrientation;
 import net.minecraft.block.BlockPistonBase;
 import net.minecraft.block.BlockPistonExtension;
 import net.minecraft.block.BlockPrismarine;
@@ -41,8 +41,13 @@ import net.minecraft.block.BlockStoneBrick;
 import net.minecraft.block.BlockTorch;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumDyeColor;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.EnumFacing;
@@ -108,7 +113,7 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 			NibbleArray lightNibbleArray = new NibbleArray(lightData);
 			Set<BlockPos> pointsOfInterest = new HashSet<BlockPos>();
 			for(int index=0;index<data.length;index++) {
-				if((Byte.toUnsignedInt(data[index])>=153 && Byte.toUnsignedInt(data[index])<=157) ||Byte.toUnsignedInt(data[index])==16){
+				if((Byte.toUnsignedInt(data[index])>=153 && Byte.toUnsignedInt(data[index])<=157) ||Byte.toUnsignedInt(data[index])==16	){
 					int dx = index >>> 8;
 					int dy = (index >>> 4) & 15;
 					int dz = index & 15;
@@ -116,16 +121,14 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 				}
 			}
 			for(BlockPos lightPos:pointsOfInterest){
-				boolean[] calculatedBlocks = new boolean[data.length];
-				setLight(lightPos,calculatedBlocks, lightNibbleArray, 15);
+				setLight(lightPos, lightNibbleArray, 15);
 			}
 		}
 
-		private void setLight(BlockPos lightPos, boolean[] calculatedBlocks, NibbleArray lightNibbleArray, int lightValue) {
+		private void setLight(BlockPos lightPos, NibbleArray lightNibbleArray, int lightValue) {
 			int index = lightPos.getX()<<8|lightPos.getY()<<4|lightPos.getZ();
 			if(index<0 || 
-					index>=calculatedBlocks.length || 
-					calculatedBlocks[index] || 
+					index>=4096 || 
 					lightValue<=0 ||
 					lightPos.getX() < 0 ||
 					lightPos.getY() < 0 ||
@@ -135,19 +138,18 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 					lightPos.getZ() > 15){
 				return;
 			}
-			calculatedBlocks[index] = true;
 			int blockStateNum = Byte.toUnsignedInt(data[index]);
 			if((blockStateNum>=1 && blockStateNum<=11) || (blockStateNum>=19 && blockStateNum<=54)){
 				return;
 			}
 			if(lightNibbleArray.get(lightPos.getX(), lightPos.getY(), lightPos.getZ()) < lightValue){
 				lightNibbleArray.set(lightPos.getX(), lightPos.getY(), lightPos.getZ(),lightValue);
-				setLight(lightPos.up(), calculatedBlocks, lightNibbleArray, lightValue-1);
-				setLight(lightPos.down(), calculatedBlocks, lightNibbleArray, lightValue-1);
-				setLight(lightPos.north(), calculatedBlocks, lightNibbleArray, lightValue-1);
-				setLight(lightPos.south(), calculatedBlocks, lightNibbleArray, lightValue-1);
-				setLight(lightPos.west(), calculatedBlocks, lightNibbleArray, lightValue-1);
-				setLight(lightPos.east(), calculatedBlocks, lightNibbleArray, lightValue-1);
+				setLight(lightPos.up(), lightNibbleArray, lightValue-1);
+				setLight(lightPos.down(), lightNibbleArray, lightValue-1);
+				setLight(lightPos.north(), lightNibbleArray, lightValue-1);
+				setLight(lightPos.south(), lightNibbleArray, lightValue-1);
+				setLight(lightPos.west(), lightNibbleArray, lightValue-1);
+				setLight(lightPos.east(), lightNibbleArray, lightValue-1);
 			}
 		}
 		
@@ -162,12 +164,12 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 	private int max_loot_level = 7;
 	public static LabyrinthWorldGen instance;
 	private final IBlockState[] WALL_CANDIDATES = new IBlockState[]{
-			Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.ANDESITE),
-			Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.ANDESITE_SMOOTH),
-			Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE),
-			Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE_SMOOTH),
-			Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE),
-			Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE_SMOOTH),
+			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.ANDESITE),
+			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.ANDESITE_SMOOTH),
+			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE),
+			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE_SMOOTH),
+			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE),
+			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE_SMOOTH),
 			Blocks.QUARTZ_BLOCK.getDefaultState(),
 			Blocks.QUARTZ_BLOCK.getDefaultState().withProperty(BlockQuartz.VARIANT, BlockQuartz.EnumType.CHISELED),
 			Blocks.QUARTZ_BLOCK.getDefaultState().withProperty(BlockQuartz.VARIANT, BlockQuartz.EnumType.LINES_X),
@@ -213,13 +215,13 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 	};
 	
 	private final IBlockState[] FLOOR_CANDIDATES = new IBlockState[]{
-			Blocks.STONE.getDefaultState(),
-			Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.ANDESITE),
-			Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.ANDESITE_SMOOTH),
-			Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE),
-			Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE_SMOOTH),
-			Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE),
-			Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE_SMOOTH),
+			LabyrinthBlocks.STONE.getDefaultState(),
+			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.ANDESITE),
+			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.ANDESITE_SMOOTH),
+			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE),
+			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE_SMOOTH),
+			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE),
+			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE_SMOOTH),
 			Blocks.QUARTZ_BLOCK.getDefaultState(),
 			Blocks.QUARTZ_BLOCK.getDefaultState().withProperty(BlockQuartz.VARIANT, BlockQuartz.EnumType.CHISELED),
 			Blocks.QUARTZ_BLOCK.getDefaultState().withProperty(BlockQuartz.VARIANT, BlockQuartz.EnumType.LINES_X),
@@ -280,9 +282,51 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 			Blocks.COBBLESTONE_WALL.getDefaultState()
 	};
 	
+	@SuppressWarnings("unchecked")
+	private final Class<? extends EntityLivingBase>[] MOB_CANDIDATES_FIRST = new Class[] {
+		LabyrinthEntities.ZOMBIE,
+		LabyrinthEntities.CAVE_SPIDER,
+		LabyrinthEntities.CREEPER,
+		LabyrinthEntities.ENDERMAN,
+		LabyrinthEntities.ENDERMITE,
+		LabyrinthEntities.MAGMA_CUBE,
+		LabyrinthEntities.PIG_ZOMBIE,
+		LabyrinthEntities.SPIDER,
+		LabyrinthEntities.SLIME,
+		LabyrinthEntities.WITHER_SKELETON
+	};
 	
+	@SuppressWarnings("unchecked")
+	private final Class<? extends EntityLivingBase>[] MOB_CANDIDATES_SECOND = new Class[] {
+		LabyrinthEntities.BLAZE,
+		LabyrinthEntities.EVOKER,
+		LabyrinthEntities.SKELETON,
+		LabyrinthEntities.STRAY,
+		LabyrinthEntities.VINDICATOR,
+		LabyrinthEntities.WITCH,
+		LabyrinthEntities.VEX
+	};
+	@SuppressWarnings("unchecked")
+	private final Class<? extends EntityLivingBase>[][] levelToMob = new Class[128][2];
+
 	public LabyrinthWorldGen() throws IOException {
 		instance=this;
+		
+		for(Class<? extends EntityLivingBase>[] levelMobs:levelToMob){
+			levelMobs[0] = MOB_CANDIDATES_FIRST[random.nextInt(MOB_CANDIDATES_FIRST.length)];
+			levelMobs[1] = MOB_CANDIDATES_SECOND[random.nextInt(MOB_CANDIDATES_SECOND.length)];
+		}
+		levelToMob[0][0] = LabyrinthEntities.ZOMBIE;
+		levelToMob[0][1] = LabyrinthEntities.ZOMBIE;
+		levelToMob[1][0] = LabyrinthEntities.ZOMBIE;
+		levelToMob[1][1] = LabyrinthEntities.SLIME;
+		levelToMob[2][0] = LabyrinthEntities.ZOMBIE;
+		levelToMob[2][1] = LabyrinthEntities.SKELETON;
+		levelToMob[3][0] = LabyrinthEntities.CREEPER;
+		levelToMob[3][1] = LabyrinthEntities.SKELETON;
+		levelToMob[7][0] = LabyrinthEntities.MAGMA_CUBE;
+		levelToMob[7][1] = LabyrinthEntities.BLAZE;
+		
 		Arrays.fill(blockstateList[0], Blocks.AIR.getDefaultState());
 		blockstateList[0][1] = Blocks.QUARTZ_BLOCK.getDefaultState();
 		blockstateList[0][2] = Blocks.QUARTZ_BLOCK.getDefaultState().withProperty(BlockQuartz.VARIANT, BlockQuartz.EnumType.CHISELED);
@@ -327,13 +371,13 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 		for(int i=1;i<blockstateList.length;i++)
 			blockstateList[i]=Arrays.copyOf(blockstateList[0], 256);
 		
-		blockstateList[1][1] = Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE_SMOOTH);
+		blockstateList[1][1] = LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE_SMOOTH);
 		blockstateList[1][2] = Blocks.QUARTZ_BLOCK.getDefaultState().withProperty(BlockQuartz.VARIANT, BlockQuartz.EnumType.CHISELED);
 		blockstateList[1][18] = Blocks.OAK_FENCE.getDefaultState();
 		blockstateList[1][120] = Blocks.OAK_FENCE.getDefaultState();
 		
-		blockstateList[2][1] = Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE_SMOOTH);
-		blockstateList[2][2] = Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE);
+		blockstateList[2][1] = LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE_SMOOTH);
+		blockstateList[2][2] = LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE);
 		blockstateList[2][18] = Blocks.IRON_BARS.getDefaultState();
 		blockstateList[2][120] = Blocks.DARK_OAK_FENCE.getDefaultState();
 		stair = Blocks.RED_SANDSTONE_STAIRS.getBlockState().getBaseState().withProperty(BlockStairs.SHAPE, EnumShape.STRAIGHT);
@@ -345,21 +389,21 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 		blockstateList[3][120] = Blocks.DARK_OAK_FENCE.getDefaultState();
 
 		blockstateList[4][1] = Blocks.STONEBRICK.getDefaultState();
-		blockstateList[4][2] = Blocks.STONE.getDefaultState();
+		blockstateList[4][2] = LabyrinthBlocks.STONE.getDefaultState();
 		blockstateList[4][18] = Blocks.IRON_BARS.getDefaultState();
 		blockstateList[4][120] = Blocks.COBBLESTONE_WALL.getDefaultState();
 		stair = Blocks.STONE_BRICK_STAIRS.getBlockState().getBaseState().withProperty(BlockStairs.SHAPE, EnumShape.STRAIGHT);
 		addStairs(blockstateList[4], stair);
 
 		blockstateList[5][1] = Blocks.COBBLESTONE.getDefaultState();
-		blockstateList[5][2] = Blocks.STONE.getDefaultState();
+		blockstateList[5][2] = LabyrinthBlocks.STONE.getDefaultState();
 		blockstateList[5][18] = Blocks.IRON_BARS.getDefaultState();
 		blockstateList[5][120] = Blocks.COBBLESTONE_WALL.getDefaultState();
 		stair = Blocks.STONE_STAIRS.getBlockState().getBaseState().withProperty(BlockStairs.SHAPE, EnumShape.STRAIGHT);
 		addStairs(blockstateList[5], stair);
 
 		blockstateList[6][1] = Blocks.NETHER_BRICK.getDefaultState();
-		blockstateList[6][2] = Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE_SMOOTH);
+		blockstateList[6][2] = LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE_SMOOTH);
 		blockstateList[6][18] = Blocks.IRON_BARS.getDefaultState();
 		blockstateList[6][120] = Blocks.NETHER_BRICK_FENCE.getDefaultState();
 		stair = Blocks.NETHER_BRICK_STAIRS.getBlockState().getBaseState().withProperty(BlockStairs.SHAPE, EnumShape.STRAIGHT);
@@ -421,10 +465,12 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 		ICubicWorld cworld = (ICubicWorld) world; 
 		int level = LevelUtil.getLevel(pos);
 		if (level>=0) {
+			random.setSeed(level<<8^world.getSeed());
 			IBlockState[] bl = this.blockstateList[random.nextInt(this.blockstateList.length)];
 			if(level < this.blockstateList.length) {
 				bl = this.blockstateList[level];
 			}
+			int mobRandom = random.nextInt() & (this.levelToMob.length-1);
 			DungeonCube is = getDungeonCubeType(CubePos.fromBlockCoords(pos), cworld, 0);
 			if(is.equals(DungeonCube.NOTHING)){
 				return;
@@ -432,6 +478,7 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 			byte[] data = is.data;
 			Cube cube  = cworld.getCubeFromBlockCoords(pos);
 			ExtendedBlockStorage cstorage = cube.getStorage();
+			Class<? extends EntityLivingBase>[] mobs = this.levelToMob[mobRandom];
 			for(int index=0;index<data.length;index++) {
 				int dx = index >>> 8;
 				int dy = (index >>> 4) & 15;
@@ -440,10 +487,21 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 				cstorage.setBlocklightArray(new NibbleArray(is.lightData.clone()));
 				if (bstate == 255) {
 					cstorage.set(dx, dy, dz, AIR);
-					EntityZombieLeveled zombie = new EntityZombieLeveled(world);
-					zombie.setPosition(pos.getX()+dx+0.5, pos.getY()+dy, pos.getZ()+dz+0.5);
-					zombie.setLevel(level);
-					world.spawnEntity(zombie);
+					int mobRandom2 = this.random.nextFloat()>0.7f?1:0;
+					Class<? extends EntityLivingBase> mob = mobs[mobRandom2];
+					EntityLivingBase mobEntity;
+					try {
+						mobEntity = mob.getDeclaredConstructor(World.class).newInstance(world);
+						mobEntity.setPosition(pos.getX()+dx+0.5, pos.getY()+dy, pos.getZ()+dz+0.5);
+						if(mob == LabyrinthEntities.STRAY || mob == LabyrinthEntities.SKELETON)
+							mobEntity.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.BOW));
+						else if(mob == LabyrinthEntities.SLIME || mob == LabyrinthEntities.MAGMA_CUBE)
+							((ISlime)mobEntity).setSlimeSize(LevelUtil.getSlimeSize(level));
+						((IMobLeveled) mobEntity).setLevel(level);
+						world.spawnEntity(mobEntity);
+					} catch (Throwable e) {
+						e.printStackTrace();
+					}
 				} else {
 					cstorage.set(dx, dy, dz, bl[bstate]);
 					if(bstate>=3 && bstate<=6){

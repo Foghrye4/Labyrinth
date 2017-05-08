@@ -2,7 +2,7 @@
     "pools": [
         {
 	    "name":"labyrinth",
-            "rolls": 2,
+            "rolls": 1,
             "entries": [
                 {
                     "type": "loot_table",

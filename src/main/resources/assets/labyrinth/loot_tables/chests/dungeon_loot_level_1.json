@@ -6,7 +6,7 @@
             "entries": [
                 {
                     "type": "loot_table",
-                    "weight": 10,
+                    "weight": 2,
                     "name": "labyrinth:chests/dungeon_loot_level_0"
                 },
                 {
@@ -17,22 +17,20 @@
                             "function": "set_count",
                             "count": {
                                 "min": 1,
-                                "max": 3
+                                "max": 30
                             }
                         }
-                    ],
-                    "weight": 5
+                    ]
                 },
                 {
                     "type": "item",
                     "name": "minecraft:string",
-                    "weight": 1,
                     "functions": [
                         {
                             "function": "set_count",
                             "count": {
                                 "min": 1,
-                                "max": 20
+                                "max": 64
                             }
                         }
                     ]
@@ -40,7 +38,6 @@
                 {
                     "type": "item",
                     "name": "minecraft:feather",
-                    "weight": 1,
                     "functions": [
                         {
                             "function": "set_count",
@@ -54,7 +51,6 @@
                 {
                     "type": "item",
                     "name": "minecraft:wheat_seeds",
-                    "weight": 1,
                     "functions": [
                         {
                             "function": "set_count",
@@ -68,13 +64,12 @@
                 {
                     "type": "item",
                     "name": "minecraft:flint",
-                    "weight": 1,
                     "functions": [
                         {
                             "function": "set_count",
                             "count": {
                                 "min": 1,
-                                "max": 4
+                                "max": 64
                             }
                         }
                     ]
@@ -90,8 +85,7 @@
                                 "max": 4
                             }
                         }
-                    ],
-                    "weight": 2
+                    ]
                 }
            ]
         }

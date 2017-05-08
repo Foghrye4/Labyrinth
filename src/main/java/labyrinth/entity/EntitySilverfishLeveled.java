@@ -1,12 +1,12 @@
 package labyrinth.entity;
 
 import labyrinth.util.LevelUtil;
-import net.minecraft.entity.monster.EntityZombie;
+import net.minecraft.entity.monster.EntitySilverfish;
 import net.minecraft.world.World;
 
-public class EntityZombieLeveled extends EntityZombie implements IMobLeveled {
+public class EntitySilverfishLeveled extends EntitySilverfish implements IMobLeveled {
 
-	public EntityZombieLeveled(World worldIn) {
+	public EntitySilverfishLeveled(World worldIn) {
 		super(worldIn);
 	}
 

@@ -2,11 +2,11 @@
     "pools": [
         {
 	    "name":"labyrinth",
-            "rolls": 2,
+            "rolls": 1,
             "entries": [
                 {
                     "type": "loot_table",
-                    "weight": 10,
+                    "weight": 1,
                     "name": "labyrinth:chests/dungeon_loot_level_2"
                 },
                 {
@@ -26,6 +26,19 @@
                             "count": {
                                 "min": 0,
                                 "max": 1
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:gold_ingot",
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 1,
+                                "max": 2
                             }
                         }
                     ]
