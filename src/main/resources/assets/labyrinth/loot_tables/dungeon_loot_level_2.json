@@ -1,0 +1,31 @@
+{
+    "pools": [
+        {
+	    "name":"labyrinth",
+            "rolls": 2,
+            "entries": [
+                {
+                    "type": "loot_table",
+                    "weight": 2,
+                    "name": "labyrinth:dungeon_loot_level_1",
+                    "min": 10
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:iron_ingot",
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 1,
+                                "max": 2
+                            }
+                        }
+                    ],
+                    "quality": 2
+                }
+
+            ]
+        }
+    ]
+}

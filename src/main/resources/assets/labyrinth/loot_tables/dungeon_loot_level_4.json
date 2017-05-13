@@ -6,12 +6,13 @@
             "entries": [
                 {
                     "type": "loot_table",
-                    "weight": 1,
-                    "name": "labyrinth:chests/dungeon_loot_level_3"
+                    "weight": 2,
+                    "name": "labyrinth:dungeon_loot_level_3"
                 },
                 {
                     "type": "item",
-                    "name": "minecraft:diamond"
+                    "name": "minecraft:diamond",
+                    "quality": 2
                 }
             ]
         }

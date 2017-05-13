@@ -10,7 +10,7 @@ public class LevelUtil {
 	}
 
 	public static int getExperienceValue(int levelIn) {
-		return 5*(1+levelIn*levelIn);
+		return 1+levelIn*levelIn;
 	}
 
 	public static double getMaxHealth(int levelIn) {
@@ -28,7 +28,7 @@ public class LevelUtil {
 	}
 	
 	public static int getSlimeSize(int levelIn) {
-		return levelIn<8?levelIn+2:10;
+		return levelIn<4?levelIn+2:6;
 	}
 
 	public static void setMobAttributes(EntityLivingBase entity, int levelIn) {
@@ -36,5 +36,9 @@ public class LevelUtil {
 		entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(getMovementSpeed(levelIn));
 		entity.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(getAttackDamage(levelIn));
 		entity.getEntityAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(getArmor(levelIn));
+	}
+
+	public static int getExplosionStrength(int level) {
+		return level>32?32:level;
 	}
 }

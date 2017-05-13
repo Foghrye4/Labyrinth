@@ -30,17 +30,19 @@ public class LWriteCubeCommand extends LCubeEditCommandBase {
 
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "/l_write_cube filename";
+		return "/l_write_cube [filename]";
 	}
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+		String filename;
 		if(args==null || args.length==0){
-			sender.sendMessage(new TextComponentString("File name cannot be empty."));
-			throw new CommandException("File name cannot be empty.", sender);
+			filename = LPlaceCubeCommand.last_placed_dungeon_type;
+		}
+		else {
+			filename = args[0];
 		}
 		ByteBuffer bf = ByteBuffer.allocate(4096);
-		String filename = args[0];
 		BlockPos pos = sender.getPosition();
 		World world = sender.getEntityWorld();
 		CubePos cpos = CubePos.fromBlockCoords(pos);
@@ -62,6 +64,6 @@ public class LWriteCubeCommand extends LCubeEditCommandBase {
 		} catch (IOException e) {
 			throw new CommandException("I/O error", sender);
 		}
-		sender.sendMessage(new TextComponentString("Done"));
+		sender.sendMessage(new TextComponentString("Done writing "+filename));
 	}
 }

@@ -25,7 +25,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 public class LabyrinthMod {
 	public static final String MODID = "labyrinth";
 	public static final String NAME = "Labyrinth";
-	public static final String VERSION = "0.005";
+	public static final String VERSION = "0.1.0";
 
 	public static Logger log;
 	@SidedProxy(clientSide = "labyrinth.ClientProxy", serverSide = "labyrinth.ServerProxy")
@@ -40,11 +40,11 @@ public class LabyrinthMod {
 		LabyrinthBlocks.init();
 		LabyrinthBlocks.register();
 		proxy.preInit();
+		LabyrinthEntities.register(this);
 		GameRegistry.registerWorldGenerator(new LabyrinthWorldGen(), 0);
 		for (Biome biome : Biome.EXPLORATION_BIOMES_LIST) {
 			biome.getSpawnableList(EnumCreatureType.MONSTER).clear();
 		}
-		LabyrinthEntities.register(this);
 	}
 
 	@EventHandler

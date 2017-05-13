@@ -43,9 +43,20 @@ public class LPlaceCubeCommand extends LCubeEditCommandBase {
 		}
 		World world =sender.getEntityWorld();
 		BlockPos pos = CubePos.fromBlockCoords(sender.getPosition()).getMinBlockPos();
+		String cubeS = args[0];
+		int cn = -1;
+		try {
+			cn = Integer.parseInt(cubeS);
+		}
+		catch(NumberFormatException e) {
+			cn = -1;
+		}
+		if(cn!=-1){
+			cubeS = LabyrinthWorldGen.DungeonCube.values()[cn].name;
+		}
 		try {
 			int index = 0;
-			InputStream is = new FileInputStream(getFile("cubes",args[0]));
+			InputStream is = new FileInputStream(getFile("cubes",cubeS));
 			DataInputStream dis = new DataInputStream(is);
 			while(dis.available()>0){
 				int dx = index>>>8;
@@ -61,9 +72,10 @@ public class LPlaceCubeCommand extends LCubeEditCommandBase {
 			}
 			dis.close();
 			is.close();
-			last_placed_dungeon_type = args[0];
+			last_placed_dungeon_type = cubeS;
 		} catch (IOException e) {
 			e.printStackTrace();
-		}		sender.sendMessage(new TextComponentString("Done"));
+		}
+		sender.sendMessage(new TextComponentString("Done placing "+cubeS));
 	}
 }

@@ -6,26 +6,25 @@
             "entries": [
                 {
                     "type": "loot_table",
-                    "weight": 1,
-                    "name": "labyrinth:chests/dungeon_loot_level_1",
-                    "min": 10
+                    "weight": 2,
+                    "name": "labyrinth:dungeon_loot_level_2"
                 },
                 {
                     "type": "item",
-                    "name": "minecraft:bone",
+                    "name": "minecraft:gold_ingot",
                     "functions": [
                         {
                             "function": "set_count",
                             "count": {
                                 "min": 1,
-                                "max": 4
+                                "max": 2
                             }
                         }
                     ]
                 },
                 {
                     "type": "item",
-                    "name": "minecraft:iron_ingot",
+                    "name": "minecraft:redstone",
                     "functions": [
                         {
                             "function": "set_count",
@@ -36,8 +35,7 @@
                         }
                     ]
                 }
-
-            ]
+           ]
         }
     ]
 }

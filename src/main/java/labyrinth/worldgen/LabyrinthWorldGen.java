@@ -121,7 +121,7 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 				}
 			}
 			for(BlockPos lightPos:pointsOfInterest){
-				setLight(lightPos, lightNibbleArray, 15);
+				setLight(lightPos, lightNibbleArray, 14);
 			}
 		}
 
@@ -299,7 +299,6 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 	@SuppressWarnings("unchecked")
 	private final Class<? extends EntityLivingBase>[] MOB_CANDIDATES_SECOND = new Class[] {
 		LabyrinthEntities.BLAZE,
-		LabyrinthEntities.EVOKER,
 		LabyrinthEntities.SKELETON,
 		LabyrinthEntities.STRAY,
 		LabyrinthEntities.VINDICATOR,
@@ -470,7 +469,7 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 			if(level < this.blockstateList.length) {
 				bl = this.blockstateList[level];
 			}
-			int mobRandom = random.nextInt() & (this.levelToMob.length-1);
+			int mobRandom = level<this.levelToMob.length?level:random.nextInt() & (this.levelToMob.length-1);
 			DungeonCube is = getDungeonCubeType(CubePos.fromBlockCoords(pos), cworld, 0);
 			if(is.equals(DungeonCube.NOTHING)){
 				return;
@@ -497,7 +496,10 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 							mobEntity.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.BOW));
 						else if(mob == LabyrinthEntities.SLIME || mob == LabyrinthEntities.MAGMA_CUBE)
 							((ISlime)mobEntity).setSlimeSize(LevelUtil.getSlimeSize(level));
+						else if(mob == LabyrinthEntities.VINDICATOR)
+							mobEntity.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.IRON_AXE));
 						((IMobLeveled) mobEntity).setLevel(level);
+						((IMobLeveled) mobEntity).setLootTable(new ResourceLocation(LabyrinthMod.MODID+":dungeon_loot_level_"+(level > max_loot_level ? max_loot_level : level)));
 						world.spawnEntity(mobEntity);
 					} catch (Throwable e) {
 						e.printStackTrace();
@@ -507,7 +509,7 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 					if(bstate>=3 && bstate<=6){
 						TileEntityChest chest = new TileEntityChest();
 						NBTTagCompound compound = new NBTTagCompound();
-						compound.setString("LootTable",LabyrinthMod.MODID+":chests/dungeon_loot_level_"+(level > max_loot_level ? max_loot_level : level));
+						compound.setString("LootTable",LabyrinthMod.MODID+":dungeon_loot_level_"+(level > max_loot_level ? max_loot_level : level));
 						chest.readFromNBT(compound);
 						chest.markDirty();
 						BlockPos posIn = new BlockPos(pos.getX()+dx,pos.getY()+dy,pos.getZ()+dz); 

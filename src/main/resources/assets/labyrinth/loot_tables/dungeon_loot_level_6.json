@@ -2,12 +2,12 @@
     "pools": [
         {
 	    "name":"labyrinth",
-            "rolls": 2,
+            "rolls": 1,
             "entries": [
                 {
                     "type": "loot_table",
-                    "weight": 1,
-                    "name": "labyrinth:chests/dungeon_loot_level_6"
+                    "weight": 2,
+                    "name": "labyrinth:dungeon_loot_level_5"
                 }
             ]
         }

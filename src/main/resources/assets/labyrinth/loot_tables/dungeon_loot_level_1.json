@@ -7,20 +7,7 @@
                 {
                     "type": "loot_table",
                     "weight": 2,
-                    "name": "labyrinth:chests/dungeon_loot_level_0"
-                },
-                {
-                    "type": "item",
-                    "name": "minecraft:apple",
-                    "functions": [
-                        {
-                            "function": "set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 30
-                            }
-                        }
-                    ]
+                    "name": "labyrinth:dungeon_loot_level_0"
                 },
                 {
                     "type": "item",
@@ -30,7 +17,7 @@
                             "function": "set_count",
                             "count": {
                                 "min": 1,
-                                "max": 64
+                                "max": 3
                             }
                         }
                     ]
@@ -43,20 +30,7 @@
                             "function": "set_count",
                             "count": {
                                 "min": 1,
-                                "max": 20
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "item",
-                    "name": "minecraft:wheat_seeds",
-                    "functions": [
-                        {
-                            "function": "set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 4
+                                "max": 5
                             }
                         }
                     ]
@@ -69,7 +43,7 @@
                             "function": "set_count",
                             "count": {
                                 "min": 1,
-                                "max": 64
+                                "max": 6
                             }
                         }
                     ]
@@ -81,7 +55,7 @@
                         {
                             "function": "set_count",
                             "count": {
-                                "min": 2,
+                                "min": 1,
                                 "max": 4
                             }
                         }
