@@ -1,20 +1,18 @@
 package labyrinth.util;
 
+import labyrinth.LabyrinthMod;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.util.math.BlockPos;
 
 public class LevelUtil {
-	public static int getLevel(BlockPos pos) {
-		return -pos.getY() / 32;
-	}
-
+	
 	public static int getExperienceValue(int levelIn) {
 		return 1+levelIn*levelIn;
 	}
 
 	public static double getMaxHealth(int levelIn) {
-		return 5.0d+levelIn;
+		return 10.0d+levelIn;
 	}
 
 	public static double getMovementSpeed(int levelIn) {
@@ -28,7 +26,7 @@ public class LevelUtil {
 	}
 	
 	public static int getSlimeSize(int levelIn) {
-		return levelIn<4?levelIn+2:6;
+		return levelIn<6?levelIn+2:8;
 	}
 
 	public static void setMobAttributes(EntityLivingBase entity, int levelIn) {

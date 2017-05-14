@@ -6,8 +6,21 @@
             "entries": [
                 {
                     "type": "loot_table",
-                    "weight": 2,
+                    "weight": 4,
                     "name": "labyrinth:dungeon_loot_level_4"
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:ghast_tear",
+                    "quality": 2
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:reeds"
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:egg"
                 }
             ]
         }

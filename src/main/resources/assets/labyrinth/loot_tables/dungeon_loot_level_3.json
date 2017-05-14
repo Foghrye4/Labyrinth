@@ -6,34 +6,24 @@
             "entries": [
                 {
                     "type": "loot_table",
-                    "weight": 2,
+                    "weight": 4,
                     "name": "labyrinth:dungeon_loot_level_2"
                 },
                 {
                     "type": "item",
-                    "name": "minecraft:gold_ingot",
-                    "functions": [
-                        {
-                            "function": "set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 2
-                            }
-                        }
-                    ]
+                    "name": "minecraft:gold_ingot"
                 },
                 {
                     "type": "item",
-                    "name": "minecraft:redstone",
-                    "functions": [
-                        {
-                            "function": "set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 2
-                            }
-                        }
-                    ]
+                    "name": "minecraft:redstone"
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:melon_seeds"
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:blaze_rod"
                 }
            ]
         }

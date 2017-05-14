@@ -9,6 +9,7 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.monster.EntityElderGuardian;
 import net.minecraft.entity.monster.EntityGuardian;
 import net.minecraft.entity.monster.EntityMagmaCube;
+import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
@@ -65,6 +66,14 @@ public class EntityMagmaCubeLeveled extends EntityMagmaCube implements IMobLevel
 	public void setLootTable(ResourceLocation lootTableIn) {
 		lootTable = lootTableIn;
 	}
+	
+	@Override
+    protected EntitySlime createInstance()
+    {
+		EntityMagmaCubeLeveled esl = new EntityMagmaCubeLeveled(this.world);
+		esl.setLevel(level/2);
+        return esl;
+    }
 	
 	@Override
     protected ResourceLocation getLootTable()

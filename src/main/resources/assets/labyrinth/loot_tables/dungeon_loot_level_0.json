@@ -26,6 +26,26 @@
                 },
                 {
                     "type": "item",
+                    "name": "minecraft:sand",
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": {
+                                "min": 1,
+                                "max": 4
+                            }
+						},
+						{
+			 			   "function": "set_data",
+			 			   "data": {
+	                    	    "min": 0,
+                                "max": 1
+			    			}
+                      	}
+                    ]
+                },
+                {
+                    "type": "item",
                     "name": "minecraft:wheat_seeds",
                     "functions": [
                         {

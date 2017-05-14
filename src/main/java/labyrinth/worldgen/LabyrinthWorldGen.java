@@ -19,7 +19,11 @@ import labyrinth.entity.ISlime;
 import labyrinth.init.LabyrinthBlocks;
 import labyrinth.init.LabyrinthEntities;
 import labyrinth.util.LevelUtil;
+import labyrinth.util.ModIntegrationUtil;
+import labyrinth.world.WorldSavedDataLabyrinthConfig;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockAnvil;
+import net.minecraft.block.BlockCauldron;
 import net.minecraft.block.BlockChest;
 import net.minecraft.block.BlockColored;
 import net.minecraft.block.BlockDoor;
@@ -27,11 +31,13 @@ import net.minecraft.block.BlockFurnace;
 import net.minecraft.block.BlockLever;
 import net.minecraft.block.BlockPistonBase;
 import net.minecraft.block.BlockPistonExtension;
+import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.BlockPrismarine;
 import net.minecraft.block.BlockQuartz;
 import net.minecraft.block.BlockRedSandstone;
 import net.minecraft.block.BlockSandStone;
 import net.minecraft.block.BlockSkull;
+import net.minecraft.block.BlockSlab;
 import net.minecraft.block.BlockStainedGlassPane;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.BlockStairs.EnumHalf;
@@ -39,6 +45,7 @@ import net.minecraft.block.BlockStairs.EnumShape;
 import net.minecraft.block.BlockStone;
 import net.minecraft.block.BlockStoneBrick;
 import net.minecraft.block.BlockTorch;
+import net.minecraft.block.BlockWoodSlab;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
@@ -54,6 +61,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldSavedData;
 import net.minecraft.world.chunk.IChunkGenerator;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.chunk.NibbleArray;
@@ -308,6 +316,8 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 	@SuppressWarnings("unchecked")
 	private final Class<? extends EntityLivingBase>[][] levelToMob = new Class[128][2];
 
+	private WorldSavedDataLabyrinthConfig config;
+
 	public LabyrinthWorldGen() throws IOException {
 		instance=this;
 		
@@ -338,7 +348,10 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 		blockstateList[0][9] = Blocks.FURNACE.getDefaultState().withProperty(BlockFurnace.FACING, EnumFacing.WEST);
 		blockstateList[0][10] = Blocks.FURNACE.getDefaultState().withProperty(BlockFurnace.FACING, EnumFacing.EAST);
 		blockstateList[0][11] = Blocks.CRAFTING_TABLE.getDefaultState();
+		blockstateList[0][12] = ModIntegrationUtil.getBlockDefaultStateIfNotNull("aov:blocks/blockangelic", Blocks.CAULDRON.getBlockState().getBaseState().withProperty(BlockCauldron.LEVEL, Integer.valueOf(3)));
+		blockstateList[0][13] = Blocks.BREWING_STAND.getDefaultState();
 		blockstateList[0][14] = Blocks.COAL_BLOCK.getDefaultState();
+		blockstateList[0][15] = Blocks.WOODEN_SLAB.getDefaultState().withProperty(BlockSlab.HALF, BlockSlab.EnumBlockHalf.TOP).withProperty(BlockWoodSlab.VARIANT, BlockPlanks.EnumType.OAK);
 		blockstateList[0][16] = Blocks.LAVA.getDefaultState();
 		blockstateList[0][17] = Blocks.WATER.getDefaultState();
 		blockstateList[0][18] = Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.RED);
@@ -461,8 +474,12 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 
 	@Override
 	public void generate(Random random, BlockPos pos, World world) {
+		float biomeHeightBase = world.getBiome(pos).getBaseHeight();
+		if (biomeHeightBase < config.dungeonBiomeHeightLowerBound || 
+				biomeHeightBase > config.dungeonBiomeHeightUpperBound)
+			return;
 		ICubicWorld cworld = (ICubicWorld) world; 
-		int level = LevelUtil.getLevel(pos);
+		int level = config.getLevel(pos);
 		if (level>=0) {
 			random.setSeed(level<<8^world.getSeed());
 			IBlockState[] bl = this.blockstateList[random.nextInt(this.blockstateList.length)];
@@ -760,5 +777,8 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 		}
 		return DungeonCube.NOTHING;
 	}
-	
+
+	public void setConfig(WorldSavedDataLabyrinthConfig worldgenConfigIn) {
+		this.config=worldgenConfigIn;
+	}
 }

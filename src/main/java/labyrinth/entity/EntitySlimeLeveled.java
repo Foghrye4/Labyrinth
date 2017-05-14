@@ -64,6 +64,14 @@ public class EntitySlimeLeveled extends EntitySlime implements IMobLeveled, ISli
 	}
 	
 	@Override
+    protected EntitySlime createInstance()
+    {
+		EntitySlimeLeveled esl = new EntitySlimeLeveled(this.world);
+		esl.setLevel(level/2);
+        return esl;
+    }
+	
+	@Override
     protected int getJumpDelay()
     {
         return this.rand.nextInt(100) + 40;
