@@ -19,6 +19,7 @@ buildscript {
 
 apply plugin: "net.minecraftforge.gradle.forge"
 apply plugin: "org.spongepowered.mixin"
+apply plugin: "java"
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
 
@@ -54,7 +55,8 @@ repositories {
 
 dependencies {
 	compile "org.spongepowered:mixin:0.6.8-SNAPSHOT"
-	compile files('lib/CubicChunks-1.11.2-0.0.526.0-dev.jar')
+	compile project(':CubicChunks')
+//	compile files('lib/CubicChunks-1.11.2-0.0.526.0-dev.jar')
 }
 
 processResources {

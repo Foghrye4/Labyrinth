@@ -2,18 +2,22 @@ package labyrinth.entity;
 
 import java.util.List;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
+import javax.annotation.Nullable;
 
+import com.google.common.base.Predicate;
+
+import cubicchunks.world.ICubicWorld;
 import labyrinth.LabyrinthMod;
 import labyrinth.util.LevelUtil;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public class EntityCreeperLeveled extends EntityCreeper implements IMobLeveled {
@@ -22,10 +26,12 @@ public class EntityCreeperLeveled extends EntityCreeper implements IMobLeveled {
 		super(worldIn);
 	}
 
-	@SuppressWarnings("unchecked")
-	private static final Predicate<Entity> EXPLOSION_TARGETS = Predicates
-			.and(new Predicate[] { EntitySelectors.NOT_SPECTATING, EntitySelectors.IS_ALIVE });
-
+	private static final Predicate<Entity> EXPLOSION_TARGETS = new Predicate<Entity>() {
+				public boolean apply(@Nullable Entity entity) {
+					return (entity instanceof EntityLivingBase) && entity.isEntityAlive();
+				};
+	};
+	
 	@Override
 	public void setLevel(int levelIn) {
 		this.experienceValue = LevelUtil.getExperienceValue(levelIn);
@@ -35,24 +41,27 @@ public class EntityCreeperLeveled extends EntityCreeper implements IMobLeveled {
 
 	int level = 0;
 	ResourceLocation lootTable = new ResourceLocation(LabyrinthMod.MODID+":dungeon_loot_level_0");
-/*
+	
 	@Override
-	protected void explode() {
-		if (!this.world.isRemote) {
-			this.dead = true;
-			this.world.createExplosion(this, this.posX, this.posY, this.posZ,
-					(float) LevelUtil.getExplosionStrength(level), level > 7);
+	public void setDead() {
+		if (this.dead && 
+				!this.world.isRemote && 
+				this.getHealth() > 0.0F && 
+				this.getCreeperState() > 0 && 
+				((ICubicWorld)world).isAreaLoaded(new BlockPos(this.getPosition().add(-16, -16, -16)), new BlockPos(this.getPosition().add(16, 16, 16)))) {
 			List<Entity> elist = this.world.getEntitiesInAABBexcluding(this,
 					this.getEntityBoundingBox().expandXyz(LevelUtil.getExplosionStrength(level)), EXPLOSION_TARGETS);
+			Vec3d traceFrom = this.getEntityBoundingBox().getCenter();
 			for (Entity target : elist) {
-				if (world.rayTraceBlocks(this.getPositionVector(), target.getPositionVector()).entityHit == target)
+				Vec3d traceTo = target.getEntityBoundingBox().getCenter();
+				if (world.rayTraceBlocks(traceFrom, traceTo).entityHit == target)
 					target.attackEntityFrom(DamageSource.causeExplosionDamage(this),
 							(float) LevelUtil.getAttackDamage(level));
 			}
-			this.setDead();
 		}
+		super.setDead();
 	}
-*/
+	
 	public void writeEntityToNBT(NBTTagCompound compound) {
 		super.writeEntityToNBT(compound);
 		compound.setInteger("level", this.level);
@@ -121,4 +130,5 @@ public class EntityCreeperLeveled extends EntityCreeper implements IMobLeveled {
 			}
 		}
 		super.onUpdate();
-	}}
+	}
+}

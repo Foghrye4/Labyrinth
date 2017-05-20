@@ -64,8 +64,9 @@ public class LMixInCubeCommand extends LCubeEditCommandBase {
 					dy+=Integer.parseInt(args[2]);
 					dz+=Integer.parseInt(args[3]);
 				}
+				int bsindex = dis.readUnsignedByte();
 				if(world.getBlockState(pos.east(dx).up(dy).south(dz)) == Blocks.AIR.getDefaultState())
-					world.setBlockState(pos.east(dx).up(dy).south(dz), blockstateList.get(dis.readUnsignedByte()));
+					world.setBlockState(pos.east(dx).up(dy).south(dz), blockstateList.get(bsindex));
 				index++;
 			}
 			dis.close();
