@@ -1,8 +1,9 @@
 package labyrinth;
 
+import static labyrinth.LabyrinthMod.MODID;
+
 import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import static labyrinth.LabyrinthMod.MODID;
 
 public class ServerNetworkHandler {
 

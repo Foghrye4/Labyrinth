@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.logging.log4j.Logger;
 
 import labyrinth.command.LGetStructureBlockStateCommand;
+import labyrinth.command.LMixInCubeCommand;
 import labyrinth.command.LPlaceCubeCommand;
 import labyrinth.command.LPlaceStructureBlock;
 import labyrinth.command.LWriteCubeCommand;
@@ -69,6 +70,7 @@ public class LabyrinthMod {
 	public void serverStart(FMLServerStartingEvent event) {
 		event.registerServerCommand(new LWriteCubeCommand());
 		event.registerServerCommand(new LPlaceCubeCommand());
+		event.registerServerCommand(new LMixInCubeCommand());
 		event.registerServerCommand(new LGetStructureBlockStateCommand());
 		event.registerServerCommand(new LPlaceStructureBlock());
 	}

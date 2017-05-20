@@ -6,11 +6,10 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraft.item.ItemMultiTexture;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class LabyrinthBlocks {
 	public static Block STONE;
@@ -27,10 +26,6 @@ public class LabyrinthBlocks {
 			}
 		})).setUnlocalizedName("stone"));
 
-	}
-
-	private static void registerBlock(Block block) {
-		registerBlock(block, new ItemBlock(block));
 	}
 
 	private static void registerBlock(Block block, Item item) {

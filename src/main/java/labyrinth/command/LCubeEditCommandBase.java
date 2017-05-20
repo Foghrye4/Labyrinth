@@ -1,7 +1,6 @@
 package labyrinth.command;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -9,7 +8,6 @@ import labyrinth.LabyrinthMod;
 import labyrinth.worldgen.LabyrinthWorldGen;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandBase;
-import net.minecraft.init.Blocks;
 
 public abstract class LCubeEditCommandBase extends CommandBase {
 	

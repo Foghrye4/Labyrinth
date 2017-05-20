@@ -1,5 +1,6 @@
 package labyrinth.world;
 
+import cubicchunks.util.CubePos;
 import labyrinth.LabyrinthMod;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -34,6 +35,10 @@ public class WorldSavedDataLabyrinthConfig extends WorldSavedData {
 	
 	public int getLevel(BlockPos pos) {
 		return (dungeonStartHeight-pos.getY()) / 32;
+	}
+
+	public int getLevel(CubePos pos) {
+		return (dungeonStartHeight-pos.getMinBlockY()) / 32;
 	}
 	
 }

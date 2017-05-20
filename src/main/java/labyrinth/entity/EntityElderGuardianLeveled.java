@@ -1,15 +1,11 @@
 package labyrinth.entity;
 
-import java.util.List;
-
+import labyrinth.LabyrinthMod;
 import labyrinth.util.LevelUtil;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityElderGuardian;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
@@ -27,7 +23,7 @@ public class EntityElderGuardianLeveled extends EntityElderGuardian implements I
 	}
 	
 	int level = 0;
-	ResourceLocation lootTable;
+	ResourceLocation lootTable = new ResourceLocation(LabyrinthMod.MODID+":dungeon_loot_level_0");
 	
 	public void writeEntityToNBT(NBTTagCompound compound) {
 		super.writeEntityToNBT(compound);

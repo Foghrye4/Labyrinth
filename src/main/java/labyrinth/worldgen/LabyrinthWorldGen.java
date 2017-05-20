@@ -1,7 +1,6 @@
 package labyrinth.worldgen;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,10 +8,10 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import cubicchunks.api.ICubicWorldGenerator;
+import cubicchunks.api.worldgen.biome.CubicBiome;
+import cubicchunks.api.worldgen.populator.ICubicPopulator;
 import cubicchunks.util.CubePos;
 import cubicchunks.world.ICubicWorld;
-import cubicchunks.world.cube.Cube;
 import labyrinth.LabyrinthMod;
 import labyrinth.entity.IMobLeveled;
 import labyrinth.entity.ISlime;
@@ -21,17 +20,20 @@ import labyrinth.init.LabyrinthEntities;
 import labyrinth.util.LevelUtil;
 import labyrinth.util.ModIntegrationUtil;
 import labyrinth.world.WorldSavedDataLabyrinthConfig;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockAnvil;
 import net.minecraft.block.BlockCauldron;
 import net.minecraft.block.BlockChest;
 import net.minecraft.block.BlockColored;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.BlockFurnace;
+import net.minecraft.block.BlockLadder;
 import net.minecraft.block.BlockLever;
+import net.minecraft.block.BlockLog;
+import net.minecraft.block.BlockLog.EnumAxis;
 import net.minecraft.block.BlockPistonBase;
 import net.minecraft.block.BlockPistonExtension;
 import net.minecraft.block.BlockPlanks;
+import net.minecraft.block.BlockPlanks.EnumType;
 import net.minecraft.block.BlockPrismarine;
 import net.minecraft.block.BlockQuartz;
 import net.minecraft.block.BlockRedSandstone;
@@ -49,7 +51,6 @@ import net.minecraft.block.BlockWoodSlab;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
@@ -61,40 +62,38 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldSavedData;
 import net.minecraft.world.chunk.IChunkGenerator;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.chunk.NibbleArray;
-import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
-public class LabyrinthWorldGen implements ICubicWorldGenerator {
+public class LabyrinthWorldGen implements ICubicPopulator {
 
 	public enum DungeonCube {
 		
 		COLUMN_CEIL("column_ceil.cube_structure",false,false,false,false),
+		COLUMN_CEIL_WITH_MINISTAIR("column_ceil_with_south_mini_stair.cube_structure",false,false,false,false),
 		COLUMN_FLOOR("column_floor.cube_structure",false,false,false,false),
-		COLUMN_EAST_BORDER("column_east_border.cube_structure",false,false,false,false),
+		STAIR_CEIL("stair_ceil.cube_structure",false,false,false,false),
+		STAIR_FLOOR("stair_floor.cube_structure",false,false,false,false),
+		COLUMN_EAST_BORDER("column_east_border.cube_structure",false,false,false,false), //5
 		COLUMN_FLOOR_CEIL("column_floor_ceil.cube_structure",false,false,false,false),
 		COLUMN_NORTH_BORDER("column_north_border.cube_structure",false,false,false,false),
 		COLUMN_SOUTH_BORDER("column_south_border.cube_structure",false,false,false,false),
 		COLUMN_WEST_BORDER("column_west_border.cube_structure",false,false,false,false),
-		STAIR_CEIL("stair_ceil.cube_structure",false,false,false,false),
-		STAIR_FLOOR("stair_floor.cube_structure",false,false,false,false),
 		NODE("node.cube_structure",false,false,false,false),
 		NODE_WITH_CHEST("node_with_chest.cube_structure",false,false,false,false),
 		WORKSHOP("workshop_south_door.cube_structure",false,false,false,false),
-		WALL_EAST_NORTH_bars("wall_east_north_bars.cube_structure",true,false,false,true),
+		WALL_EAST_NORTH_BARS("wall_east_north_bars.cube_structure",true,false,false,true),//12
 		WALL_EAST_NORTH("wall_east_north.cube_structure",true,false,false,true),
-		WALL_EAST_SOUTH_bars("wall_east_south_bars.cube_structure",true,false,true,false),
+		WALL_EAST_SOUTH_BARS("wall_east_south_bars.cube_structure",true,false,true,false),
 		WALL_EAST_SOUTH("wall_east_south.cube_structure",true,false,true,false),
-		WALL_SOUTH_NORTH_bars("wall_south_north_bars.cube_structure",false,false,true,true),
 		WALL_SOUTH_NORTH("wall_south_north.cube_structure",false,false,true,true),
-		WALL_SOUTH_NORTH_door("wall_south_north_door.cube_structure",false,false,true,true),
-		WALL_WEST_EAST_bars("wall_west_east_bars.cube_structure",true,true,false,false),
+		WALL_SOUTH_NORTH_DOOR("wall_south_north_door.cube_structure",false,false,true,true),
+		WALL_WEST_EAST_BARS("wall_west_east_bars.cube_structure",true,true,false,false),
 		WALL_WEST_EAST("wall_west_east.cube_structure",true,true,false,false),
-		WALL_WEST_NORTH_bars("wall_west_north_bars.cube_structure",false,true,false,true),
+		WALL_WEST_NORTH_BARS("wall_west_north_bars.cube_structure",false,true,false,true),
 		WALL_WEST_NORTH("wall_west_north.cube_structure",false,true,false,true),
-		WALL_WEST_SOUTH_bars("wall_west_south_bars.cube_structure",false,true,true,false),
+		WALL_WEST_SOUTH_BARS("wall_west_south_bars.cube_structure",false,true,true,false),
 		WALL_WEST_SOUTH("wall_west_south.cube_structure",false,true,true,false),
 		NOTHING("",false,false,false,false);
 		
@@ -104,7 +103,6 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 		public final boolean isSouthWall;
 		public final boolean isNorthWall;
 		public final byte[] data = new byte[4096];
-		public final byte[] lightData = new byte[2048];
 		
 		DungeonCube(String nameIn, boolean isEastWallIn, boolean isWestWallIn, boolean isSouthWallIn, boolean isNorthWallIn){
 			name=nameIn;
@@ -117,51 +115,32 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 			Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("labyrinth","cubes/"+name)).getInputStream().read(data);
 		}
 
-		private void precalculateLight() {
-			NibbleArray lightNibbleArray = new NibbleArray(lightData);
-			Set<BlockPos> pointsOfInterest = new HashSet<BlockPos>();
-			for(int index=0;index<data.length;index++) {
-				if((Byte.toUnsignedInt(data[index])>=153 && Byte.toUnsignedInt(data[index])<=157) ||Byte.toUnsignedInt(data[index])==16	){
-					int dx = index >>> 8;
-					int dy = (index >>> 4) & 15;
-					int dz = index & 15;
-					pointsOfInterest.add(new BlockPos(dx,dy,dz));
-				}
-			}
-			for(BlockPos lightPos:pointsOfInterest){
-				setLight(lightPos, lightNibbleArray, 14);
-			}
-		}
-
-		private void setLight(BlockPos lightPos, NibbleArray lightNibbleArray, int lightValue) {
-			int index = lightPos.getX()<<8|lightPos.getY()<<4|lightPos.getZ();
-			if(index<0 || 
-					index>=4096 || 
-					lightValue<=0 ||
-					lightPos.getX() < 0 ||
-					lightPos.getY() < 0 ||
-					lightPos.getZ() < 0 ||
-					lightPos.getX() > 15 ||
-					lightPos.getY() > 15 ||
-					lightPos.getZ() > 15){
-				return;
-			}
-			int blockStateNum = Byte.toUnsignedInt(data[index]);
-			if((blockStateNum>=1 && blockStateNum<=11) || (blockStateNum>=19 && blockStateNum<=54)){
-				return;
-			}
-			if(lightNibbleArray.get(lightPos.getX(), lightPos.getY(), lightPos.getZ()) < lightValue){
-				lightNibbleArray.set(lightPos.getX(), lightPos.getY(), lightPos.getZ(),lightValue);
-				setLight(lightPos.up(), lightNibbleArray, lightValue-1);
-				setLight(lightPos.down(), lightNibbleArray, lightValue-1);
-				setLight(lightPos.north(), lightNibbleArray, lightValue-1);
-				setLight(lightPos.south(), lightNibbleArray, lightValue-1);
-				setLight(lightPos.west(), lightNibbleArray, lightValue-1);
-				setLight(lightPos.east(), lightNibbleArray, lightValue-1);
-			}
-		}
-		
 	}
+	
+	public DungeonCube[] randomDungeonsArray = new DungeonCube[] {
+			DungeonCube.COLUMN_CEIL, // To increase chance of such structures
+			DungeonCube.COLUMN_CEIL, // they are doubled in array
+			DungeonCube.STAIR_CEIL,
+			DungeonCube.STAIR_CEIL,
+			DungeonCube.COLUMN_FLOOR_CEIL,
+			DungeonCube.COLUMN_FLOOR_CEIL,
+			DungeonCube.COLUMN_FLOOR_CEIL,
+			DungeonCube.COLUMN_FLOOR_CEIL,
+			DungeonCube.WALL_EAST_NORTH,
+			DungeonCube.WALL_EAST_SOUTH,
+			DungeonCube.WALL_SOUTH_NORTH,
+			DungeonCube.WALL_WEST_EAST,
+			DungeonCube.WALL_WEST_NORTH,
+			DungeonCube.WALL_WEST_SOUTH,
+			DungeonCube.NOTHING,
+			DungeonCube.NOTHING,
+			DungeonCube.NOTHING,
+			DungeonCube.NOTHING,
+			DungeonCube.NOTHING,
+			DungeonCube.NOTHING,
+			DungeonCube.NOTHING,
+			DungeonCube.NOTHING,
+			};
 
 	public IBlockState[][] blockstateList = new IBlockState[128][256];
 	
@@ -357,6 +336,7 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 		blockstateList[0][18] = Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.RED);
 		IBlockState stair = Blocks.QUARTZ_STAIRS.getDefaultState().withProperty(BlockStairs.SHAPE, EnumShape.STRAIGHT);
 		addStairs(blockstateList[0], stair);
+		blockstateList[0][57] = Blocks.WOODEN_SLAB.getDefaultState().withProperty(BlockSlab.HALF, BlockSlab.EnumBlockHalf.BOTTOM).withProperty(BlockWoodSlab.VARIANT, BlockPlanks.EnumType.OAK);
 		blockstateList[0][116] = Blocks.ANVIL.getDefaultState().withProperty(BlockAnvil.FACING, EnumFacing.NORTH).withProperty(BlockAnvil.DAMAGE, Integer.valueOf(0));
 		blockstateList[0][117] = Blocks.ANVIL.getDefaultState().withProperty(BlockAnvil.FACING, EnumFacing.SOUTH).withProperty(BlockAnvil.DAMAGE, Integer.valueOf(0));
 		blockstateList[0][118] = Blocks.ANVIL.getDefaultState().withProperty(BlockAnvil.FACING, EnumFacing.WEST).withProperty(BlockAnvil.DAMAGE, Integer.valueOf(0));
@@ -378,6 +358,15 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 		blockstateList[0][163] = Blocks.DARK_OAK_DOOR.getDefaultState().withProperty(BlockDoor.FACING, EnumFacing.SOUTH).withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER).withProperty(BlockDoor.HINGE, BlockDoor.EnumHingePosition.RIGHT).withProperty(BlockDoor.OPEN, Boolean.valueOf(false)).withProperty(BlockDoor.POWERED, Boolean.valueOf(false));
 		blockstateList[0][164] = Blocks.DARK_OAK_DOOR.getDefaultState().withProperty(BlockDoor.FACING, EnumFacing.SOUTH).withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER).withProperty(BlockDoor.HINGE, BlockDoor.EnumHingePosition.LEFT).withProperty(BlockDoor.OPEN, Boolean.valueOf(false)).withProperty(BlockDoor.POWERED, Boolean.valueOf(false));
 		blockstateList[0][165] = Blocks.DARK_OAK_DOOR.getDefaultState().withProperty(BlockDoor.FACING, EnumFacing.SOUTH).withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER).withProperty(BlockDoor.HINGE, BlockDoor.EnumHingePosition.RIGHT).withProperty(BlockDoor.OPEN, Boolean.valueOf(false)).withProperty(BlockDoor.POWERED, Boolean.valueOf(false));
+		blockstateList[0][166] = Blocks.BOOKSHELF.getDefaultState();
+		blockstateList[0][167] = Blocks.LADDER.getDefaultState().withProperty(BlockLadder.FACING, EnumFacing.SOUTH);
+		blockstateList[0][171] = Blocks.ENCHANTING_TABLE.getDefaultState();
+		blockstateList[0][172] = Blocks.PLANKS.getDefaultState().withProperty(BlockPlanks.VARIANT, EnumType.OAK);
+		blockstateList[0][173] = Blocks.OAK_STAIRS.getDefaultState().withProperty(BlockStairs.FACING, EnumFacing.SOUTH).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[0][174] = Blocks.LOG.getDefaultState().withProperty(BlockLog.LOG_AXIS, EnumAxis.X);
+		blockstateList[0][175] = Blocks.LOG.getDefaultState().withProperty(BlockLog.LOG_AXIS, EnumAxis.Y);
+		blockstateList[0][176] = Blocks.LOG.getDefaultState().withProperty(BlockLog.LOG_AXIS, EnumAxis.Z);
+		blockstateList[0][177] = Blocks.OAK_STAIRS.getDefaultState().withProperty(BlockStairs.FACING, EnumFacing.NORTH).withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
 		blockstateList[0][255] = Blocks.SKULL.getDefaultState().withProperty(BlockSkull.FACING, EnumFacing.UP).withProperty(BlockSkull.NODROP, Boolean.valueOf(false));
 
 		for(int i=1;i<blockstateList.length;i++)
@@ -437,9 +426,8 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 			addStairs(blockstateList[i], stair);
 		}
 		for(DungeonCube cube: DungeonCube.values()) {
-			if(!cube.equals(DungeonCube.NOTHING)) {
+			if(cube!=DungeonCube.NOTHING) {
 				cube.load();
-				cube.precalculateLight();
 			}
 		}
 }
@@ -473,12 +461,11 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 	}
 
 	@Override
-	public void generate(Random random, BlockPos pos, World world) {
-		float biomeHeightBase = world.getBiome(pos).getBaseHeight();
+	public void generate(ICubicWorld world, Random random, CubePos pos, CubicBiome biome) {
+		float biomeHeightBase = biome.getBiome().getBaseHeight();
 		if (biomeHeightBase < config.dungeonBiomeHeightLowerBound || 
 				biomeHeightBase > config.dungeonBiomeHeightUpperBound)
 			return;
-		ICubicWorld cworld = (ICubicWorld) world; 
 		int level = config.getLevel(pos);
 		if (level>=0) {
 			random.setSeed(level<<8^world.getSeed());
@@ -487,28 +474,26 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 				bl = this.blockstateList[level];
 			}
 			int mobRandom = level<this.levelToMob.length?level:random.nextInt() & (this.levelToMob.length-1);
-			DungeonCube is = getDungeonCubeType(CubePos.fromBlockCoords(pos), cworld, 0);
+			DungeonCube is = getDungeonCubeType(pos, world, 0);
 			if(is.equals(DungeonCube.NOTHING)){
 				return;
 			}
 			byte[] data = is.data;
-			Cube cube  = cworld.getCubeFromBlockCoords(pos);
-			ExtendedBlockStorage cstorage = cube.getStorage();
 			Class<? extends EntityLivingBase>[] mobs = this.levelToMob[mobRandom];
 			for(int index=0;index<data.length;index++) {
 				int dx = index >>> 8;
 				int dy = (index >>> 4) & 15;
 				int dz = index & 15;
 				int bstate = Byte.toUnsignedInt(data[index]);
-				cstorage.setBlocklightArray(new NibbleArray(is.lightData.clone()));
+				BlockPos bpos = new BlockPos(pos.getMinBlockX()+dx,pos.getMinBlockY()+dy,pos.getMinBlockZ()+dz);
 				if (bstate == 255) {
-					cstorage.set(dx, dy, dz, AIR);
+					world.setBlockState(bpos, AIR, 0);
 					int mobRandom2 = this.random.nextFloat()>0.7f?1:0;
 					Class<? extends EntityLivingBase> mob = mobs[mobRandom2];
 					EntityLivingBase mobEntity;
 					try {
 						mobEntity = mob.getDeclaredConstructor(World.class).newInstance(world);
-						mobEntity.setPosition(pos.getX()+dx+0.5, pos.getY()+dy, pos.getZ()+dz+0.5);
+						mobEntity.setPosition(pos.getMinBlockX()+dx+0.5, pos.getMinBlockY()+dy, pos.getMinBlockZ()+dz+0.5);
 						if(mob == LabyrinthEntities.STRAY || mob == LabyrinthEntities.SKELETON)
 							mobEntity.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.BOW));
 						else if(mob == LabyrinthEntities.SLIME || mob == LabyrinthEntities.MAGMA_CUBE)
@@ -522,16 +507,15 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 						e.printStackTrace();
 					}
 				} else {
-					cstorage.set(dx, dy, dz, bl[bstate]);
+					world.setBlockState(bpos, bl[bstate], 0);
 					if(bstate>=3 && bstate<=6){
 						TileEntityChest chest = new TileEntityChest();
 						NBTTagCompound compound = new NBTTagCompound();
 						compound.setString("LootTable",LabyrinthMod.MODID+":dungeon_loot_level_"+(level > max_loot_level ? max_loot_level : level));
 						chest.readFromNBT(compound);
 						chest.markDirty();
-						BlockPos posIn = new BlockPos(pos.getX()+dx,pos.getY()+dy,pos.getZ()+dz); 
-						chest.setPos(posIn);
-						cube.addTileEntity(posIn, chest);
+						chest.setPos(bpos);
+						world.setTileEntity(bpos, chest);
 					}
 				}
 			}
@@ -546,7 +530,7 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 			return cached_value;
 		}
 		random.setSeed(world.getSeed()^cpos.getX()<<8^cpos.getY()<<4^cpos.getZ());
-		int typedefiner = random.nextInt()&31;
+		int typedefiner = random.nextInt(randomDungeonsArray.length);
 		if(dtype_cache.size()>CACHE_SIZE){
 			dtype_cache.clear();
 		}
@@ -613,36 +597,36 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 			return DungeonCube.COLUMN_EAST_BORDER;
 		} else if (d_east.isWestWall) {
 			if(d_west.isEastWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_EAST_bars);
-				return DungeonCube.WALL_WEST_EAST_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_WEST_EAST_BARS);
+				return DungeonCube.WALL_WEST_EAST_BARS;
 			}
 			else if(d_south.isNorthWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_SOUTH_bars);
-				return DungeonCube.WALL_EAST_SOUTH_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_EAST_SOUTH_BARS);
+				return DungeonCube.WALL_EAST_SOUTH_BARS;
 			}
 			else if(d_north.isSouthWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_NORTH_bars);
-				return DungeonCube.WALL_EAST_NORTH_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_EAST_NORTH_BARS);
+				return DungeonCube.WALL_EAST_NORTH_BARS;
 			}
 			switch (typedefiner % 6) {
 			case 0:
 				dtype_cache.put(cpos, DungeonCube.WALL_EAST_NORTH);
 				return DungeonCube.WALL_EAST_SOUTH;
 			case 1:
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_NORTH_bars);
-				return DungeonCube.WALL_EAST_NORTH_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_EAST_NORTH_BARS);
+				return DungeonCube.WALL_EAST_NORTH_BARS;
 			case 2:
 				dtype_cache.put(cpos, DungeonCube.WALL_EAST_SOUTH);
 				return DungeonCube.WALL_EAST_SOUTH;
 			case 3:
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_SOUTH_bars);
-				return DungeonCube.WALL_EAST_SOUTH_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_EAST_SOUTH_BARS);
+				return DungeonCube.WALL_EAST_SOUTH_BARS;
 			case 4:
 				dtype_cache.put(cpos, DungeonCube.WALL_WEST_EAST);
 				return DungeonCube.WALL_WEST_EAST;
 			case 5:
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_EAST_bars);
-				return DungeonCube.WALL_WEST_EAST_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_WEST_EAST_BARS);
+				return DungeonCube.WALL_WEST_EAST_BARS;
 			}
 		}
 		//West
@@ -651,36 +635,36 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 			return DungeonCube.COLUMN_WEST_BORDER;
 		} else if (d_west.isEastWall) {
 			if(d_east.isWestWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_EAST_bars);
-				return DungeonCube.WALL_WEST_EAST_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_WEST_EAST_BARS);
+				return DungeonCube.WALL_WEST_EAST_BARS;
 			}
 			else if(d_south.isNorthWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_SOUTH_bars);
-				return DungeonCube.WALL_EAST_SOUTH_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_WEST_SOUTH_BARS);
+				return DungeonCube.WALL_EAST_SOUTH_BARS;
 			}
 			else if(d_north.isSouthWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_NORTH_bars);
-				return DungeonCube.WALL_WEST_NORTH_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_WEST_NORTH_BARS);
+				return DungeonCube.WALL_WEST_NORTH_BARS;
 			}
 			switch (typedefiner % 6) {
 			case 0:
 				dtype_cache.put(cpos, DungeonCube.WALL_WEST_NORTH);
 				return DungeonCube.WALL_WEST_NORTH;
 			case 1:
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_NORTH_bars);
-				return DungeonCube.WALL_WEST_NORTH_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_WEST_NORTH_BARS);
+				return DungeonCube.WALL_WEST_NORTH_BARS;
 			case 2:
 				dtype_cache.put(cpos, DungeonCube.WALL_WEST_SOUTH);
 				return DungeonCube.WALL_WEST_SOUTH;
 			case 3:
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_SOUTH_bars);
-				return DungeonCube.WALL_WEST_SOUTH_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_WEST_SOUTH_BARS);
+				return DungeonCube.WALL_WEST_SOUTH_BARS;
 			case 4:
 				dtype_cache.put(cpos, DungeonCube.WALL_WEST_EAST);
 				return DungeonCube.WALL_WEST_EAST;
 			case 5:
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_EAST_bars);
-				return DungeonCube.WALL_WEST_EAST_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_WEST_EAST_BARS);
+				return DungeonCube.WALL_WEST_EAST_BARS;
 			}
 		}
 		//South
@@ -689,39 +673,36 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 			return DungeonCube.COLUMN_SOUTH_BORDER;
 		} else if (d_south.isNorthWall) {
 			if(d_east.isWestWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_NORTH_bars);
-				return DungeonCube.WALL_WEST_NORTH_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_WEST_NORTH_BARS);
+				return DungeonCube.WALL_WEST_NORTH_BARS;
 			}
 			else if(d_west.isEastWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_NORTH_bars);
-				return DungeonCube.WALL_EAST_NORTH_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_EAST_NORTH_BARS);
+				return DungeonCube.WALL_EAST_NORTH_BARS;
 			}
 			else if(d_north.isSouthWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_SOUTH_NORTH_bars);
-				return DungeonCube.WALL_SOUTH_NORTH_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_SOUTH_NORTH_DOOR);
+				return DungeonCube.WALL_SOUTH_NORTH_DOOR;
 			}
-			switch (typedefiner % 7) {
+			switch (typedefiner % 6) {
 			case 0:
 				dtype_cache.put(cpos, DungeonCube.WALL_SOUTH_NORTH);
 				return DungeonCube.WALL_SOUTH_NORTH;
 			case 1:
-				dtype_cache.put(cpos, DungeonCube.WALL_SOUTH_NORTH_bars);
-				return DungeonCube.WALL_SOUTH_NORTH_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_EAST_SOUTH_BARS);
+				return DungeonCube.WALL_EAST_SOUTH_BARS;
 			case 2:
-				dtype_cache.put(cpos, DungeonCube.WALL_SOUTH_NORTH_door);
-				return DungeonCube.WALL_SOUTH_NORTH_door;
+				dtype_cache.put(cpos, DungeonCube.WALL_SOUTH_NORTH_DOOR);
+				return DungeonCube.WALL_SOUTH_NORTH_DOOR;
 			case 3:
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_SOUTH_bars);
-				return DungeonCube.WALL_WEST_SOUTH_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_WEST_SOUTH_BARS);
+				return DungeonCube.WALL_WEST_SOUTH_BARS;
 			case 4:
 				dtype_cache.put(cpos, DungeonCube.WALL_WEST_SOUTH);
 				return DungeonCube.WALL_WEST_SOUTH;
 			case 5:
 				dtype_cache.put(cpos, DungeonCube.WALL_EAST_SOUTH);
 				return DungeonCube.WALL_EAST_SOUTH;
-			case 6:
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_SOUTH_bars);
-				return DungeonCube.WALL_EAST_SOUTH_bars;
 			}
 		}
 		//North
@@ -730,52 +711,39 @@ public class LabyrinthWorldGen implements ICubicWorldGenerator {
 			return DungeonCube.COLUMN_NORTH_BORDER;
 		} else if (d_north.isSouthWall) {
 			if(d_east.isWestWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_SOUTH_bars);
-				return DungeonCube.WALL_WEST_SOUTH_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_WEST_SOUTH_BARS);
+				return DungeonCube.WALL_WEST_SOUTH_BARS;
 			}
 			else if(d_west.isEastWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_SOUTH_bars);
-				return DungeonCube.WALL_EAST_SOUTH_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_EAST_SOUTH_BARS);
+				return DungeonCube.WALL_EAST_SOUTH_BARS;
 			}
 			else if(d_south.isNorthWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_SOUTH_NORTH_bars);
-				return DungeonCube.WALL_SOUTH_NORTH_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_SOUTH_NORTH_DOOR);
+				return DungeonCube.WALL_SOUTH_NORTH_DOOR;
 			}
 			switch (typedefiner % 7) {
 			case 0:
 				dtype_cache.put(cpos, DungeonCube.WALL_SOUTH_NORTH);
 				return DungeonCube.WALL_SOUTH_NORTH;
 			case 1:
-				dtype_cache.put(cpos, DungeonCube.WALL_SOUTH_NORTH_bars);
-				return DungeonCube.WALL_SOUTH_NORTH_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_EAST_NORTH_BARS);
+				return DungeonCube.WALL_EAST_NORTH_BARS;
 			case 2:
-				dtype_cache.put(cpos, DungeonCube.WALL_SOUTH_NORTH_door);
-				return DungeonCube.WALL_SOUTH_NORTH_door;
+				dtype_cache.put(cpos, DungeonCube.WALL_SOUTH_NORTH_DOOR);
+				return DungeonCube.WALL_SOUTH_NORTH_DOOR;
 			case 3:
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_NORTH_bars);
-				return DungeonCube.WALL_WEST_NORTH_bars;
+				dtype_cache.put(cpos, DungeonCube.WALL_WEST_NORTH_BARS);
+				return DungeonCube.WALL_WEST_NORTH_BARS;
 			case 4:
 				dtype_cache.put(cpos, DungeonCube.WALL_WEST_NORTH);
 				return DungeonCube.WALL_WEST_NORTH;
 			case 5:
 				dtype_cache.put(cpos, DungeonCube.WALL_EAST_NORTH);
 				return DungeonCube.WALL_EAST_NORTH;
-			case 6:
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_NORTH_bars);
-				return DungeonCube.WALL_EAST_NORTH_bars;
 			}
 		}
-		if(typedefiner < DungeonCube.values().length) {
-			DungeonCube r_value = DungeonCube.values()[typedefiner];
-			if((cpos.getY()&1)==1 && r_value == DungeonCube.COLUMN_CEIL){
-				return DungeonCube.NOTHING;
-			}
-			if((cpos.getY()&1)==0 && r_value == DungeonCube.COLUMN_FLOOR){
-				return DungeonCube.NOTHING;
-			}
-			return r_value;
-		}
-		return DungeonCube.NOTHING;
+		return randomDungeonsArray[typedefiner];
 	}
 
 	public void setConfig(WorldSavedDataLabyrinthConfig worldgenConfigIn) {

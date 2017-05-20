@@ -5,14 +5,13 @@ import java.util.List;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
+import labyrinth.LabyrinthMod;
 import labyrinth.util.LevelUtil;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -35,8 +34,8 @@ public class EntityCreeperLeveled extends EntityCreeper implements IMobLeveled {
 	}
 
 	int level = 0;
-	ResourceLocation lootTable;
-
+	ResourceLocation lootTable = new ResourceLocation(LabyrinthMod.MODID+":dungeon_loot_level_0");
+/*
 	@Override
 	protected void explode() {
 		if (!this.world.isRemote) {
@@ -53,7 +52,7 @@ public class EntityCreeperLeveled extends EntityCreeper implements IMobLeveled {
 			this.setDead();
 		}
 	}
-
+*/
 	public void writeEntityToNBT(NBTTagCompound compound) {
 		super.writeEntityToNBT(compound);
 		compound.setInteger("level", this.level);

@@ -9,26 +9,27 @@ import cubicchunks.util.CubePos;
 import labyrinth.worldgen.LabyrinthWorldGen;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.init.Blocks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
-public class LPlaceCubeCommand extends LCubeEditCommandBase {
+public class LMixInCubeCommand extends LCubeEditCommandBase {
 	
 	public static String last_placed_dungeon_type = "";
 	
-	public LPlaceCubeCommand(){
+	public LMixInCubeCommand(){
 		super();
 	}
 	@Override
 	public String getName() {
-		return "l_place_cube";
+		return "l_mixin_cube";
 	}
 
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "/l_place_cube filename [x_offset y_offset z_offset]";
+		return "/l_mixin_cube filename [x_offset y_offset z_offset]";
 	}
 
 	@Override
@@ -63,7 +64,8 @@ public class LPlaceCubeCommand extends LCubeEditCommandBase {
 					dy+=Integer.parseInt(args[2]);
 					dz+=Integer.parseInt(args[3]);
 				}
-				world.setBlockState(pos.east(dx).up(dy).south(dz), blockstateList.get(dis.readUnsignedByte()));
+				if(world.getBlockState(pos.east(dx).up(dy).south(dz)) == Blocks.AIR.getDefaultState())
+					world.setBlockState(pos.east(dx).up(dy).south(dz), blockstateList.get(dis.readUnsignedByte()));
 				index++;
 			}
 			dis.close();

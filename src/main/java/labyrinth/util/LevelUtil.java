@@ -1,9 +1,7 @@
 package labyrinth.util;
 
-import labyrinth.LabyrinthMod;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.util.math.BlockPos;
 
 public class LevelUtil {
 	
@@ -19,7 +17,7 @@ public class LevelUtil {
 		return 0.2d+(levelIn>40?40:levelIn)*0.02d;
 	}
 	public static double getAttackDamage(int levelIn) {
-		return 5.0d+levelIn*levelIn;
+		return 10.0d+levelIn;
 	}
 	public static double getArmor(int levelIn) {
 		return levelIn;
