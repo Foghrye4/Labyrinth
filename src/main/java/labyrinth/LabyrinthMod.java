@@ -8,6 +8,7 @@ import labyrinth.command.LGetStructureBlockStateCommand;
 import labyrinth.command.LMixInCubeCommand;
 import labyrinth.command.LPlaceCubeCommand;
 import labyrinth.command.LPlaceStructureBlock;
+import labyrinth.command.LRegenerateCubeCommand;
 import labyrinth.command.LWriteCubeCommand;
 import labyrinth.config.LabyrinthConfig;
 import labyrinth.init.LabyrinthBlocks;
@@ -70,6 +71,7 @@ public class LabyrinthMod {
 	public void serverStart(FMLServerStartingEvent event) {
 		event.registerServerCommand(new LWriteCubeCommand());
 		event.registerServerCommand(new LPlaceCubeCommand());
+		event.registerServerCommand(new LRegenerateCubeCommand());
 		event.registerServerCommand(new LMixInCubeCommand());
 		event.registerServerCommand(new LGetStructureBlockStateCommand());
 		event.registerServerCommand(new LPlaceStructureBlock());

@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import labyrinth.worldgen.LabyrinthWorldGen.DungeonCube;
+import labyrinth.worldgen.DungeonCube;
 
 public class DataConversionUtil {
 	

@@ -56,7 +56,6 @@ repositories {
 dependencies {
 	compile "org.spongepowered:mixin:0.6.8-SNAPSHOT"
 	compile project(':CubicChunks')
-//	compile files('lib/CubicChunks-1.11.2-0.0.526.0-dev.jar')
 }
 
 processResources {

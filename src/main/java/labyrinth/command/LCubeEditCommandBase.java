@@ -11,7 +11,7 @@ import net.minecraft.command.CommandBase;
 
 public abstract class LCubeEditCommandBase extends CommandBase {
 	
-	List<IBlockState> blockstateList = Arrays.asList(LabyrinthWorldGen.instance.blockstateList[0]);
+	List<IBlockState> blockstateList = Arrays.asList(LabyrinthWorldGen.instance.storage.blockstateList[0]);
 	
 	public File getFile(String folder_name, String filename) {
 		File folder = new File(LabyrinthMod.proxy.getMinecraftDir(), folder_name);

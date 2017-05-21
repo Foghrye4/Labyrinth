@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import cubicchunks.util.CubePos;
+import labyrinth.worldgen.DungeonCube;
 import labyrinth.worldgen.LabyrinthWorldGen;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -48,7 +49,7 @@ public class LPlaceCubeCommand extends LCubeEditCommandBase {
 			cn = -1;
 		}
 		if(cn!=-1){
-			cubeS = LabyrinthWorldGen.DungeonCube.values()[cn].name;
+			cubeS = DungeonCube.values()[cn].name;
 		}
 		try {
 			int index = 0;
