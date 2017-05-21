@@ -2,7 +2,7 @@ package labyrinth.worldgen;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.BitSet;
 import java.util.Map;
 import java.util.Random;
 
@@ -16,6 +16,7 @@ import labyrinth.entity.ISlime;
 import labyrinth.init.LabyrinthBlocks;
 import labyrinth.init.LabyrinthEntities;
 import labyrinth.util.LevelUtil;
+import labyrinth.util.LimitedSizeHashMap;
 import labyrinth.util.ModIntegrationUtil;
 import labyrinth.world.WorldSavedDataLabyrinthConfig;
 import net.minecraft.block.BlockAnvil;
@@ -170,10 +171,6 @@ public class LabyrinthWorldGen implements ICubicPopulator {
 			DungeonCube.COLUMN_FLOOR_CEIL,
 			DungeonCube.COLUMN_FLOOR_CEIL,
 			DungeonCube.COLUMN_FLOOR_CEIL,
-			DungeonCube.COLUMN_FLOOR_CEIL,
-			DungeonCube.COLUMN_FLOOR_CEIL,
-			DungeonCube.COLUMN_FLOOR_CEIL,
-			DungeonCube.COLUMN_FLOOR_CEIL,
 			DungeonCube.WALL_EAST_NORTH,
 			DungeonCube.WALL_EAST_SOUTH,
 			DungeonCube.WALL_SOUTH_NORTH,
@@ -186,22 +183,12 @@ public class LabyrinthWorldGen implements ICubicPopulator {
 			DungeonCube.NOTHING,
 			DungeonCube.NOTHING,
 			DungeonCube.NOTHING,
-			DungeonCube.NOTHING,
-			DungeonCube.NOTHING,
-			DungeonCube.NOTHING,
-			DungeonCube.NOTHING,
-			DungeonCube.NOTHING,
-			DungeonCube.NOTHING,
-			DungeonCube.NOTHING,
-			DungeonCube.NOTHING,
-			DungeonCube.NOTHING,
-			DungeonCube.NOTHING,
 			};
 
 	public IBlockState[][] blockstateList = new IBlockState[128][256];
 	
-	private static final int CACHE_SIZE=256;
-	Map<CubePos, DungeonCube> dtype_cache = new HashMap<CubePos, DungeonCube>(CACHE_SIZE+1);
+	public static final int CACHE_SIZE = 256;
+	public Map<Integer, DungeonCube> dtype_cache;
 	private final Random random = new Random();
 	private final IBlockState AIR = Blocks.AIR.getDefaultState();
 	private int max_loot_level = 7;
@@ -534,8 +521,42 @@ public class LabyrinthWorldGen implements ICubicPopulator {
 			return;
 		int level = config.getLevel(pos);
 		if (level>=0) {
-			DungeonCube is = getDungeonCubeType(pos, world, 0);
-			if(is.equals(DungeonCube.NOTHING)){
+			DungeonCube is = getDungeonCubeType(pos, world);
+			DungeonCube cachedValue = this.dtype_cache.get(pos.hashCode());
+			int attempts = 0;
+			while(cachedValue!=is && attempts++<1000){
+				if(attempts>997){
+					System.out.println("Caching "+is.name());
+				}
+				cache(pos,is);
+				CubePos p_up = pos.add(0, 1, 0);
+				CubePos p_down = pos.sub(0, 1, 0);
+				CubePos p_east = pos.add(1, 0, 0);
+				CubePos p_west = pos.sub(1, 0, 0);
+				CubePos p_south = pos.add(0, 0, 1);
+				CubePos p_north = pos.sub(0, 0, 1);
+				DungeonCube d_up = getDungeonCubeType(p_up, world);
+				DungeonCube d_down = getDungeonCubeType(p_down, world);
+				DungeonCube d_east = getDungeonCubeType(p_east, world);
+				DungeonCube d_west = getDungeonCubeType(p_west, world);
+				DungeonCube d_south = getDungeonCubeType(p_south, world);
+				DungeonCube d_north = getDungeonCubeType(p_north, world);
+				cache(p_up, d_up);
+				cache(p_down, d_down);
+				cache(p_east, d_east);
+				cache(p_west, d_west);
+				cache(p_south, d_south);
+				cache(p_north, d_north);
+				is = getDungeonCubeType(pos, world);
+				cachedValue = this.dtype_cache.get(pos.hashCode());
+				if(attempts>997){
+					System.out.println("up "+d_up.name());
+					System.out.println("down "+d_down.name());
+					System.out.println("is now "+is.name());
+					System.out.println("cached value now "+cachedValue.name());
+				}
+			}
+			if(is==DungeonCube.NOTHING){
 				return;
 			}
 			random.setSeed(level<<8^world.getSeed());
@@ -592,29 +613,19 @@ public class LabyrinthWorldGen implements ICubicPopulator {
 		}
 	}
 
-	private DungeonCube getDungeonCubeType(CubePos cpos, ICubicWorld world, int deep) {
-		if(deep++ > 8)
-			return DungeonCube.NOTHING;
-		DungeonCube cached_value = dtype_cache.get(cpos);
-		if(cached_value!=null) {
-			return cached_value;
-		}
-		random.setSeed(world.getSeed()^cpos.getX()<<8^cpos.getY()<<4^cpos.getZ());
-		int typedefiner = random.nextInt(randomDungeonsArray.length);
-		if(dtype_cache.size()>CACHE_SIZE){
-			dtype_cache.clear();
-		}
-		
-		DungeonCube d_up = getDungeonCubeType(cpos.add(0, 1, 0), world, deep);
-		DungeonCube d_down = getDungeonCubeType(cpos.sub(0, 1, 0), world, deep);
-		DungeonCube d_east = getDungeonCubeType(cpos.add(1, 0, 0), world, deep);
-		DungeonCube d_west = getDungeonCubeType(cpos.sub(1, 0, 0), world, deep);
-		DungeonCube d_south = getDungeonCubeType(cpos.add(0, 0, 1), world, deep);
-		DungeonCube d_north = getDungeonCubeType(cpos.sub(0, 0, 1), world, deep);
+	private DungeonCube getDungeonCubeType(CubePos cpos, ICubicWorld world) {
+		random.setSeed(world.getSeed()^(cpos.getX()<<4^cpos.getZ()<<2^cpos.getY()));
+		int typedefiner = random.nextInt(this.randomDungeonsArray.length);
+		DungeonCube d_up = getCachedDungeonCubeOrNothing(cpos.add(0, 1, 0));
+		DungeonCube d_down = getCachedDungeonCubeOrNothing(cpos.sub(0, 1, 0));
+		DungeonCube d_east = getCachedDungeonCubeOrNothing(cpos.add(1, 0, 0));
+		DungeonCube d_west = getCachedDungeonCubeOrNothing(cpos.sub(1, 0, 0));
+		DungeonCube d_south = getCachedDungeonCubeOrNothing(cpos.add(0, 0, 1));
+		DungeonCube d_north = getCachedDungeonCubeOrNothing(cpos.sub(0, 0, 1));
 		
 		//Down
 		if (d_down.isColumnMiddle || d_down.isColumnBottom) {
-			return cache(cpos, DungeonCube.COLUMN_CEIL);
+			return  DungeonCube.COLUMN_CEIL;
 		} else if(d_down.isStairBottom) {
 			if(d_east.isColumnTopOrMiddle || 
 					d_west.isColumnTopOrMiddle ||
@@ -622,32 +633,32 @@ public class LabyrinthWorldGen implements ICubicPopulator {
 					d_north.isColumnTopOrMiddle){
 				if(!d_east.isColumnTopOrMiddle && 
 						!d_north.isColumnTopOrMiddle){
-					return cache(cpos, DungeonCube.STAIR_CEIL_W_ROOM_OT_NORTH_EAST);
+					return  DungeonCube.STAIR_CEIL_W_ROOM_OT_NORTH_EAST;
 				}
 				if(!d_west.isColumnTopOrMiddle && 
 						!d_north.isColumnTopOrMiddle){
-					return cache(cpos, DungeonCube.STAIR_CEIL_W_ROOM_OT_NORTH_WEST);
+					return  DungeonCube.STAIR_CEIL_W_ROOM_OT_NORTH_WEST;
 				}
 				if(!d_east.isColumnTopOrMiddle && 
 						!d_south.isColumnTopOrMiddle){
-					return cache(cpos, DungeonCube.STAIR_CEIL_W_ROOM_OT_SOUTH_EAST);
+					return  DungeonCube.STAIR_CEIL_W_ROOM_OT_SOUTH_EAST;
 				}
 				if(!d_west.isColumnTopOrMiddle && 
 						!d_south.isColumnTopOrMiddle){
-					return cache(cpos, DungeonCube.STAIR_CEIL_W_ROOM_OT_SOUTH_WEST);
+					return  DungeonCube.STAIR_CEIL_W_ROOM_OT_SOUTH_WEST;
 				}
 				switch (typedefiner % 4) { // Unhandled case
 				case 0:
-					return cache(cpos, DungeonCube.STAIR_CEIL_W_ROOM_OT_NORTH_WEST);
+					return  DungeonCube.STAIR_CEIL_W_ROOM_OT_NORTH_WEST;
 				case 1:
-					return cache(cpos, DungeonCube.STAIR_CEIL_W_ROOM_OT_NORTH_EAST);
+					return  DungeonCube.STAIR_CEIL_W_ROOM_OT_NORTH_EAST;
 				case 2:
-					return cache(cpos, DungeonCube.STAIR_CEIL_W_ROOM_OT_SOUTH_WEST);
+					return  DungeonCube.STAIR_CEIL_W_ROOM_OT_SOUTH_WEST;
 				case 3:
-					return cache(cpos, DungeonCube.STAIR_CEIL_W_ROOM_OT_SOUTH_EAST);
+					return  DungeonCube.STAIR_CEIL_W_ROOM_OT_SOUTH_EAST;
 				}
 			}
-			return cache(cpos, DungeonCube.STAIR_CEIL);
+			return  DungeonCube.STAIR_CEIL;
 		}
 		
 		//Up
@@ -656,10 +667,10 @@ public class LabyrinthWorldGen implements ICubicPopulator {
 					d_west.isColumnTopOrMiddle ||
 					d_south.isColumnTopOrMiddle ||
 					d_north.isColumnTopOrMiddle) {
-				return cache(cpos, DungeonCube.COLUMN_MIDDLE);
+				return  DungeonCube.COLUMN_MIDDLE;
 			}
 			else{
-				return cache(cpos, DungeonCube.COLUMN_FLOOR);
+				return  DungeonCube.COLUMN_FLOOR;
 			}
 		} else if (d_up.isStairTop) {
 			if(d_east.isColumnTopOrMiddle || 
@@ -672,32 +683,32 @@ public class LabyrinthWorldGen implements ICubicPopulator {
 					d_north.isSouthWall) {
 				if(!d_east.isColumnTopOrMiddle && 
 						!d_north.isColumnTopOrMiddle){
-					return cache(cpos, DungeonCube.STAIR_FLOOR_W_ROOM_OT_NORTH_EAST);
+					return  DungeonCube.STAIR_FLOOR_W_ROOM_OT_NORTH_EAST;
 				}
 				if(!d_west.isColumnTopOrMiddle && 
 						!d_north.isColumnTopOrMiddle){
-					return cache(cpos, DungeonCube.STAIR_FLOOR_W_ROOM_OT_NORTH_WEST);
+					return  DungeonCube.STAIR_FLOOR_W_ROOM_OT_NORTH_WEST;
 				}
 				if(!d_east.isColumnTopOrMiddle && 
 						!d_south.isColumnTopOrMiddle){
-					return cache(cpos, DungeonCube.STAIR_FLOOR_W_ROOM_OT_SOUTH_EAST);
+					return  DungeonCube.STAIR_FLOOR_W_ROOM_OT_SOUTH_EAST;
 				}
 				if(!d_west.isColumnTopOrMiddle && 
 						!d_south.isColumnTopOrMiddle){
-					return cache(cpos, DungeonCube.STAIR_FLOOR_W_ROOM_OT_SOUTH_WEST);
+					return  DungeonCube.STAIR_FLOOR_W_ROOM_OT_SOUTH_WEST;
 				}
 				switch (typedefiner % 4) { // Unhandled case
 				case 0:
-					return cache(cpos, DungeonCube.STAIR_FLOOR_W_ROOM_OT_NORTH_WEST);
+					return  DungeonCube.STAIR_FLOOR_W_ROOM_OT_NORTH_WEST;
 				case 1:
-					return cache(cpos, DungeonCube.STAIR_FLOOR_W_ROOM_OT_NORTH_EAST);
+					return  DungeonCube.STAIR_FLOOR_W_ROOM_OT_NORTH_EAST;
 				case 2:
-					return cache(cpos, DungeonCube.STAIR_FLOOR_W_ROOM_OT_SOUTH_WEST);
+					return  DungeonCube.STAIR_FLOOR_W_ROOM_OT_SOUTH_WEST;
 				case 3:
-					return cache(cpos, DungeonCube.STAIR_FLOOR_W_ROOM_OT_SOUTH_EAST);
+					return  DungeonCube.STAIR_FLOOR_W_ROOM_OT_SOUTH_EAST;
 				}
 			}
-			return cache(cpos, DungeonCube.STAIR_FLOOR);
+			return  DungeonCube.STAIR_FLOOR;
 		}
 		
 		if(d_east.isColumnTopOrMiddle || 
@@ -706,25 +717,25 @@ public class LabyrinthWorldGen implements ICubicPopulator {
 				d_north.isColumnTopOrMiddle) {
 			if(!d_east.isColumnTopOrMiddle && 
 					!d_north.isColumnTopOrMiddle){
-				return cache(cpos, DungeonCube.ROOM_OT_NORTH_EAST);
+				return  DungeonCube.ROOM_OT_NORTH_EAST;
 			}
 			if(!d_west.isColumnTopOrMiddle && 
 					!d_north.isColumnTopOrMiddle){
-				return cache(cpos, DungeonCube.ROOM_OT_NORTH_WEST);
+				return  DungeonCube.ROOM_OT_NORTH_WEST;
 			}
 			if(!d_east.isColumnTopOrMiddle && 
 					!d_south.isColumnTopOrMiddle){
-				return cache(cpos, DungeonCube.ROOM_OT_SOUTH_EAST);
+				return  DungeonCube.ROOM_OT_SOUTH_EAST;
 			}
 			if(!d_west.isColumnTopOrMiddle && 
 					!d_south.isColumnTopOrMiddle){
-				return cache(cpos, DungeonCube.ROOM_OT_SOUTH_WEST);
+				return  DungeonCube.ROOM_OT_SOUTH_WEST;
 			}
 			if(!d_west.isColumnTopOrMiddle){
-				return cache(cpos, DungeonCube.LIBRARY);
+				return  DungeonCube.LIBRARY;
 			}
 			if(!d_south.isColumnTopOrMiddle){
-				return cache(cpos, DungeonCube.WORKSHOP);
+				return  DungeonCube.WORKSHOP;
 			}
 		}
 		
@@ -741,13 +752,13 @@ public class LabyrinthWorldGen implements ICubicPopulator {
 		if(n_walls>2){
 			switch (typedefiner % 4) { // Unhandled case
 			case 0:
-				return cache(cpos, DungeonCube.ROOM_OT_NORTH_WEST);
+				return  DungeonCube.ROOM_OT_NORTH_WEST;
 			case 1:
-				return cache(cpos, DungeonCube.ROOM_OT_NORTH_EAST);
+				return  DungeonCube.ROOM_OT_NORTH_EAST;
 			case 2:
-				return cache(cpos, DungeonCube.ROOM_OT_SOUTH_WEST);
+				return  DungeonCube.ROOM_OT_SOUTH_WEST;
 			case 3:
-				return cache(cpos, DungeonCube.ROOM_OT_SOUTH_EAST);
+				return  DungeonCube.ROOM_OT_SOUTH_EAST;
 			}
 		}
 
@@ -755,159 +766,132 @@ public class LabyrinthWorldGen implements ICubicPopulator {
 		//East
 		if (d_east.isWestWall) {
 			if (d_west.isEastWall) {
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_EAST_BARS);
 				return DungeonCube.WALL_WEST_EAST_BARS;
 			} else if (d_south.isNorthWall) {
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_SOUTH_BARS);
 				return DungeonCube.WALL_EAST_SOUTH_BARS;
 			} else if (d_north.isSouthWall) {
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_NORTH_BARS);
 				return DungeonCube.WALL_EAST_NORTH_BARS;
 			}
 			switch (typedefiner % 6) {
 			case 0:
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_NORTH);
 				return DungeonCube.WALL_EAST_NORTH;
 			case 1:
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_NORTH_BARS);
 				return DungeonCube.WALL_EAST_NORTH_BARS;
 			case 2:
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_SOUTH);
 				return DungeonCube.WALL_EAST_SOUTH;
 			case 3:
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_SOUTH_BARS);
 				return DungeonCube.WALL_EAST_SOUTH_BARS;
 			case 4:
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_EAST);
 				return DungeonCube.WALL_WEST_EAST;
 			case 5:
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_EAST_BARS);
 				return DungeonCube.WALL_WEST_EAST_BARS;
 			}
 		}
 		//West
 		if (d_west == DungeonCube.COLUMN_CEIL) {
-			dtype_cache.put(cpos, DungeonCube.COLUMN_WEST_BORDER);
 			return DungeonCube.COLUMN_WEST_BORDER;
 		} else if (d_west.isEastWall) {
 			if(d_east.isWestWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_EAST_BARS);
 				return DungeonCube.WALL_WEST_EAST_BARS;
 			}
 			else if(d_south.isNorthWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_SOUTH_BARS);
 				return DungeonCube.WALL_EAST_SOUTH_BARS;
 			}
 			else if(d_north.isSouthWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_NORTH_BARS);
 				return DungeonCube.WALL_WEST_NORTH_BARS;
 			}
 			switch (typedefiner % 6) {
 			case 0:
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_NORTH);
 				return DungeonCube.WALL_WEST_NORTH;
 			case 1:
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_NORTH_BARS);
 				return DungeonCube.WALL_WEST_NORTH_BARS;
 			case 2:
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_SOUTH);
 				return DungeonCube.WALL_WEST_SOUTH;
 			case 3:
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_SOUTH_BARS);
 				return DungeonCube.WALL_WEST_SOUTH_BARS;
 			case 4:
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_EAST);
 				return DungeonCube.WALL_WEST_EAST;
 			case 5:
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_EAST_BARS);
 				return DungeonCube.WALL_WEST_EAST_BARS;
 			}
 		}
 		//South
 		if (d_south == DungeonCube.COLUMN_CEIL) {
-			dtype_cache.put(cpos, DungeonCube.COLUMN_SOUTH_BORDER);
 			return DungeonCube.COLUMN_SOUTH_BORDER;
 		} else if (d_south.isNorthWall) {
 			if(d_east.isWestWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_NORTH_BARS);
 				return DungeonCube.WALL_WEST_NORTH_BARS;
 			}
 			else if(d_west.isEastWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_NORTH_BARS);
 				return DungeonCube.WALL_EAST_NORTH_BARS;
 			}
 			else if(d_north.isSouthWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_SOUTH_NORTH_DOOR);
 				return DungeonCube.WALL_SOUTH_NORTH_DOOR;
 			}
 			switch (typedefiner % 6) {
 			case 0:
-				dtype_cache.put(cpos, DungeonCube.WALL_SOUTH_NORTH);
 				return DungeonCube.WALL_SOUTH_NORTH;
 			case 1:
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_SOUTH_BARS);
 				return DungeonCube.WALL_EAST_SOUTH_BARS;
 			case 2:
-				dtype_cache.put(cpos, DungeonCube.WALL_SOUTH_NORTH_DOOR);
 				return DungeonCube.WALL_SOUTH_NORTH_DOOR;
 			case 3:
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_SOUTH_BARS);
 				return DungeonCube.WALL_WEST_SOUTH_BARS;
 			case 4:
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_SOUTH);
 				return DungeonCube.WALL_WEST_SOUTH;
 			case 5:
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_SOUTH);
 				return DungeonCube.WALL_EAST_SOUTH;
 			}
 		}
 		//North
 		if (d_north == DungeonCube.COLUMN_CEIL) {
-			dtype_cache.put(cpos, DungeonCube.COLUMN_NORTH_BORDER);
 			return DungeonCube.COLUMN_NORTH_BORDER;
 		} else if (d_north.isSouthWall) {
 			if(d_east.isWestWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_SOUTH_BARS);
 				return DungeonCube.WALL_WEST_SOUTH_BARS;
 			}
 			else if(d_west.isEastWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_SOUTH_BARS);
 				return DungeonCube.WALL_EAST_SOUTH_BARS;
 			}
 			else if(d_south.isNorthWall){
-				dtype_cache.put(cpos, DungeonCube.WALL_SOUTH_NORTH_DOOR);
 				return DungeonCube.WALL_SOUTH_NORTH_DOOR;
 			}
 			switch (typedefiner % 7) {
 			case 0:
-				dtype_cache.put(cpos, DungeonCube.WALL_SOUTH_NORTH);
 				return DungeonCube.WALL_SOUTH_NORTH;
 			case 1:
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_NORTH_BARS);
 				return DungeonCube.WALL_EAST_NORTH_BARS;
 			case 2:
-				dtype_cache.put(cpos, DungeonCube.WALL_SOUTH_NORTH_DOOR);
 				return DungeonCube.WALL_SOUTH_NORTH_DOOR;
 			case 3:
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_NORTH_BARS);
 				return DungeonCube.WALL_WEST_NORTH_BARS;
 			case 4:
-				dtype_cache.put(cpos, DungeonCube.WALL_WEST_NORTH);
 				return DungeonCube.WALL_WEST_NORTH;
 			case 5:
-				dtype_cache.put(cpos, DungeonCube.WALL_EAST_NORTH);
 				return DungeonCube.WALL_EAST_NORTH;
 			}
 		}
+		
 		return randomDungeonsArray[typedefiner];
 	}
 
+	private DungeonCube getCachedDungeonCubeOrNothing(CubePos cpos) {
+		DungeonCube cached_value = dtype_cache.get(cpos.hashCode());
+		if(cached_value!=null)
+			return cached_value;
+		return DungeonCube.NOTHING;
+	}
+
 	private DungeonCube cache(CubePos cpos, DungeonCube dcube) {
-		dtype_cache.put(cpos, dcube);
+		dtype_cache.put(cpos.hashCode(), dcube);
 		return dcube;
 	}
 
 	public void setConfig(WorldSavedDataLabyrinthConfig worldgenConfigIn) {
 		this.config=worldgenConfigIn;
+	}
+
+	public void setCache(Map<Integer, DungeonCube> dungeonCubeCache) {
+		dtype_cache = dungeonCubeCache;
 	}
 }
