@@ -4,12 +4,7 @@ import java.io.IOException;
 
 import org.apache.logging.log4j.Logger;
 
-import labyrinth.command.LGetStructureBlockStateCommand;
-import labyrinth.command.LMixInCubeCommand;
-import labyrinth.command.LPlaceCubeCommand;
-import labyrinth.command.LPlaceStructureBlock;
-import labyrinth.command.LRegenerateCubeCommand;
-import labyrinth.command.LWriteCubeCommand;
+import labyrinth.command.*;
 import labyrinth.config.LabyrinthConfig;
 import labyrinth.init.LabyrinthBlocks;
 import labyrinth.init.LabyrinthEntities;
@@ -75,6 +70,7 @@ public class LabyrinthMod {
 		event.registerServerCommand(new LMixInCubeCommand());
 		event.registerServerCommand(new LGetStructureBlockStateCommand());
 		event.registerServerCommand(new LPlaceStructureBlock());
+		event.registerServerCommand(new LWriteWithRotationsCommand());
 	}
 
 }
