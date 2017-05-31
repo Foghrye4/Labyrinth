@@ -25,7 +25,6 @@ public class LabyrinthBlocks {
 				return BlockStoneTile.EnumType.byMetadata(stack.getMetadata()).getUnlocalizedName();
 			}
 		})).setUnlocalizedName("stone"));
-
 	}
 
 	private static void registerBlock(Block block, Item item) {

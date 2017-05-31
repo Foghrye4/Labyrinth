@@ -4,7 +4,13 @@ import java.io.IOException;
 
 import org.apache.logging.log4j.Logger;
 
-import labyrinth.command.*;
+import labyrinth.command.LGetStructureBlockStateCommand;
+import labyrinth.command.LMixInCubeCommand;
+import labyrinth.command.LPlaceCubeCommand;
+import labyrinth.command.LPlaceStructureBlock;
+import labyrinth.command.LRegenerateCubeCommand;
+import labyrinth.command.LWriteCubeCommand;
+import labyrinth.command.LWriteWithRotationsCommand;
 import labyrinth.config.LabyrinthConfig;
 import labyrinth.init.LabyrinthBlocks;
 import labyrinth.init.LabyrinthEntities;
@@ -30,7 +36,7 @@ dependencies = "required-after:cubicchunks")
 public class LabyrinthMod {
 	public static final String MODID = "labyrinth";
 	public static final String NAME = "Labyrinth";
-	public static final String VERSION = "0.1.2";
+	public static final String VERSION = "0.1.4";
 	public static final String GUI_FACTORY = "labyrinth.gui.LabyrinthGuiFactory";
 
 	public static Logger log;
@@ -51,7 +57,7 @@ public class LabyrinthMod {
 		LabyrinthBlocks.register();
 		proxy.preInit();
 		LabyrinthEntities.register(this);
-		GameRegistry.registerWorldGenerator(new LabyrinthWorldGen(), 0);
+		MinecraftForge.EVENT_BUS.register(new LabyrinthWorldGen());
 		for (Biome biome : Biome.EXPLORATION_BIOMES_LIST) {
 			biome.getSpawnableList(EnumCreatureType.MONSTER).clear();
 		}

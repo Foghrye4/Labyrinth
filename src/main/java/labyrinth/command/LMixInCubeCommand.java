@@ -7,7 +7,6 @@ import java.io.InputStream;
 
 import cubicchunks.util.CubePos;
 import labyrinth.worldgen.DungeonCube;
-import labyrinth.worldgen.LabyrinthWorldGen;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.init.Blocks;
