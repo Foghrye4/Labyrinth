@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.minecraft.client.Minecraft;
+import labyrinth.LabyrinthMod;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.NibbleArray;
@@ -143,8 +143,7 @@ public enum DungeonCube {
 		}
 
 		void load() throws IOException {
-			Minecraft.getMinecraft().getResourceManager()
-					.getResource(new ResourceLocation("labyrinth", "cubes/" + name)).getInputStream().read(data);
+			LabyrinthMod.proxy.getResourceInputStream(new ResourceLocation("labyrinth", "cubes/" + name)).read(data);
 		}
 		
 		void precalculateLight() {

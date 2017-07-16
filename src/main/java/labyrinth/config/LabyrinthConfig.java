@@ -76,11 +76,10 @@ public class LabyrinthConfig {
         }
     }
 
-/*    public static enum BoolOptions {
-        USE_VANILLA_CHUNK_WORLD_GENERATORS(true,
-                "Enabling this option will force " + CubicChunks.MODID
-                        + " to use world generators designed for two dimensional chunks, which are often used for custom ore generators added by mods. To do so "
-                        + CubicChunks.MODID + " will pregenerate cubes in a range of height from 0 to 255.");
+    public static enum BoolOptions {
+        REMOVE_MOBS(true,
+                "Enabling this option will remove all hostile mobs form all "
+                        + " biomes spawnable lists. It is necessary to restart server for this option to work.");
 
         private final boolean defaultValue;
         private final String description;
@@ -96,7 +95,7 @@ public class LabyrinthConfig {
             return value;
         }
     }
-    */
+    
     public static String getNicelyFormattedName(String name) {
         StringBuffer out = new StringBuffer();
         char char_ = '_';
@@ -139,10 +138,10 @@ public class LabyrinthConfig {
             configOption.value = configuration.getFloat(getNicelyFormattedName(configOption.name()), Configuration.CATEGORY_GENERAL,
                     configOption.defaultValue, configOption.minValue, configOption.maxValue, configOption.description);
         }
-/*        for (BoolOptions configOption : BoolOptions.values()) {
+        for (BoolOptions configOption : BoolOptions.values()) {
             configOption.value = configuration.getBoolean(getNicelyFormattedName(configOption.name()), Configuration.CATEGORY_GENERAL,
                     configOption.defaultValue, configOption.description);
-        }*/
+        }
         if (configuration.hasChanged()) {
             configuration.save();
         }
@@ -164,5 +163,9 @@ public class LabyrinthConfig {
 	
 	public float getBiomeHeightLowerBound() {
 		return FloatOptions.DUNGEON_BIOME_HEIGHT_LOWER_BOUND.getValue();
+	}
+
+	public boolean shouldRemoveMobSpawn() {
+		return BoolOptions.REMOVE_MOBS.getValue();
 	}
 }

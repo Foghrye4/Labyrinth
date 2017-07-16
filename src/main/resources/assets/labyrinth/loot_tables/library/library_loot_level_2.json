@@ -1,18 +1,17 @@
 {
     "pools": [
         {
-	    "name":"labyrinth",
+	    "name":"library",
             "rolls": 2,
             "entries": [
                 {
                     "type": "loot_table",
                     "weight": 8,
-                    "name": "labyrinth:dungeon_loot_level_1"
+                    "name": "labyrinth:library/library_loot_level_1"
                 },
                 {
                     "type": "item",
-                    "name": "minecraft:iron_ingot",
-                    "quality": 8
+                    "name": "minecraft:book"
                 }
 
             ]

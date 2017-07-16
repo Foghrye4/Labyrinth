@@ -4,13 +4,7 @@ import java.io.IOException;
 
 import org.apache.logging.log4j.Logger;
 
-import labyrinth.command.LGetStructureBlockStateCommand;
-import labyrinth.command.LMixInCubeCommand;
-import labyrinth.command.LPlaceCubeCommand;
-import labyrinth.command.LPlaceStructureBlock;
-import labyrinth.command.LRegenerateCubeCommand;
-import labyrinth.command.LWriteCubeCommand;
-import labyrinth.command.LWriteWithRotationsCommand;
+import labyrinth.command.*;
 import labyrinth.config.LabyrinthConfig;
 import labyrinth.init.LabyrinthBlocks;
 import labyrinth.init.LabyrinthEntities;
@@ -28,15 +22,11 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
-@Mod(modid = LabyrinthMod.MODID, 
-name = LabyrinthMod.NAME, 
-version = LabyrinthMod.VERSION, 
-guiFactory = LabyrinthMod.GUI_FACTORY,
-dependencies = "required-after:cubicchunks")
+@Mod(modid = LabyrinthMod.MODID, name = LabyrinthMod.NAME, version = LabyrinthMod.VERSION, guiFactory = LabyrinthMod.GUI_FACTORY, dependencies = "required-after:cubicchunks")
 public class LabyrinthMod {
 	public static final String MODID = "labyrinth";
 	public static final String NAME = "Labyrinth";
-	public static final String VERSION = "0.1.4";
+	public static final String VERSION = "0.1.7";
 	public static final String GUI_FACTORY = "labyrinth.gui.LabyrinthGuiFactory";
 
 	public static Logger log;
@@ -45,6 +35,8 @@ public class LabyrinthMod {
 	@SidedProxy(clientSide = "labyrinth.ClientNetworkHandler", serverSide = "labyrinth.ServerNetworkHandler")
 	public static ServerNetworkHandler network;
 	public static LabyrinthConfig config;
+
+	public static boolean DEBUG_STOP_ENTITY_TICK = false;
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) throws IOException, IllegalAccessException {
@@ -58,9 +50,10 @@ public class LabyrinthMod {
 		proxy.preInit();
 		LabyrinthEntities.register(this);
 		MinecraftForge.EVENT_BUS.register(new LabyrinthWorldGen());
-		for (Biome biome : Biome.EXPLORATION_BIOMES_LIST) {
-			biome.getSpawnableList(EnumCreatureType.MONSTER).clear();
-		}
+		if (config.shouldRemoveMobSpawn())
+			for (Biome biome : Biome.EXPLORATION_BIOMES_LIST) {
+				biome.getSpawnableList(EnumCreatureType.MONSTER).clear();
+			}
 	}
 
 	@EventHandler
@@ -77,6 +70,7 @@ public class LabyrinthMod {
 		event.registerServerCommand(new LGetStructureBlockStateCommand());
 		event.registerServerCommand(new LPlaceStructureBlock());
 		event.registerServerCommand(new LWriteWithRotationsCommand());
+		event.registerServerCommand(new LStopEntityTick());
 	}
 
 }

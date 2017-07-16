@@ -6,9 +6,15 @@
             "entries": [
                 {
                     "type": "loot_table",
-                    "weight": 8,
+                    "weight": 16,
                     "name": "labyrinth:dungeon_loot_level_5"
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:diamond",
+                    "quality": 8
                 }
+                
             ]
         }
     ]

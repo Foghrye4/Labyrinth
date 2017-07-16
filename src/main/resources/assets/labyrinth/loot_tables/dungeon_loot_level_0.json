@@ -6,23 +6,7 @@
             "entries": [
                 {
                     "type": "item",
-                    "name": "minecraft:planks",
-                    "functions": [
-                        {
-                            "function": "set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 4
-                            }
-						},
-						{
-			 			   "function": "set_data",
-			 			   "data": {
-	                    	    "min": 0,
-                                "max": 5
-			    			}
-                      	}
-                    ]
+                    "name": "minecraft:reeds"
                 },
                 {
                     "type": "item",
@@ -50,6 +34,10 @@
                 },
                 {
                     "type": "item",
+                    "name": "minecraft:wheat"
+                },
+                {
+                    "type": "item",
                     "name": "minecraft:dirt"
                 },
                 {
@@ -58,7 +46,7 @@
                 },
                 {
                     "type": "item",
-                    "name": "minecraft:nether_wart"
+                    "name": "minecraft:egg"
                 },
                 {
                     "type": "item",
@@ -68,7 +56,7 @@
                             "function": "set_count",
                             "count": {
                                 "min": 1,
-                                "max": 2
+                                "max": 4
                             }
                         }
                     ]
@@ -77,6 +65,16 @@
                     "type": "item",
                     "name": "minecraft:leather",
                     "quality": 2
+                },                
+                {
+                    "type": "item",
+                    "name": "minecraft:dye",
+                    "functions": [
+                        {
+                            "function": "set_data",
+                            "data": 0
+                        }
+                    ]
                 }
            ]
         }

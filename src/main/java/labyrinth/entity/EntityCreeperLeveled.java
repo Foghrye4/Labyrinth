@@ -16,6 +16,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -51,9 +52,11 @@ public class EntityCreeperLeveled extends EntityCreeper implements IMobLeveled {
 				((ICubicWorld)world).isAreaLoaded(new BlockPos(this.getPosition().add(-16, -16, -16)), new BlockPos(this.getPosition().add(16, 16, 16)))) {
 			List<Entity> elist = this.world.getEntitiesInAABBexcluding(this,
 					this.getEntityBoundingBox().expandXyz(LevelUtil.getExplosionStrength(level)), EXPLOSION_TARGETS);
-			Vec3d traceFrom = this.getEntityBoundingBox().getCenter();
+	        AxisAlignedBB ebb = this.getEntityBoundingBox();
+			Vec3d traceFrom = new Vec3d(ebb.minX + (ebb.maxX - ebb.minX) * 0.5D, ebb.minY + (ebb.maxY - ebb.minY) * 0.5D, ebb.minZ + (ebb.maxZ - ebb.minZ) * 0.5D);
 			for (Entity target : elist) {
-				Vec3d traceTo = target.getEntityBoundingBox().getCenter();
+		        AxisAlignedBB ebb_to = this.getEntityBoundingBox();
+				Vec3d traceTo = new Vec3d(ebb_to.minX + (ebb_to.maxX - ebb_to.minX) * 0.5D, ebb_to.minY + (ebb_to.maxY - ebb_to.minY) * 0.5D, ebb_to.minZ + (ebb_to.maxZ - ebb_to.minZ) * 0.5D);
 				if (world.rayTraceBlocks(traceFrom, traceTo).entityHit == target)
 					target.attackEntityFrom(DamageSource.causeExplosionDamage(this),
 							(float) LevelUtil.getAttackDamage(level));
@@ -107,6 +110,8 @@ public class EntityCreeperLeveled extends EntityCreeper implements IMobLeveled {
 	@Override
 	public void onUpdate() {
 		if (!world.isRemote) {
+			if(LabyrinthMod.DEBUG_STOP_ENTITY_TICK)
+				return;
 			if (nearestPlayer != null) {
 				int dx = (int) (nearestPlayer.posX - this.posX);
 				int dy = (int) (nearestPlayer.posY - this.posY);

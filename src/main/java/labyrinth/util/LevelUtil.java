@@ -4,27 +4,27 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 
 public class LevelUtil {
-	
+
 	public static int getExperienceValue(int levelIn) {
-		return 1+levelIn*levelIn;
+		return 1 + levelIn * levelIn;
 	}
 
 	public static double getMaxHealth(int levelIn) {
-		return 10.0d+levelIn;
+		return 7.0d + levelIn * 2;
 	}
 
 	public static double getMovementSpeed(int levelIn) {
-		return 0.2d+(levelIn>40?40:levelIn)*0.02d;
+		return 0.1d + (levelIn > 20 ? 20 : levelIn) * 0.01d;
 	}
 	public static double getAttackDamage(int levelIn) {
-		return 10.0d+levelIn;
+		return 10.0d + levelIn;
 	}
 	public static double getArmor(int levelIn) {
 		return levelIn;
 	}
-	
+
 	public static int getSlimeSize(int levelIn) {
-		return levelIn<6?levelIn+2:8;
+		return levelIn < 6 ? levelIn + 2 : 8;
 	}
 
 	public static void setMobAttributes(EntityLivingBase entity, int levelIn) {
@@ -35,6 +35,6 @@ public class LevelUtil {
 	}
 
 	public static int getExplosionStrength(int level) {
-		return level>32?32:level;
+		return level > 32 ? 32 : level;
 	}
 }

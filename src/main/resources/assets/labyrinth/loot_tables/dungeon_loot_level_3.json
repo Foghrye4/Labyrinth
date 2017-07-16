@@ -11,7 +11,8 @@
                 },
                 {
                     "type": "item",
-                    "name": "minecraft:gold_ingot"
+                    "name": "minecraft:gold_ingot",
+                    "quality": 8
                 },
                 {
                     "type": "item",
@@ -23,7 +24,12 @@
                 },
                 {
                     "type": "item",
-                    "name": "minecraft:blaze_rod"
+                    "name": "minecraft:blaze_rod",
+                    "quality": 8
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:nether_wart"
                 }
            ]
         }

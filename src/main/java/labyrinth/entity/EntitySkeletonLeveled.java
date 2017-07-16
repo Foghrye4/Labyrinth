@@ -79,6 +79,8 @@ public class EntitySkeletonLeveled extends EntitySkeleton implements IMobLeveled
 	@Override
 	public void onUpdate() {
 		if (!world.isRemote) {
+			if(LabyrinthMod.DEBUG_STOP_ENTITY_TICK)
+				return;
 			if (nearestPlayer != null) {
 				int dx = (int) (nearestPlayer.posX - this.posX);
 				int dy = (int) (nearestPlayer.posY - this.posY);

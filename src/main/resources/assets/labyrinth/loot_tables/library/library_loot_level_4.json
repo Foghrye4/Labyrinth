@@ -1,0 +1,30 @@
+{
+    "pools": [
+        {
+	    "name":"library",
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "loot_table",
+                    "weight": 8,
+                    "name": "labyrinth:library/library_loot_level_3"
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:enchanted_book",
+                    "quality": 4,
+                    "functions": [
+                        {
+                            "function": "minecraft:enchant_with_levels",
+                            "levels": {
+                                "min": 10,
+                                "max": 15
+                            },
+                            "treasure": true
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,11 +1,14 @@
 package labyrinth;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 import labyrinth.block.BlockStoneTile;
 import labyrinth.init.LabyrinthBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
@@ -31,5 +34,11 @@ public class ClientProxy extends ServerProxy {
 	@Override
 	public void preInit() {
 	}
+	
+	@Override
+	public InputStream getResourceInputStream(ResourceLocation location) throws IOException {
+		return Minecraft.getMinecraft().getResourceManager().getResource(location).getInputStream();
+	}
+
 
 }

@@ -328,8 +328,7 @@ public class LevelFeaturesStorage {
 		blockstateList[0][176] = Blocks.LOG.getDefaultState().withProperty(BlockLog.LOG_AXIS, EnumAxis.Z);
 		blockstateList[0][177] = Blocks.OAK_STAIRS.getDefaultState().withProperty(BlockStairs.FACING, EnumFacing.NORTH)
 				.withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
-		blockstateList[0][255] = Blocks.SKULL.getDefaultState().withProperty(BlockSkull.FACING, EnumFacing.UP)
-				.withProperty(BlockSkull.NODROP, Boolean.valueOf(false));
+		blockstateList[0][255] = Blocks.AIR.getDefaultState();
 
 		for (int i = 1; i < blockstateList.length; i++)
 			blockstateList[i] = Arrays.copyOf(blockstateList[0], 256);
