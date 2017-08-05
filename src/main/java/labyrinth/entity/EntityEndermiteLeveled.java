@@ -67,20 +67,18 @@ public class EntityEndermiteLeveled extends EntityEndermite implements IMobLevel
 	@Override
 	public void onUpdate() {
 		if (!world.isRemote) {
+			if(LabyrinthMod.DEBUG_STOP_ENTITY_TICK)
+				return;
 			if (nearestPlayer != null) {
-				int dx = (int) (nearestPlayer.posX - this.posX);
 				int dy = (int) (nearestPlayer.posY - this.posY);
-				int dz = (int) (nearestPlayer.posZ - this.posZ);
-				if (dy * dy * 16 + dx * dx + dz * dz > 6144) {
+				if (dy * dy > 256) {
 					nearestPlayer = null;
 					return;
 				}
 			} else {
 				for (EntityPlayer player:this.getEntityWorld().playerEntities) {
-					int dx = (int) (player.posX - this.posX);
 					int dy = (int) (player.posY - this.posY);
-					int dz = (int) (player.posZ - this.posZ);
-					if (dy * dy * 16 + dx * dx + dz * dz < 4096) {
+					if (dy * dy < 64) {
 						nearestPlayer = player;
 					}
 				}
@@ -90,4 +88,5 @@ public class EntityEndermiteLeveled extends EntityEndermite implements IMobLevel
 			}
 		}
 		super.onUpdate();
-	}}
+	}
+}

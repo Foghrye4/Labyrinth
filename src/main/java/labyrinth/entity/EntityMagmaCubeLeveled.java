@@ -23,6 +23,7 @@ public class EntityMagmaCubeLeveled extends EntityMagmaCube implements IMobLevel
 	public void setLevel(int levelIn) {
 		level = levelIn;
 		this.experienceValue = LevelUtil.getExperienceValue(levelIn);
+		this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(16.0D*12);
 		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(LevelUtil.getMaxHealth(levelIn));
 		this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(LevelUtil.getMovementSpeed(levelIn));
 		this.getEntityAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(LevelUtil.getArmor(levelIn));
@@ -30,7 +31,7 @@ public class EntityMagmaCubeLeveled extends EntityMagmaCube implements IMobLevel
 	}
 
 	protected int getAttackStrength() {
-		return this.getSlimeSize() * (1 + level * level);
+		return this.getSlimeSize() * (1 + level);
 	}
 
 	protected void setSlimeSize(int size, boolean setHealth) {
@@ -104,20 +105,18 @@ public class EntityMagmaCubeLeveled extends EntityMagmaCube implements IMobLevel
 	@Override
 	public void onUpdate() {
 		if (!world.isRemote) {
+			if(LabyrinthMod.DEBUG_STOP_ENTITY_TICK)
+				return;
 			if (nearestPlayer != null) {
-				int dx = (int) (nearestPlayer.posX - this.posX);
 				int dy = (int) (nearestPlayer.posY - this.posY);
-				int dz = (int) (nearestPlayer.posZ - this.posZ);
-				if (dy * dy * 16 + dx * dx + dz * dz > 6144) {
+				if (dy * dy > 256) {
 					nearestPlayer = null;
 					return;
 				}
 			} else {
 				for (EntityPlayer player:this.getEntityWorld().playerEntities) {
-					int dx = (int) (player.posX - this.posX);
 					int dy = (int) (player.posY - this.posY);
-					int dz = (int) (player.posZ - this.posZ);
-					if (dy * dy * 16 + dx * dx + dz * dz < 4096) {
+					if (dy * dy < 64) {
 						nearestPlayer = player;
 					}
 				}
@@ -127,4 +126,5 @@ public class EntityMagmaCubeLeveled extends EntityMagmaCube implements IMobLevel
 			}
 		}
 		super.onUpdate();
-	}}
+	}
+}

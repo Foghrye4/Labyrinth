@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import labyrinth.block.BlockStoneTile;
+import labyrinth.client.renderer.RenderEntityEraserFrame;
+import labyrinth.entity.EntityEraserFrame;
 import labyrinth.init.LabyrinthBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -24,6 +26,9 @@ public class ClientProxy extends ServerProxy {
 		for(BlockStoneTile.EnumType type:BlockStoneTile.EnumType.values()){
 			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(LabyrinthBlocks.STONE), type.getMetadata(), new ModelResourceLocation(new ResourceLocation(LabyrinthMod.MODID,type.getName()), "inventory"));
 		}
+		Minecraft.getMinecraft().getRenderManager().entityRenderMap.put(EntityEraserFrame.class, new RenderEntityEraserFrame(Minecraft.getMinecraft().getRenderManager()));
+		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(LabyrinthMod.eraser, 0,
+				new ModelResourceLocation(new ResourceLocation(LabyrinthMod.MODID,"eraser"), "inventory"));
 	}
 
 	@Override

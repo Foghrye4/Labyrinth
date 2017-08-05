@@ -57,10 +57,6 @@ public enum DungeonCube {
 		NORTH_BORDER_WITH_WALLS("north_border_with_walls.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.EAST_WALL), 
 		SOUTH_BORDER_WITH_WALLS("south_border_with_walls.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.EAST_WALL), 
 		WEST_BORDER_WITH_WALLS("west_border_with_walls.cube_structure", DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.EAST_WALL), 
-		ROOM_OT_NORTH_EAST(	"room_ot_north_east.cube_structure"), // 9
-		ROOM_OT_NORTH_WEST("room_ot_north_west.cube_structure"),
-		ROOM_OT_SOUTH_EAST("room_ot_south_east.cube_structure"),
-		ROOM_OT_SOUTH_WEST("room_ot_south_west.cube_structure"),
 		STAIR_FLOOR_W_ROOM_OT_NORTH_EAST("stair_floor_w_room_ot_north_east.cube_structure",DungeonCubeFlag.STAIR_BOTTOM), 
 		STAIR_FLOOR_W_ROOM_OT_NORTH_WEST("stair_floor_w_room_ot_north_west.cube_structure",DungeonCubeFlag.STAIR_BOTTOM), 
 		STAIR_FLOOR_W_ROOM_OT_SOUTH_EAST("stair_floor_w_room_ot_south_east.cube_structure",DungeonCubeFlag.STAIR_BOTTOM), 
@@ -69,9 +65,8 @@ public enum DungeonCube {
 		STAIR_TOP_W_ROOM_OT_NORTH_WEST("stair_ceil_w_room_ot_north_west.cube_structure",DungeonCubeFlag.STAIR_TOP), 
 		STAIR_TOP_W_ROOM_OT_SOUTH_EAST("stair_ceil_w_room_ot_south_east.cube_structure",DungeonCubeFlag.STAIR_TOP),
 		STAIR_TOP_W_ROOM_OT_SOUTH_WEST("stair_ceil_w_room_ot_south_west.cube_structure", DungeonCubeFlag.STAIR_TOP),		
-		NODE("node.cube_structure"),
 		WORKSHOP("workshop_south_door.cube_structure"),
-		LIBRARY("library.cube_structure"),
+		LIBRARY("library.cube_structure", DungeonCubeFlag.LIBRARY),
 		WALL_X("wall_x.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
 		WALL_EAST_NORTH_BARS("wall_east_north_bars.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.NORTH_WALL),
 		WALL_EAST_NORTH("wall_east_north.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.NORTH_WALL),
@@ -85,6 +80,70 @@ public enum DungeonCube {
 		WALL_WEST_NORTH("wall_west_north.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.NORTH_WALL),
 		WALL_WEST_SOUTH_BARS("wall_west_south_bars.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
 		WALL_WEST_SOUTH("wall_west_south.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
+
+		//Lava variants
+		COLUMN_FLOOR_LAVA("column_floor_lava.cube_structure", DungeonCubeFlag.COLUMN_BOTTOM), 
+		STAIR_TOP_LAVA("stair_ceil_lava.cube_structure",	DungeonCubeFlag.STAIR_TOP), 
+		STAIR_TOP_CEILINGLESS_LAVA("stair_top_ceilingless_lava.cube_structure", DungeonCubeFlag.STAIR_TOP, DungeonCubeFlag.COLUMN_BOTTOM), 
+		STAIR_MIDDLE_LAVA("stair_middle_lava.cube_structure", DungeonCubeFlag.STAIR_TOP, DungeonCubeFlag.STAIR_BOTTOM), 
+		STAIR_FLOOR_LAVA("stair_floor_lava.cube_structure", DungeonCubeFlag.STAIR_BOTTOM),
+		COLUMN_FLOOR_CEIL_LAVA("column_floor_ceil_lava.cube_structure"), 
+		COLUMN_EAST_BORDER_LAVA("column_east_border_lava.cube_structure"),
+		COLUMN_NORTH_BORDER_LAVA("column_north_border_lava.cube_structure"), 
+		COLUMN_SOUTH_BORDER_LAVA("column_south_border_lava.cube_structure"), 
+		COLUMN_WEST_BORDER_LAVA("column_west_border_lava.cube_structure"), 
+		EAST_BORDER_WITH_WALL_SOUTH_NORTH_LAVA("east_border_with_wall_south_north_lava.cube_structure", DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.NORTH_WALL),
+		NORTH_BORDER_WITH_WALL_EAST_WEST_LAVA("north_border_with_wall_east_west_lava.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.WEST_WALL), 
+		SOUTH_BORDER_WITH_WALL_EAST_WEST_LAVA("south_border_with_wall_west_east_lava.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.WEST_WALL), 
+		WEST_BORDER_WITH_WALL_SOUTH_NORTH_LAVA("west_border_with_wall_north_south_lava.cube_structure", DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.NORTH_WALL), 
+		
+		EAST_BORDER_WITH_WALL_SOUTH_WEST_LAVA("east_border_with_wall_south_west_lava.cube_structure", DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.WEST_WALL),
+		NORTH_BORDER_WITH_WALL_EAST_SOUTH_LAVA("north_border_with_wall_east_south_lava.cube_structure", DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.EAST_WALL), 
+		SOUTH_BORDER_WITH_WALL_WEST_NORTH_LAVA("south_border_with_wall_west_north_lava.cube_structure", DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL), 
+		WEST_BORDER_WITH_WALL_NORTH_EAST_LAVA("west_border_with_wall_north_east_lava.cube_structure", DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.EAST_WALL), 
+
+		EAST_BORDER_WITH_WALL_WEST_NORTH_LAVA("east_border_with_wall_west_north_lava.cube_structure", DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL),
+		NORTH_BORDER_WITH_WALL_SOUTH_WEST_LAVA("north_border_with_wall_south_west_lava.cube_structure", DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.WEST_WALL), 
+		SOUTH_BORDER_WITH_WALL_NORTH_EAST_LAVA("south_border_with_wall_north_east_lava.cube_structure", DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.EAST_WALL), 
+		WEST_BORDER_WITH_WALL_EAST_SOUTH_LAVA("west_border_with_wall_east_south_lava.cube_structure", DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.EAST_WALL), 
+
+		NORTH_EAST_BORDER_LAVA("north_east_border_lava.cube_structure"),
+		WEST_NORTH_BORDER_LAVA("west_north_border_lava.cube_structure"), 
+		EAST_SOUTH_BORDER_LAVA("east_south_border_lava.cube_structure"), 
+		SOUTH_WEST_BORDER_LAVA("south_west_border_lava.cube_structure"), 
+
+		NORTH_BORDER_COLUMN_FLOOR_LAVA("north_border_column_floor_lava.cube_structure", DungeonCubeFlag.COLUMN_BOTTOM), 
+		SOUTH_BORDER_COLUMN_FLOOR_LAVA("south_border_column_floor_lava.cube_structure", DungeonCubeFlag.COLUMN_BOTTOM), 
+		WEST_BORDER_COLUMN_FLOOR_LAVA("west_border_column_floor_lava.cube_structure", DungeonCubeFlag.COLUMN_BOTTOM), 
+		EAST_BORDER_COLUMN_FLOOR_LAVA("east_border_column_floor_lava.cube_structure", DungeonCubeFlag.COLUMN_BOTTOM), 
+		
+		WALL_EAST_NORTH_SOUTH_LAVA("wall_north_south_east_lava.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.SOUTH_WALL),
+		WALL_SOUTH_EAST_WEST_LAVA("wall_east_west_south_lava.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.WEST_WALL),
+		WALL_WEST_SOUTH_NORTH_LAVA("wall_south_north_west_lava.cube_structure", DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL),
+		WALL_NORTH_WEST_EAST_LAVA("wall_west_east_north_lava.cube_structure", DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.EAST_WALL),
+		
+		EAST_BORDER_WITH_WALLS_LAVA("east_border_with_walls_lava.cube_structure", DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL),
+		NORTH_BORDER_WITH_WALLS_LAVA("north_border_with_walls_lava.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.EAST_WALL), 
+		SOUTH_BORDER_WITH_WALLS_LAVA("south_border_with_walls_lava.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.EAST_WALL), 
+		WEST_BORDER_WITH_WALLS_LAVA("west_border_with_walls_lava.cube_structure", DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.EAST_WALL), 
+		STAIR_FLOOR_W_ROOM_OT_NORTH_EAST_LAVA("stair_floor_w_room_ot_north_east_lava.cube_structure",DungeonCubeFlag.STAIR_BOTTOM), 
+		STAIR_FLOOR_W_ROOM_OT_NORTH_WEST_LAVA("stair_floor_w_room_ot_north_west_lava.cube_structure",DungeonCubeFlag.STAIR_BOTTOM), 
+		STAIR_FLOOR_W_ROOM_OT_SOUTH_EAST_LAVA("stair_floor_w_room_ot_south_east_lava.cube_structure",DungeonCubeFlag.STAIR_BOTTOM), 
+		STAIR_FLOOR_W_ROOM_OT_SOUTH_WEST_LAVA("stair_floor_w_room_ot_south_west_lava.cube_structure",DungeonCubeFlag.STAIR_BOTTOM), 
+		STAIR_TOP_W_ROOM_OT_NORTH_EAST_LAVA("stair_ceil_w_room_ot_north_east_lava.cube_structure",DungeonCubeFlag.STAIR_TOP), 
+		STAIR_TOP_W_ROOM_OT_NORTH_WEST_LAVA("stair_ceil_w_room_ot_north_west_lava.cube_structure",DungeonCubeFlag.STAIR_TOP), 
+		STAIR_TOP_W_ROOM_OT_SOUTH_EAST_LAVA("stair_ceil_w_room_ot_south_east_lava.cube_structure",DungeonCubeFlag.STAIR_TOP),
+		STAIR_TOP_W_ROOM_OT_SOUTH_WEST_LAVA("stair_ceil_w_room_ot_south_west_lava.cube_structure", DungeonCubeFlag.STAIR_TOP),
+		WORKSHOP_LAVA("workshop_lava.cube_structure"),
+		LIBRARY_LAVA("library_lava.cube_structure", DungeonCubeFlag.LIBRARY),
+		WALL_X_LAVA("wall_x_lava.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
+		WALL_EAST_NORTH_LAVA("wall_north_east_lava.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.NORTH_WALL),
+		WALL_EAST_SOUTH_LAVA("wall_east_south_lava.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.SOUTH_WALL),
+		WALL_SOUTH_NORTH_LAVA("wall_north_south_lava.cube_structure", DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.NORTH_WALL),
+		WALL_WEST_EAST_LAVA("wall_west_east_lava.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.EAST_WALL),
+		WALL_WEST_NORTH_LAVA("wall_west_north_lava.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.NORTH_WALL),
+		WALL_WEST_SOUTH_LAVA("wall_south_west_lava.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
+		
 		NOTHING(""),
 		UNDEFINED("");
 
@@ -100,6 +159,7 @@ public enum DungeonCube {
 		boolean isColumnBottom = false;
 		boolean isStairTop = false;
 		boolean isStairBottom = false;
+		boolean isLibrary = false;
 		public final byte[] data = new byte[4096];
 		public final byte[] lightData = new byte[2048];
 
@@ -137,6 +197,9 @@ public enum DungeonCube {
 					break;
 				case STAIR_BOTTOM:
 					isStairBottom = true;
+					break;
+				case LIBRARY:
+					isLibrary = true;
 					break;
 				}
 			}
@@ -199,6 +262,7 @@ public enum DungeonCube {
 			COLUMN_MIDDLE,
 			COLUMN_BOTTOM, 
 			STAIR_TOP, 
-			STAIR_BOTTOM;
+			STAIR_BOTTOM, 
+			LIBRARY;
 		}
 }

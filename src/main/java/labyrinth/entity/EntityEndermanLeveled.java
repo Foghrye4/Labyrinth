@@ -57,19 +57,6 @@ public class EntityEndermanLeveled extends EntityEnderman implements IMobLeveled
 		return lootTable;
 	}
 
-	protected void updateAITasks() {
-		super.updateAITasks();
-		if (this.getAttackTarget() == null) {
-			EntityPlayer player = this.world.getNearestAttackablePlayer(this.posX, this.posY, this.posZ, 16d, 16d,
-					(Function<EntityPlayer, Double>) null, new Predicate<EntityPlayer>() {
-						public boolean apply(@Nullable EntityPlayer player) {
-							return player != null;
-						}
-					});
-			if (player != null)
-				this.setAttackTarget(player);
-		}
-	}
 	/**
 	 * Leveled creatures shall not despawn.
 	 */
@@ -90,44 +77,26 @@ public class EntityEndermanLeveled extends EntityEnderman implements IMobLeveled
 	@Override
 	public void onUpdate() {
 		if (!world.isRemote) {
+			if(LabyrinthMod.DEBUG_STOP_ENTITY_TICK)
+				return;
 			if (nearestPlayer != null) {
-				int dx = (int) (nearestPlayer.posX - this.posX);
 				int dy = (int) (nearestPlayer.posY - this.posY);
-				int dz = (int) (nearestPlayer.posZ - this.posZ);
-				if (dy * dy * 16 + dx * dx + dz * dz > 6144) {
+				if (dy * dy > 256) {
 					nearestPlayer = null;
 					return;
 				}
 			} else {
-				List<EntityPlayer> pList = this.getEntityWorld().playerEntities;
-				if (this.playerListIndex < pList.size()) {
-					EntityPlayer player = pList.get(this.playerListIndex);
-					int dx = (int) (player.posX - this.posX);
+				for (EntityPlayer player:this.getEntityWorld().playerEntities) {
 					int dy = (int) (player.posY - this.posY);
-					int dz = (int) (player.posZ - this.posZ);
-					if (++this.playerListIndex >= this.maxPlayerListIndex) {
-						this.maxPlayerListIndex *= 2;
-					}
-					if (dy * dy * 16 + dx * dx + dz * dz < 4096) {
+					if (dy * dy < 64) {
 						nearestPlayer = player;
-					} else {
-						return;
 					}
 				}
-				if (this.playerListIndex >= this.maxPlayerListIndex) {
-					this.playerListIndex = 0;
+				if (nearestPlayer == null) {
+					return;
 				}
-				return;
 			}
 		}
 		super.onUpdate();
 	}
-	
-    public boolean attackEntityFrom(DamageSource source, float amount) {
-    	if(source instanceof EntityDamageSource) {
-    		EntityDamageSource eds = (EntityDamageSource) source;
-    		nearestPlayer = eds.getEntity();
-    	}
-   		return super.attackEntityFrom(source, amount);
-    }
 }

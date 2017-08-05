@@ -9,6 +9,9 @@
                     "name": "minecraft:reeds"
                 },
                 {
+                    "type": "empty"
+                },
+                {
                     "type": "item",
                     "name": "minecraft:sand",
                     "functions": [

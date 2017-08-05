@@ -6,8 +6,11 @@
             "entries": [
                 {
                     "type": "loot_table",
-                    "weight": 16,
+                    "weight": 32,
                     "name": "labyrinth:dungeon_loot_level_5"
+                },
+                {
+                    "type": "empty"
                 },
                 {
                     "type": "item",

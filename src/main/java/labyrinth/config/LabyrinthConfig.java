@@ -77,9 +77,11 @@ public class LabyrinthConfig {
     }
 
     public static enum BoolOptions {
-        REMOVE_MOBS(true,
+        REMOVE_ALL_HOSTILE_MOBS(false,
                 "Enabling this option will remove all hostile mobs form all "
-                        + " biomes spawnable lists. It is necessary to restart server for this option to work.");
+                        + " biomes spawnable lists. Only dungeon-specific mobs will be spawned. It is necessary to restart server for this option to work."),
+        DO_NOT_SPAWN_VANILLA_MOBS_IN_DUNGEONS(true,
+                "Enabling this option will prevent spawn of hostile mobs in dungeons.");
 
         private final boolean defaultValue;
         private final String description;
@@ -166,6 +168,10 @@ public class LabyrinthConfig {
 	}
 
 	public boolean shouldRemoveMobSpawn() {
-		return BoolOptions.REMOVE_MOBS.getValue();
+		return BoolOptions.REMOVE_ALL_HOSTILE_MOBS.getValue();
+	}
+	
+	public boolean shouldSkipSpawnVanillaMobsInDungeons() {
+		return BoolOptions.DO_NOT_SPAWN_VANILLA_MOBS_IN_DUNGEONS.getValue();
 	}
 }

@@ -2,22 +2,23 @@
     "pools": [
         {
 	    "name":"library",
-            "rolls": 2,
+            "rolls": 1,
             "entries": [
                 {
                     "type": "loot_table",
-                    "weight": 8,
+                    "weight": 32,
                     "name": "labyrinth:library/library_loot_level_6"
                 },
                 {
+                    "type": "empty"
+                },
+                {
                     "type": "item",
-                    "name": "minecraft:enchanted_book",
-                    "quality": 4,
+                    "name": "minecraft:book",
+                    "quality": 2,
                     "functions": [
                         {
-                            "function": "minecraft:enchant_with_levels",
-                            "levels": 30,
-                            "treasure": true
+                            "function": "minecraft:enchant_randomly"
                         }
                     ]
                 }

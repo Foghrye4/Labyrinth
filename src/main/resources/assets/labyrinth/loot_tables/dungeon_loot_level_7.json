@@ -6,8 +6,22 @@
             "entries": [
                 {
                     "type": "loot_table",
-                    "weight": 8,
+                    "weight": 32,
                     "name": "labyrinth:dungeon_loot_level_6"
+                },
+                {
+                    "type": "empty"
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:dye",
+                    "quality": 8,
+                    "functions": [
+						{
+			 			   "function": "set_data",
+			 			   "data": 4
+                      	}
+                     ]
                 }
             ]
         }

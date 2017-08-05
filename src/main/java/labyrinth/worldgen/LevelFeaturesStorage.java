@@ -1,11 +1,23 @@
 package labyrinth.worldgen;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.Random;
 
+import com.google.common.base.Optional;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+
+import cubicchunks.asm.CubicChunksMixinConfig.BoolOptions;
+import cubicchunks.worldgen.generator.flat.Layer;
 import labyrinth.init.LabyrinthBlocks;
 import labyrinth.init.LabyrinthEntities;
 import labyrinth.util.ModIntegrationUtil;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockAnvil;
 import net.minecraft.block.BlockCauldron;
 import net.minecraft.block.BlockChest;
@@ -30,6 +42,7 @@ import net.minecraft.block.BlockStainedGlassPane;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.BlockStairs.EnumHalf;
 import net.minecraft.block.BlockStairs.EnumShape;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.BlockStone;
 import net.minecraft.block.BlockStoneBrick;
 import net.minecraft.block.BlockTorch;
@@ -103,6 +116,8 @@ public class LevelFeaturesStorage {
 			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE),
 			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT,
 					BlockStone.EnumType.DIORITE_SMOOTH),
+			Blocks.IRON_BLOCK.getDefaultState(),
+			Blocks.GOLD_BLOCK.getDefaultState(),
 			Blocks.QUARTZ_BLOCK.getDefaultState(),
 			Blocks.QUARTZ_BLOCK.getDefaultState().withProperty(BlockQuartz.VARIANT, BlockQuartz.EnumType.CHISELED),
 			Blocks.QUARTZ_BLOCK.getDefaultState().withProperty(BlockQuartz.VARIANT, BlockQuartz.EnumType.LINES_X),
@@ -144,10 +159,26 @@ public class LevelFeaturesStorage {
 			Blocks.SANDSTONE_STAIRS.getBlockState().getBaseState().withProperty(BlockStairs.SHAPE, EnumShape.STRAIGHT),
 			Blocks.RED_SANDSTONE_STAIRS.getBlockState().getBaseState().withProperty(BlockStairs.SHAPE,
 					EnumShape.STRAIGHT), };
-	private final IBlockState[] WINDOW_CANDIDATES = new IBlockState[] { Blocks.OAK_FENCE.getDefaultState(),
-			Blocks.NETHER_BRICK_FENCE.getDefaultState(), Blocks.DARK_OAK_FENCE.getDefaultState(),
-			Blocks.ACACIA_FENCE.getDefaultState(), Blocks.BIRCH_FENCE.getDefaultState(),
-			Blocks.IRON_BARS.getDefaultState(), Blocks.BIRCH_FENCE.getDefaultState() };
+	private final IBlockState[] WINDOW_CANDIDATES = new IBlockState[] { 
+			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.RED),
+			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.BLACK),
+			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.BLUE),
+			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.BROWN),
+			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.CYAN),
+			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.GRAY),
+			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.GREEN),
+			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.LIME),
+			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.LIGHT_BLUE),
+			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.MAGENTA),
+			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.ORANGE),
+			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.PINK),
+			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.PURPLE),
+			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.SILVER),
+			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.WHITE),
+			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.YELLOW),
+			Blocks.NETHER_BRICK_FENCE.getDefaultState(), 
+			Blocks.IRON_BARS.getDefaultState()
+			};
 	private final IBlockState[] FENCE_CANDIDATES = new IBlockState[] { Blocks.OAK_FENCE.getDefaultState(),
 			Blocks.NETHER_BRICK_FENCE.getDefaultState(), Blocks.DARK_OAK_FENCE.getDefaultState(),
 			Blocks.ACACIA_FENCE.getDefaultState(), Blocks.BIRCH_FENCE.getDefaultState(),
@@ -397,6 +428,18 @@ public class LevelFeaturesStorage {
 			stair = STAIR_CANDIDATES[random.nextInt(STAIR_CANDIDATES.length)];
 			addStairs(blockstateList[i], stair);
 		}
+		
+        File folder = new File(".", "config");
+        folder.mkdirs();
+        File configFile = new File(folder, "labyrinth_level_features_config.json");
+        try {
+            if (!configFile.exists())
+                this.writeConfigToJson(configFile);
+            this.readConfigFromJson(configFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 	}
 
 	private void addStairs(IBlockState[] blockstateIn, IBlockState stair) {
@@ -442,5 +485,111 @@ public class LevelFeaturesStorage {
 				.withProperty(BlockStairs.HALF, EnumHalf.BOTTOM).withProperty(BlockStairs.SHAPE, EnumShape.INNER_LEFT);
 	}
 
+	
+	private void writeConfigToJson(File configFile) throws IOException {
+		JsonWriter writer = new JsonWriter(new FileWriter(configFile));
+		writer.setIndent(" ");
+		writer.beginArray();
+		for (int level = 0; level < 1; level++) {
+			writer.beginObject();
+			{
+				writer.name("level");
+				writer.value(level);
+				writer.name("hint");
+				writer.value("0 -air, 1 - walls, 2 - floor, 18 - windows, 120 - fence");
+				writer.name("entries");
+				writer.beginArray();
+				for (int num_place = 0; num_place < 57; num_place++) {
+					writer.beginObject();
+					{
+						writer.name("index_space");
+						writer.value(num_place);
+						IBlockState bstate = this.blockstateList[level][num_place];
+						String blockRegistryName = Block.REGISTRY.getNameForObject(bstate.getBlock()).toString();
+						writer.name(blockRegistryName);
+						writer.beginObject();
+						bstate.getProperties().forEach((p, v) -> {
+							try {
+								writer.name(p.getName());
+								writer.value(getValueName(p, v));
+							} catch (IOException e) {
+								throw new UncheckedIOException("Input error while converting to Json a BlockState instance of block " + blockRegistryName
+										+ " for config of flat cube type world.", e);
+							}
+						});
+						writer.endObject();
+					}
+					writer.endObject();
+				}
+				writer.endArray();
+			}
+			writer.endObject();
+		}
+		writer.endArray();
+		writer.close();
+	}
+    
+    @SuppressWarnings({"rawtypes", "unchecked"})
+	private void readConfigFromJson(File configFile) throws IOException {
+        JsonReader reader = new JsonReader(new FileReader(configFile));
+        reader.beginArray();
+		while (reader.hasNext()) {
+			reader.beginObject();
+			{
+				reader.nextName();
+				int level = reader.nextInt();
+				String name = reader.nextName();
+				if(name.equals("hint")) {
+					reader.skipValue();
+					reader.nextName();
+				}
+				reader.beginArray();
+				while (reader.hasNext()) {
+					reader.beginObject();
+					reader.nextName();
+					int index_space = reader.nextInt();
+					String blockRegistryName = reader.nextName();
+			        Block block = Block.getBlockFromName(blockRegistryName);
+			        IBlockState blockState = block.getBlockState().getBaseState();
+					reader.beginObject();
+					while (reader.hasNext()) {
+			            IProperty property = block.getBlockState().getProperty(reader.nextName());
+			            blockState = blockState.withProperty(property, findPropertyValueByName(property, reader.nextString()));
+			        }
+					this.blockstateList[level][index_space]=blockState;
+					reader.endObject();
+					reader.endObject();
+				}
+				reader.endArray();
+			}
+			reader.endObject();
+		}
+		reader.endArray();
+		reader.close();
+    }
+    
+    @SuppressWarnings({"rawtypes", "unchecked"})
+	private String getValueName(IProperty property, Comparable v) {
+        return property.getName(v);
+    }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
+	private Comparable findPropertyValueByName(IProperty property, String valueIn) {
+        Optional<Comparable> value = property.parseValue(valueIn);
+        if (value.isPresent()) {
+            return value.get();
+        } else {
+            for (Object v : property.getAllowedValues()) {
+                if (isValueEqualTo(property, (Comparable) v, valueIn)) {
+                    return (Comparable) v;
+                }
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings("rawtypes")
+	private boolean isValueEqualTo(IProperty property, Comparable value, String valueIn) {
+        return getValueName(property, value).equals(valueIn);
+    }
 }

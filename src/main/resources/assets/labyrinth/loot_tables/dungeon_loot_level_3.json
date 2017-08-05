@@ -10,6 +10,9 @@
                     "name": "labyrinth:dungeon_loot_level_2"
                 },
                 {
+                    "type": "empty"
+                },
+                {
                     "type": "item",
                     "name": "minecraft:gold_ingot",
                     "quality": 8

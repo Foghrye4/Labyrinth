@@ -1,0 +1,20 @@
+{
+    "pools": [
+        {
+	    "name":"labyrinth",
+            "rolls": 2,
+            "entries": [
+                {
+                    "type": "loot_table",
+                    "weight": 32,
+                    "name": "labyrinth:dungeon_loot_level_7"
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:apple",
+                    "quality": 2
+                }
+            ]
+        }
+    ]
+}
