@@ -144,6 +144,24 @@ public enum DungeonCube {
 		WALL_WEST_NORTH_LAVA("wall_west_north_lava.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.NORTH_WALL),
 		WALL_WEST_SOUTH_LAVA("wall_south_west_lava.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
 		
+		//Village
+		VILLAGE_SOUTH_WEST("village_south_west.cube_structure", DungeonCubeFlag.CORRAL),
+		VILLAGE_SOUTH_EAST("village_south_east.cube_structure"),
+		VILLAGE_NORTH_WEST("village_north_west.cube_structure"),
+		VILLAGE_NORTH_EAST("village_north_east.cube_structure"),
+		VILLAGE_SOUTH("village_south.cube_structure"),
+		VILLAGE_EAST("village_east.cube_structure"),
+		VILLAGE_WEST("village_west.cube_structure"),
+		VILLAGE_NORTH("village_north.cube_structure"),
+		VILLAGE_HOME("village_home.cube_structure"),
+		VILLAGE_PARK("village_park.cube_structure"),
+		VILLAGE_NORTH_GATE_WEST_SIDE("village_north_gate_west_side.cube_structure"),
+		VILLAGE_NORTH_GATE_EAST_SIDE("village_north_gate_east_side.cube_structure"),
+		VILLAGE_SOUTH_GATE_WEST_SIDE("village_south_gate_west_side.cube_structure"),
+		VILLAGE_SOUTH_GATE_EAST_SIDE("village_south_gate_east_side.cube_structure"),
+		VILLAGE_CENTRAL_WEST_SIDE("village_central_west_side.cube_structure"),
+		VILLAGE_CENTRAL_EAST_SIDE("village_central_east_side.cube_structure"),
+		
 		NOTHING(""),
 		UNDEFINED("");
 
@@ -160,6 +178,7 @@ public enum DungeonCube {
 		boolean isStairTop = false;
 		boolean isStairBottom = false;
 		boolean isLibrary = false;
+		boolean isCorral = false;
 		public final byte[] data = new byte[4096];
 		public final byte[] lightData = new byte[2048];
 
@@ -201,6 +220,9 @@ public enum DungeonCube {
 				case LIBRARY:
 					isLibrary = true;
 					break;
+				case CORRAL:
+					isCorral = true;
+					break;
 				}
 			}
 		}
@@ -213,7 +235,7 @@ public enum DungeonCube {
 			NibbleArray lightNibbleArray = new NibbleArray(lightData);
 			Set<BlockPos> pointsOfInterest = new HashSet<BlockPos>();
 			for(int index=0;index<data.length;index++) {
-				if((Byte.toUnsignedInt(data[index])>=153 && Byte.toUnsignedInt(data[index])<=157) ||Byte.toUnsignedInt(data[index])==16	){
+				if((Byte.toUnsignedInt(data[index])>=153 && Byte.toUnsignedInt(data[index])<=157) ||Byte.toUnsignedInt(data[index])==16 ||Byte.toUnsignedInt(data[index])==180){
 					int dx = index >>> 8;
 					int dy = (index >>> 4) & 15;
 					int dz = index & 15;
@@ -263,6 +285,7 @@ public enum DungeonCube {
 			COLUMN_BOTTOM, 
 			STAIR_TOP, 
 			STAIR_BOTTOM, 
-			LIBRARY;
+			LIBRARY, 
+			CORRAL;
 		}
 }

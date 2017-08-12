@@ -2,17 +2,56 @@
     "pools": [
         {
 	    "name":"labyrinth",
-            "rolls": 2,
+            "rolls": 1,
             "entries": [
                 {
                     "type": "loot_table",
-                    "weight": 32,
-                    "name": "labyrinth:dungeon_loot_level_7"
+                    "weight": 8,
+                    "name": "labyrinth:dungeon_loot_tables/items_level_0"
                 },
                 {
-                    "type": "item",
-                    "name": "minecraft:apple",
-                    "quality": 2
+                    "type": "loot_table",
+                    "weight": 7,
+                    "name": "labyrinth:dungeon_loot_tables/items_level_1"
+                },
+                {
+                    "type": "loot_table",
+                    "weight": 6,
+                    "name": "labyrinth:dungeon_loot_tables/items_level_2"
+                },
+                {
+                    "type": "loot_table",
+                    "weight": 5,
+                    "name": "labyrinth:dungeon_loot_tables/items_level_3"
+                },
+                {
+                    "type": "loot_table",
+                    "weight": 4,
+                    "name": "labyrinth:dungeon_loot_tables/items_level_4"
+                },
+                {
+                    "type": "loot_table",
+                    "weight": 3,
+                    "name": "labyrinth:dungeon_loot_tables/items_level_5"
+                },
+                {
+                    "type": "loot_table",
+                    "weight": 2,
+                    "name": "labyrinth:dungeon_loot_tables/items_level_6"
+                },
+                {
+                    "type": "loot_table",
+                    "weight": 1,
+                    "name": "labyrinth:dungeon_loot_tables/items_level_7"
+                },
+                {
+                    "type": "loot_table",
+                    "weight": 1,
+                    "name": "labyrinth:dungeon_loot_tables/items_level_8"
+                },
+                {
+                    "type": "empty",
+                    "weight": 1
                 }
             ]
         }

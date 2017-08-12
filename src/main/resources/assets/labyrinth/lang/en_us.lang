@@ -3,3 +3,4 @@ language.region=US
 language.code=en_US
 
 item.eraser.name=Block eraser tool
+item.block_filler.name=Block filler tool

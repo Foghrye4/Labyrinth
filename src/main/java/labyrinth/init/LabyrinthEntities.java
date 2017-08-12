@@ -22,33 +22,34 @@ import labyrinth.entity.EntityVindicatorLeveled;
 import labyrinth.entity.EntityWitchLeveled;
 import labyrinth.entity.EntityWitherSkeletonLeveled;
 import labyrinth.entity.EntityZombieLeveled;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 
 public class LabyrinthEntities {
 	private static int ID = 0;
-	public static Class<? extends EntityLivingBase> ZOMBIE = EntityZombieLeveled.class;
-	public static Class<? extends EntityLivingBase> BLAZE = EntityBlazeLeveled.class;
-	public static Class<? extends EntityLivingBase> CAVE_SPIDER = EntityCaveSpiderLeveled.class;
-	public static Class<? extends EntityLivingBase> CREEPER = EntityCreeperLeveled.class;
-	public static Class<? extends EntityLivingBase> ELDER_GUARDIAN = EntityElderGuardianLeveled.class;
-	public static Class<? extends EntityLivingBase> ENDERMAN = EntityEndermanLeveled.class;
-	public static Class<? extends EntityLivingBase> ENDERMITE = EntityEndermiteLeveled.class;
-	public static Class<? extends EntityLivingBase> EVOKER = EntityEvokerLeveled.class;
-	public static Class<? extends EntityLivingBase> GHAST = EntityGhastLeveled.class;
-	public static Class<? extends EntityLivingBase> GUARDIAN = EntityGuardianLeveled.class;
-	public static Class<? extends EntityLivingBase> MAGMA_CUBE = EntityMagmaCubeLeveled.class;
-	public static Class<? extends EntityLivingBase> PIG_ZOMBIE = EntityPigZombieLeveled.class;
-	public static Class<? extends EntityLivingBase> SILVERFISH = EntitySilverfishLeveled.class;
-	public static Class<? extends EntityLivingBase> SKELETON = EntitySkeletonLeveled.class;
-	public static Class<? extends EntityLivingBase> SLIME = EntitySlimeLeveled.class;
-	public static Class<? extends EntityLivingBase> SPIDER = EntitySpiderLeveled.class;
-	public static Class<? extends EntityLivingBase> STRAY = EntityStrayLeveled.class;
-	public static Class<? extends EntityLivingBase> VEX = EntityVexLeveled.class;
-	public static Class<? extends EntityLivingBase> VINDICATOR = EntityVindicatorLeveled.class;
-	public static Class<? extends EntityLivingBase> WITCH = EntityWitchLeveled.class;
-	public static Class<? extends EntityLivingBase> WITHER_SKELETON = EntityWitherSkeletonLeveled.class;
+	public static Class<? extends EntityLiving> ZOMBIE = EntityZombieLeveled.class;
+	public static Class<? extends EntityLiving> BLAZE = EntityBlazeLeveled.class;
+	public static Class<? extends EntityLiving> CAVE_SPIDER = EntityCaveSpiderLeveled.class;
+	public static Class<? extends EntityLiving> CREEPER = EntityCreeperLeveled.class;
+	public static Class<? extends EntityLiving> ELDER_GUARDIAN = EntityElderGuardianLeveled.class;
+	public static Class<? extends EntityLiving> ENDERMAN = EntityEndermanLeveled.class;
+	public static Class<? extends EntityLiving> ENDERMITE = EntityEndermiteLeveled.class;
+	public static Class<? extends EntityLiving> EVOKER = EntityEvokerLeveled.class;
+	public static Class<? extends EntityLiving> GHAST = EntityGhastLeveled.class;
+	public static Class<? extends EntityLiving> GUARDIAN = EntityGuardianLeveled.class;
+	public static Class<? extends EntityLiving> MAGMA_CUBE = EntityMagmaCubeLeveled.class;
+	public static Class<? extends EntityLiving> PIG_ZOMBIE = EntityPigZombieLeveled.class;
+	public static Class<? extends EntityLiving> SILVERFISH = EntitySilverfishLeveled.class;
+	public static Class<? extends EntityLiving> SKELETON = EntitySkeletonLeveled.class;
+	public static Class<? extends EntityLiving> SLIME = EntitySlimeLeveled.class;
+	public static Class<? extends EntityLiving> SPIDER = EntitySpiderLeveled.class;
+	public static Class<? extends EntityLiving> STRAY = EntityStrayLeveled.class;
+	public static Class<? extends EntityLiving> VEX = EntityVexLeveled.class;
+	public static Class<? extends EntityLiving> VINDICATOR = EntityVindicatorLeveled.class;
+	public static Class<? extends EntityLiving> WITCH = EntityWitchLeveled.class;
+	public static Class<? extends EntityLiving> WITHER_SKELETON = EntityWitherSkeletonLeveled.class;
 	
 	public static void register(Object mod) {
 		registerModEntity(ZOMBIE, "Zombie", mod);
@@ -74,7 +75,7 @@ public class LabyrinthEntities {
 		registerModEntity(WITHER_SKELETON, "WitherSkeleton", mod);
 	}
 	
-	private static void registerModEntity(Class<? extends EntityLivingBase> classIn, String name, Object mod) {
+	private static void registerModEntity(Class<? extends EntityLiving> classIn, String name, Object mod) {
 		EntityRegistry.registerModEntity(new ResourceLocation(LabyrinthMod.MODID, name), classIn, name, ID++, mod, 80, 3, true);
 	}
 }

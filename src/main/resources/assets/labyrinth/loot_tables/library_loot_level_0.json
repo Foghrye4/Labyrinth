@@ -1,13 +1,13 @@
 {
     "pools": [
         {
-	    "name":"labyrinth",
+	    "name":"library",
             "rolls": 1,
             "entries": [
                 {
                     "type": "loot_table",
-                    "weight": 4,
-                    "name": "labyrinth:dungeon_loot_tables/items_level_0"
+                    "weight": 8,
+                    "name": "labyrinth:library_loot_tables/items_level_0"
                 },
                 {
                     "type": "empty",

@@ -4,12 +4,25 @@ import java.util.Random;
 
 import cubicchunks.util.CubePos;
 import cubicchunks.world.ICubicWorld;
+import labyrinth.entity.IMobLeveled;
+import labyrinth.entity.ISlime;
+import labyrinth.init.LabyrinthEntities;
+import labyrinth.util.LevelUtil;
+import net.minecraft.block.material.Material;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.init.Items;
+import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 
+	private LabyrinthWorldGen generator;
 	private final Random random = new Random();
-	
-	public DungeonCube[] randomDungeonsArray = new DungeonCube[]{
+	private DungeonCube[] randomDungeonsArray = new DungeonCube[]{
 			DungeonCube.COLUMN_CEIL,
 			DungeonCube.COLUMN_MIDDLE,
 			DungeonCube.COLUMN_FLOOR,
@@ -26,6 +39,10 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 			DungeonCube.WALL_WEST_SOUTH_BARS,
 			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,
 			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,};
+	
+	public RegularCubeStructureGenerator(LabyrinthWorldGen generatorIn){
+		generator = generatorIn;
+	}
 	
 	public boolean isAnchorPoint(CubePos cpos) {
 		return (cpos.getX() & 1 | cpos.getZ() & 1 | cpos.getY() + cpos.getX() / 2 + cpos.getZ() / 2 & 1) == 0;
@@ -51,16 +68,16 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 		DungeonCube d_north = DungeonCube.UNDEFINED;
 
 		if ((cpos.getX() & 1 | cpos.getZ() & 1) == 0) {
-			d_up = getDungeonCubeType(cpos.add(0, 1, 0), world);
-			d_down = getDungeonCubeType(cpos.sub(0, 1, 0), world);
+			d_up = generator.getDungeonCubeType(cpos.add(0, 1, 0), world);
+			d_down = generator.getDungeonCubeType(cpos.sub(0, 1, 0), world);
 		}
 		if ((cpos.getX() & 1) == 1) {
-			d_east = getDungeonCubeType(cpos.add(1, 0, 0), world);
-			d_west = getDungeonCubeType(cpos.sub(1, 0, 0), world);
+			d_east = generator.getDungeonCubeType(cpos.add(1, 0, 0), world);
+			d_west = generator.getDungeonCubeType(cpos.sub(1, 0, 0), world);
 		}
 		if ((cpos.getZ() & 1) == 1) {
-			d_south = getDungeonCubeType(cpos.add(0, 0, 1), world);
-			d_north = getDungeonCubeType(cpos.sub(0, 0, 1), world);
+			d_south = generator.getDungeonCubeType(cpos.add(0, 0, 1), world);
+			d_north = generator.getDungeonCubeType(cpos.sub(0, 0, 1), world);
 		}
 		// Up - Down
 		if (d_up != DungeonCube.UNDEFINED && d_down != DungeonCube.UNDEFINED) {
@@ -320,7 +337,7 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 				return DungeonCube.NORTH_BORDER_WITH_WALL_EAST_WEST;
 
 			if (d_south.isNorthWall && d_north.isSouthWall)
-				return DungeonCube.WALL_X;
+				return DungeonCube.WALL_SOUTH_NORTH;
 
 			if (d_south.isNorthWall)
 				return DungeonCube.WALL_SOUTH_EAST_WEST;
@@ -336,6 +353,45 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 			return DungeonCube.COLUMN_FLOOR_CEIL;
 
 		return DungeonCube.UNDEFINED;
+	}
+
+	protected int getSpawnHeight(){
+		return 0;
+	}
+	
+	@Override
+	public void spawnMobs(int level, ICubicWorld world, CubePos pos, ExtendedBlockStorage data) {
+		LevelFeaturesStorage storage = generator.storage;
+		ResourceLocation[] regularLoot = generator.regularLoot;
+		int mobRandom = level < storage.levelToMob.length ? level : random.nextInt() & (storage.levelToMob.length - 1);
+		Class<? extends EntityLiving>[] mobs = storage.levelToMob[mobRandom];
+		EntityLiving mobEntity;
+		int dy = getSpawnHeight();
+		for (int dx = random.nextInt(8); dx < 15; dx += random.nextInt(8) + 2)
+			for (int dz = random.nextInt(8); dz < 15; dz += random.nextInt(8) + 2)
+				try {
+					Class<? extends EntityLiving> mob = mobs[this.random.nextInt(2)];
+					if (!data.get(dx, dy, dz).isFullBlock() || data.get(dx, dy+1, dz).getMaterial() != Material.AIR || data.get(dx, dy+2, dz).getMaterial() != Material.AIR)
+						continue;
+					mobEntity = mob.getDeclaredConstructor(World.class).newInstance(world);
+					mobEntity.setLocationAndAngles(pos.getMinBlockX() + dx + 0.5, pos.getMinBlockY() + dy + 1,
+							pos.getMinBlockZ() + dz + 0.5, random.nextFloat() * 360.0F, 0.0F);
+					if (mob == LabyrinthEntities.STRAY || mob == LabyrinthEntities.SKELETON)
+						mobEntity.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.BOW));
+					else if (mob == LabyrinthEntities.SLIME || mob == LabyrinthEntities.MAGMA_CUBE)
+						((ISlime) mobEntity).setSlimeSize(LevelUtil.getSlimeSize(level));
+					else if (mob == LabyrinthEntities.VINDICATOR)
+						mobEntity.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.IRON_AXE));
+					((IMobLeveled) mobEntity).setLevel(level);
+					((IMobLeveled) mobEntity).setLootTable(regularLoot[level >= regularLoot.length ? regularLoot.length - 1 : level]);
+					if(mobEntity.isNotColliding())
+						world.spawnEntity(mobEntity);
+					else
+						mobEntity.setDead();
+						
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 	}
 
 }

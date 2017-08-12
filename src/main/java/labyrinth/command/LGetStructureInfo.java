@@ -3,6 +3,7 @@ package labyrinth.command;
 import cubicchunks.util.CubePos;
 import cubicchunks.world.ICubicWorld;
 import labyrinth.worldgen.DungeonCube;
+import labyrinth.worldgen.LabyrinthWorldGen;
 import labyrinth.worldgen.LavaCubeStructureGenerator;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -13,7 +14,7 @@ import net.minecraft.world.World;
 
 public class LGetStructureInfo extends LCubeEditCommandBase {
 	
-	LavaCubeStructureGenerator cubeStructureGenerator = new LavaCubeStructureGenerator();
+	LavaCubeStructureGenerator cubeStructureGenerator = (LavaCubeStructureGenerator) LabyrinthWorldGen.instance.lavaCubeStructureGenerator;
 
 	public LGetStructureInfo(){
 		super();

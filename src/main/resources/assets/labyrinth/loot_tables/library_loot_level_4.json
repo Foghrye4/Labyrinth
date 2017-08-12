@@ -1,38 +1,33 @@
 {
     "pools": [
         {
-	    "name":"labyrinth",
+	    "name":"library",
             "rolls": 1,
             "entries": [
                 {
                     "type": "loot_table",
                     "weight": 8,
-                    "name": "labyrinth:dungeon_loot_tables/items_level_0"
+                    "name": "labyrinth:library_loot_tables/items_level_0"
                 },
                 {
                     "type": "loot_table",
                     "weight": 7,
-                    "name": "labyrinth:dungeon_loot_tables/items_level_1"
+                    "name": "labyrinth:library_loot_tables/items_level_1"
                 },
                 {
                     "type": "loot_table",
                     "weight": 6,
-                    "name": "labyrinth:dungeon_loot_tables/items_level_2"
+                    "name": "labyrinth:library_loot_tables/items_level_2"
                 },
                 {
                     "type": "loot_table",
                     "weight": 5,
-                    "name": "labyrinth:dungeon_loot_tables/items_level_3"
+                    "name": "labyrinth:library_loot_tables/items_level_3"
                 },
                 {
                     "type": "loot_table",
-                    "weight": 4,
-                    "name": "labyrinth:dungeon_loot_tables/items_level_4"
-                },
-                {
-                    "type": "loot_table",
-                    "weight": 3,
-                    "name": "labyrinth:dungeon_loot_tables/items_level_5"
+                    "weight": 1,
+                    "name": "labyrinth:library_loot_tables/items_level_4"
                 },
                 {
                     "type": "empty",

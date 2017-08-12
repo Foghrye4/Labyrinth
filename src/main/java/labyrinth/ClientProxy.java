@@ -29,6 +29,8 @@ public class ClientProxy extends ServerProxy {
 		Minecraft.getMinecraft().getRenderManager().entityRenderMap.put(EntityEraserFrame.class, new RenderEntityEraserFrame(Minecraft.getMinecraft().getRenderManager()));
 		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(LabyrinthMod.eraser, 0,
 				new ModelResourceLocation(new ResourceLocation(LabyrinthMod.MODID,"eraser"), "inventory"));
+		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(LabyrinthMod.blockFiller, 0,
+				new ModelResourceLocation(new ResourceLocation(LabyrinthMod.MODID,"block_filler"), "inventory"));
 	}
 
 	@Override

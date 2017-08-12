@@ -1,5 +1,6 @@
 package labyrinth.item;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.util.EnumActionResult;
@@ -8,7 +9,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class ItemEraser extends Item {
+public class ItemBlockFiller extends Item {
 
 	BlockPos from;
 	BlockPos to;
@@ -21,8 +22,9 @@ public class ItemEraser extends Item {
 				to = pos;
 			} else {
 				if (to.equals(pos)) {
+					IBlockState bstate = worldIn.getBlockState(from);
 					BlockPos.getAllInBox(from, to).forEach(b -> {
-						worldIn.setBlockToAir(b);
+						worldIn.setBlockState(b, bstate);
 					});
 				}
 				from = null;

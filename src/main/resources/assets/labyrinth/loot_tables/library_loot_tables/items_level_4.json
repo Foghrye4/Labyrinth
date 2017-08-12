@@ -5,23 +5,15 @@
             "rolls": 1,
             "entries": [
                 {
-                    "type": "loot_table",
-                    "weight": 32,
-                    "name": "labyrinth:library/library_loot_level_5"
-                },
-                {
-                    "type": "empty"
-                },
-                {
                     "type": "item",
                     "name": "minecraft:book",
-                    "quality": 2,
+                    "quality": 4,
                     "functions": [
                         {
                             "function": "minecraft:enchant_with_levels",
                             "levels": {
-                                "min": 25,
-                                "max": 30
+                                "min": 10,
+                                "max": 15
                             },
                             "treasure": true
                         },

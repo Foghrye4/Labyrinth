@@ -5,11 +5,11 @@ import java.util.Random;
 import cubicchunks.util.CubePos;
 import cubicchunks.world.ICubicWorld;
 
-public class LavaCubeStructureGenerator implements ICubeStructureGenerator {
+public class LavaCubeStructureGenerator extends RegularCubeStructureGenerator {
 
 	private final Random random = new Random();
 	
-	public DungeonCube[] randomDungeonsArray = new DungeonCube[]{
+	private DungeonCube[] randomDungeonsArray = new DungeonCube[]{
 			DungeonCube.COLUMN_CEIL,
 			DungeonCube.COLUMN_MIDDLE,
 			DungeonCube.COLUMN_FLOOR_LAVA,
@@ -27,10 +27,13 @@ public class LavaCubeStructureGenerator implements ICubeStructureGenerator {
 			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,
 			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,};
 	
-	public boolean isAnchorPoint(CubePos cpos) {
-		return (cpos.getX() & 1 | cpos.getZ() & 1 | cpos.getY() + cpos.getX() / 2 + cpos.getZ() / 2 & 1) == 0;
+	private LabyrinthWorldGen generator;
+	
+	public LavaCubeStructureGenerator(LabyrinthWorldGen generatorIn){
+		super(generatorIn);
+		generator = generatorIn;
 	}
-
+	
 	@Override
 	public DungeonCube getDungeonCubeType(CubePos cpos, ICubicWorld world) {
 		long hash = 3;
@@ -51,16 +54,16 @@ public class LavaCubeStructureGenerator implements ICubeStructureGenerator {
 		DungeonCube d_north = DungeonCube.UNDEFINED;
 
 		if ((cpos.getX() & 1 | cpos.getZ() & 1) == 0) {
-			d_up = getDungeonCubeType(cpos.add(0, 1, 0), world);
-			d_down = getDungeonCubeType(cpos.sub(0, 1, 0), world);
+			d_up = generator.getDungeonCubeType(cpos.add(0, 1, 0), world);
+			d_down = generator.getDungeonCubeType(cpos.sub(0, 1, 0), world);
 		}
 		if ((cpos.getX() & 1) == 1) {
-			d_east = getDungeonCubeType(cpos.add(1, 0, 0), world);
-			d_west = getDungeonCubeType(cpos.sub(1, 0, 0), world);
+			d_east = generator.getDungeonCubeType(cpos.add(1, 0, 0), world);
+			d_west = generator.getDungeonCubeType(cpos.sub(1, 0, 0), world);
 		}
 		if ((cpos.getZ() & 1) == 1) {
-			d_south = getDungeonCubeType(cpos.add(0, 0, 1), world);
-			d_north = getDungeonCubeType(cpos.sub(0, 0, 1), world);
+			d_south = generator.getDungeonCubeType(cpos.add(0, 0, 1), world);
+			d_north = generator.getDungeonCubeType(cpos.sub(0, 0, 1), world);
 		}
 		// Up - Down
 		if (d_up != DungeonCube.UNDEFINED && d_down != DungeonCube.UNDEFINED) {
@@ -320,7 +323,7 @@ public class LavaCubeStructureGenerator implements ICubeStructureGenerator {
 				return DungeonCube.NORTH_BORDER_WITH_WALL_EAST_WEST_LAVA;
 
 			if (d_south.isNorthWall && d_north.isSouthWall)
-				return DungeonCube.WALL_X_LAVA;
+				return DungeonCube.WALL_SOUTH_NORTH_LAVA;
 
 			if (d_south.isNorthWall)
 				return DungeonCube.WALL_SOUTH_EAST_WEST_LAVA;
@@ -337,5 +340,9 @@ public class LavaCubeStructureGenerator implements ICubeStructureGenerator {
 
 		return DungeonCube.UNDEFINED;
 	}
-
+	
+	@Override
+	protected int getSpawnHeight(){
+		return 6;
+	}
 }

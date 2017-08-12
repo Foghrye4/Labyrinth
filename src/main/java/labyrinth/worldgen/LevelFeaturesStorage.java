@@ -12,42 +12,18 @@ import com.google.common.base.Optional;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
-import cubicchunks.asm.CubicChunksMixinConfig.BoolOptions;
-import cubicchunks.worldgen.generator.flat.Layer;
 import labyrinth.init.LabyrinthBlocks;
 import labyrinth.init.LabyrinthEntities;
 import labyrinth.util.ModIntegrationUtil;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockAnvil;
-import net.minecraft.block.BlockCauldron;
-import net.minecraft.block.BlockChest;
-import net.minecraft.block.BlockColored;
-import net.minecraft.block.BlockDoor;
-import net.minecraft.block.BlockFurnace;
-import net.minecraft.block.BlockLadder;
-import net.minecraft.block.BlockLever;
-import net.minecraft.block.BlockLog;
+import net.minecraft.block.*;
+import net.minecraft.block.BlockBed.EnumPartType;
+import net.minecraft.block.BlockFlowerPot.EnumFlowerType;
 import net.minecraft.block.BlockLog.EnumAxis;
-import net.minecraft.block.BlockPistonBase;
-import net.minecraft.block.BlockPistonExtension;
-import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.BlockPlanks.EnumType;
-import net.minecraft.block.BlockPrismarine;
-import net.minecraft.block.BlockQuartz;
-import net.minecraft.block.BlockRedSandstone;
-import net.minecraft.block.BlockSandStone;
-import net.minecraft.block.BlockSkull;
-import net.minecraft.block.BlockSlab;
-import net.minecraft.block.BlockStainedGlassPane;
-import net.minecraft.block.BlockStairs;
-import net.minecraft.block.BlockStairs.EnumHalf;
-import net.minecraft.block.BlockStairs.EnumShape;
+import net.minecraft.block.BlockStairs.*;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.BlockStone;
-import net.minecraft.block.BlockStoneBrick;
-import net.minecraft.block.BlockTorch;
-import net.minecraft.block.BlockWoodSlab;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
@@ -185,20 +161,20 @@ public class LevelFeaturesStorage {
 			Blocks.COBBLESTONE_WALL.getDefaultState() };
 
 	@SuppressWarnings("unchecked")
-	private final Class<? extends EntityLivingBase>[] MOB_CANDIDATES_FIRST = new Class[] { LabyrinthEntities.ZOMBIE,
+	private final Class<? extends EntityLiving>[] MOB_CANDIDATES_FIRST = new Class[] { LabyrinthEntities.ZOMBIE,
 			LabyrinthEntities.CAVE_SPIDER, LabyrinthEntities.CREEPER, LabyrinthEntities.ENDERMAN,
 			LabyrinthEntities.ENDERMITE, LabyrinthEntities.MAGMA_CUBE, LabyrinthEntities.PIG_ZOMBIE,
 			LabyrinthEntities.SPIDER, LabyrinthEntities.SLIME, LabyrinthEntities.WITHER_SKELETON };
 
 	@SuppressWarnings("unchecked")
-	private final Class<? extends EntityLivingBase>[] MOB_CANDIDATES_SECOND = new Class[] { LabyrinthEntities.BLAZE,
+	private final Class<? extends EntityLiving>[] MOB_CANDIDATES_SECOND = new Class[] { LabyrinthEntities.BLAZE,
 			LabyrinthEntities.SKELETON, LabyrinthEntities.STRAY, LabyrinthEntities.VINDICATOR, LabyrinthEntities.WITCH,
 			LabyrinthEntities.VEX };
 	@SuppressWarnings("unchecked")
-	final Class<? extends EntityLivingBase>[][] levelToMob = new Class[128][2];
+	final Class<? extends EntityLiving>[][] levelToMob = new Class[128][2];
 	
 	public LevelFeaturesStorage(){
-		for (Class<? extends EntityLivingBase>[] levelMobs : levelToMob) {
+		for (Class<? extends EntityLiving>[] levelMobs : levelToMob) {
 			levelMobs[0] = MOB_CANDIDATES_FIRST[random.nextInt(MOB_CANDIDATES_FIRST.length)];
 			levelMobs[1] = MOB_CANDIDATES_SECOND[random.nextInt(MOB_CANDIDATES_SECOND.length)];
 		}
@@ -283,7 +259,140 @@ public class LevelFeaturesStorage {
 				.withProperty(BlockDoor.HINGE, BlockDoor.EnumHingePosition.RIGHT)
 				.withProperty(BlockDoor.OPEN, Boolean.valueOf(false))
 				.withProperty(BlockDoor.POWERED, Boolean.valueOf(false));
-
+		blockstateList[0][66] = Blocks.DIRT.getDefaultState();
+		blockstateList[0][67] = Blocks.MELON_BLOCK.getDefaultState();
+		blockstateList[0][68] = Blocks.PUMPKIN.getDefaultState().withProperty(BlockHorizontal.FACING, EnumFacing.SOUTH);
+		blockstateList[0][69] = Blocks.MELON_STEM.getDefaultState().withProperty(BlockStem.AGE, 7);
+		blockstateList[0][70] = Blocks.PUMPKIN_STEM.getDefaultState().withProperty(BlockStem.AGE, 7);
+		blockstateList[0][71] = Blocks.SAND.getDefaultState();
+		blockstateList[0][72] = Blocks.REEDS.getDefaultState();
+		blockstateList[0][73] = Blocks.POTATOES.getDefaultState().withProperty(BlockCrops.AGE, 7);
+		blockstateList[0][74] = Blocks.CARROTS.getDefaultState().withProperty(BlockCrops.AGE, 7);
+		blockstateList[0][75] = Blocks.LEAVES.getBlockState().getBaseState().withProperty(BlockOldLeaf.VARIANT, BlockPlanks.EnumType.OAK).withProperty(BlockNewLeaf.CHECK_DECAY, Boolean.valueOf(false)).withProperty(BlockNewLeaf.DECAYABLE, Boolean.valueOf(true));
+		blockstateList[0][76] = Blocks.CARPET.getBlockState().getBaseState().withProperty(BlockCarpet.COLOR, EnumDyeColor.RED);
+		blockstateList[0][77] = Blocks.FLOWER_POT.getDefaultState().withProperty(BlockFlowerPot.CONTENTS, EnumFlowerType.BLUE_ORCHID);
+		
+		blockstateList[0][78] = Blocks.DARK_OAK_DOOR.getDefaultState().withProperty(BlockDoor.FACING, EnumFacing.EAST)
+				.withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER)
+				.withProperty(BlockDoor.HINGE, BlockDoor.EnumHingePosition.LEFT)
+				.withProperty(BlockDoor.OPEN, Boolean.valueOf(false))
+				.withProperty(BlockDoor.POWERED, Boolean.valueOf(false));
+		blockstateList[0][79] = Blocks.DARK_OAK_DOOR.getDefaultState().withProperty(BlockDoor.FACING, EnumFacing.EAST)
+				.withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER)
+				.withProperty(BlockDoor.HINGE, BlockDoor.EnumHingePosition.RIGHT)
+				.withProperty(BlockDoor.OPEN, Boolean.valueOf(false))
+				.withProperty(BlockDoor.POWERED, Boolean.valueOf(false));
+		blockstateList[0][80] = Blocks.DARK_OAK_DOOR.getDefaultState().withProperty(BlockDoor.FACING, EnumFacing.EAST)
+				.withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER)
+				.withProperty(BlockDoor.HINGE, BlockDoor.EnumHingePosition.LEFT)
+				.withProperty(BlockDoor.OPEN, Boolean.valueOf(false))
+				.withProperty(BlockDoor.POWERED, Boolean.valueOf(false));
+		blockstateList[0][81] = Blocks.DARK_OAK_DOOR.getDefaultState().withProperty(BlockDoor.FACING, EnumFacing.EAST)
+				.withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER)
+				.withProperty(BlockDoor.HINGE, BlockDoor.EnumHingePosition.RIGHT)
+				.withProperty(BlockDoor.OPEN, Boolean.valueOf(false))
+				.withProperty(BlockDoor.POWERED, Boolean.valueOf(false));
+		blockstateList[0][82] = Blocks.DARK_OAK_DOOR.getDefaultState().withProperty(BlockDoor.FACING, EnumFacing.WEST)
+				.withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER)
+				.withProperty(BlockDoor.HINGE, BlockDoor.EnumHingePosition.LEFT)
+				.withProperty(BlockDoor.OPEN, Boolean.valueOf(false))
+				.withProperty(BlockDoor.POWERED, Boolean.valueOf(false));
+		blockstateList[0][83] = Blocks.DARK_OAK_DOOR.getDefaultState().withProperty(BlockDoor.FACING, EnumFacing.WEST)
+				.withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER)
+				.withProperty(BlockDoor.HINGE, BlockDoor.EnumHingePosition.RIGHT)
+				.withProperty(BlockDoor.OPEN, Boolean.valueOf(false))
+				.withProperty(BlockDoor.POWERED, Boolean.valueOf(false));
+		blockstateList[0][84] = Blocks.DARK_OAK_DOOR.getDefaultState().withProperty(BlockDoor.FACING, EnumFacing.WEST)
+				.withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER)
+				.withProperty(BlockDoor.HINGE, BlockDoor.EnumHingePosition.LEFT)
+				.withProperty(BlockDoor.OPEN, Boolean.valueOf(false))
+				.withProperty(BlockDoor.POWERED, Boolean.valueOf(false));
+		blockstateList[0][85] = Blocks.DARK_OAK_DOOR.getDefaultState().withProperty(BlockDoor.FACING, EnumFacing.WEST)
+				.withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER)
+				.withProperty(BlockDoor.HINGE, BlockDoor.EnumHingePosition.RIGHT)
+				.withProperty(BlockDoor.OPEN, Boolean.valueOf(false))
+				.withProperty(BlockDoor.POWERED, Boolean.valueOf(false));
+		blockstateList[0][86] = Blocks.BED.getDefaultState().withProperty(BlockBed.FACING, EnumFacing.NORTH).withProperty(BlockBed.PART, EnumPartType.FOOT);
+		blockstateList[0][87] = Blocks.BED.getDefaultState().withProperty(BlockBed.FACING, EnumFacing.NORTH).withProperty(BlockBed.PART, EnumPartType.HEAD);
+		blockstateList[0][88] = Blocks.LEAVES.getBlockState().getBaseState().withProperty(BlockOldLeaf.VARIANT, BlockPlanks.EnumType.OAK).withProperty(BlockNewLeaf.CHECK_DECAY, Boolean.valueOf(true)).withProperty(BlockNewLeaf.DECAYABLE, Boolean.valueOf(true));
+		blockstateList[0][89] = Blocks.STICKY_PISTON.getDefaultState()
+				.withProperty(BlockPistonBase.EXTENDED, Boolean.valueOf(true))
+				.withProperty(BlockPistonBase.FACING, EnumFacing.EAST);
+		blockstateList[0][90] = Blocks.PISTON_HEAD.getDefaultState()
+				.withProperty(BlockPistonExtension.TYPE, BlockPistonExtension.EnumPistonType.STICKY)
+				.withProperty(BlockPistonExtension.FACING, EnumFacing.EAST)
+				.withProperty(BlockPistonExtension.SHORT, Boolean.valueOf(false));
+		blockstateList[0][91] = Blocks.LEVER.getDefaultState()
+				.withProperty(BlockLever.FACING, BlockLever.EnumOrientation.WEST)
+				.withProperty(BlockLever.POWERED, Boolean.valueOf(true));
+		blockstateList[0][92] = Blocks.STICKY_PISTON.getDefaultState()
+				.withProperty(BlockPistonBase.EXTENDED, Boolean.valueOf(true))
+				.withProperty(BlockPistonBase.FACING, EnumFacing.WEST);
+		blockstateList[0][93] = Blocks.PISTON_HEAD.getDefaultState()
+				.withProperty(BlockPistonExtension.TYPE, BlockPistonExtension.EnumPistonType.STICKY)
+				.withProperty(BlockPistonExtension.FACING, EnumFacing.WEST)
+				.withProperty(BlockPistonExtension.SHORT, Boolean.valueOf(false));
+		blockstateList[0][94] = Blocks.PISTON_HEAD.getDefaultState()
+				.withProperty(BlockPistonExtension.TYPE, BlockPistonExtension.EnumPistonType.STICKY)
+				.withProperty(BlockPistonExtension.FACING, EnumFacing.SOUTH)
+				.withProperty(BlockPistonExtension.SHORT, Boolean.valueOf(false));
+		blockstateList[0][95] = Blocks.POWERED_REPEATER.getDefaultState()
+				.withProperty(BlockRedstoneRepeater.DELAY, 1)
+				.withProperty(BlockRedstoneRepeater.FACING, EnumFacing.WEST)
+				.withProperty(BlockRedstoneRepeater.LOCKED, Boolean.valueOf(false));
+		blockstateList[0][96] = Blocks.POWERED_REPEATER.getDefaultState()
+				.withProperty(BlockRedstoneRepeater.DELAY, 2)
+				.withProperty(BlockRedstoneRepeater.FACING, EnumFacing.WEST)
+				.withProperty(BlockRedstoneRepeater.LOCKED, Boolean.valueOf(false));
+		blockstateList[0][97] = Blocks.POWERED_REPEATER.getDefaultState()
+				.withProperty(BlockRedstoneRepeater.DELAY, 3)
+				.withProperty(BlockRedstoneRepeater.FACING, EnumFacing.WEST)
+				.withProperty(BlockRedstoneRepeater.LOCKED, Boolean.valueOf(false));
+		blockstateList[0][98] = Blocks.POWERED_REPEATER.getDefaultState()
+				.withProperty(BlockRedstoneRepeater.DELAY, 4)
+				.withProperty(BlockRedstoneRepeater.FACING, EnumFacing.WEST)
+				.withProperty(BlockRedstoneRepeater.LOCKED, Boolean.valueOf(false));
+		blockstateList[0][99] = Blocks.POWERED_REPEATER.getDefaultState()
+				.withProperty(BlockRedstoneRepeater.DELAY, 1)
+				.withProperty(BlockRedstoneRepeater.FACING, EnumFacing.NORTH)
+				.withProperty(BlockRedstoneRepeater.LOCKED, Boolean.valueOf(false));
+		blockstateList[0][100] = Blocks.POWERED_REPEATER.getDefaultState()
+				.withProperty(BlockRedstoneRepeater.DELAY, 2)
+				.withProperty(BlockRedstoneRepeater.FACING, EnumFacing.NORTH)
+				.withProperty(BlockRedstoneRepeater.LOCKED, Boolean.valueOf(false));
+		blockstateList[0][101] = Blocks.POWERED_REPEATER.getDefaultState()
+				.withProperty(BlockRedstoneRepeater.DELAY, 3)
+				.withProperty(BlockRedstoneRepeater.FACING, EnumFacing.NORTH)
+				.withProperty(BlockRedstoneRepeater.LOCKED, Boolean.valueOf(false));
+		blockstateList[0][102] = Blocks.POWERED_REPEATER.getDefaultState()
+				.withProperty(BlockRedstoneRepeater.DELAY, 4)
+				.withProperty(BlockRedstoneRepeater.FACING, EnumFacing.NORTH)
+				.withProperty(BlockRedstoneRepeater.LOCKED, Boolean.valueOf(false));
+		blockstateList[0][103] = Blocks.UNLIT_REDSTONE_TORCH.getDefaultState();
+		blockstateList[0][104] = Blocks.REDSTONE_WIRE.getDefaultState()
+				.withProperty(BlockRedstoneWire.POWER, 15);
+		blockstateList[0][105] = Blocks.REDSTONE_WIRE.getDefaultState()
+				.withProperty(BlockRedstoneWire.POWER, 14);
+		blockstateList[0][106] = Blocks.REDSTONE_WIRE.getDefaultState()
+				.withProperty(BlockRedstoneWire.POWER, 13);
+		blockstateList[0][107] = Blocks.REDSTONE_WIRE.getDefaultState()
+				.withProperty(BlockRedstoneWire.POWER, 12);
+		blockstateList[0][108] = Blocks.REDSTONE_WIRE.getDefaultState()
+				.withProperty(BlockRedstoneWire.POWER, 11);
+		blockstateList[0][109] = Blocks.REDSTONE_WIRE.getDefaultState()
+				.withProperty(BlockRedstoneWire.POWER, 10);
+		blockstateList[0][110] = Blocks.REDSTONE_WIRE.getDefaultState()
+				.withProperty(BlockRedstoneWire.POWER, 9);
+		blockstateList[0][111] = Blocks.REDSTONE_WIRE.getDefaultState()
+				.withProperty(BlockRedstoneWire.POWER, 8);
+		blockstateList[0][112] = Blocks.REDSTONE_WIRE.getDefaultState()
+				.withProperty(BlockRedstoneWire.POWER, 7);
+		blockstateList[0][113] = Blocks.REDSTONE_WIRE.getDefaultState()
+				.withProperty(BlockRedstoneWire.POWER, 6);
+		blockstateList[0][114] = Blocks.REDSTONE_WIRE.getDefaultState()
+				.withProperty(BlockRedstoneWire.POWER, 5);
+		blockstateList[0][115] = Blocks.REDSTONE_WIRE.getDefaultState()
+				.withProperty(BlockRedstoneWire.POWER, 0);
 		blockstateList[0][116] = Blocks.ANVIL.getDefaultState().withProperty(BlockAnvil.FACING, EnumFacing.NORTH)
 				.withProperty(BlockAnvil.DAMAGE, Integer.valueOf(0));
 		blockstateList[0][117] = Blocks.ANVIL.getDefaultState().withProperty(BlockAnvil.FACING, EnumFacing.SOUTH)
@@ -300,9 +409,43 @@ public class LevelFeaturesStorage {
 				.withProperty(BlockPistonExtension.TYPE, BlockPistonExtension.EnumPistonType.STICKY)
 				.withProperty(BlockPistonExtension.FACING, EnumFacing.NORTH)
 				.withProperty(BlockPistonExtension.SHORT, Boolean.valueOf(false));
+		blockstateList[0][131] = Blocks.REDSTONE_TORCH.getDefaultState();
 		blockstateList[0][137] = Blocks.LEVER.getDefaultState()
 				.withProperty(BlockLever.FACING, BlockLever.EnumOrientation.EAST)
 				.withProperty(BlockLever.POWERED, Boolean.valueOf(true));
+		blockstateList[0][138] = Blocks.POWERED_REPEATER.getDefaultState()
+				.withProperty(BlockRedstoneRepeater.DELAY, 1)
+				.withProperty(BlockRedstoneRepeater.FACING, EnumFacing.EAST)
+				.withProperty(BlockRedstoneRepeater.LOCKED, Boolean.valueOf(false));
+		blockstateList[0][139] = Blocks.POWERED_REPEATER.getDefaultState()
+				.withProperty(BlockRedstoneRepeater.DELAY, 2)
+				.withProperty(BlockRedstoneRepeater.FACING, EnumFacing.EAST)
+				.withProperty(BlockRedstoneRepeater.LOCKED, Boolean.valueOf(false));
+		blockstateList[0][140] = Blocks.POWERED_REPEATER.getDefaultState()
+				.withProperty(BlockRedstoneRepeater.DELAY, 3)
+				.withProperty(BlockRedstoneRepeater.FACING, EnumFacing.EAST)
+				.withProperty(BlockRedstoneRepeater.LOCKED, Boolean.valueOf(false));
+		blockstateList[0][141] = Blocks.POWERED_REPEATER.getDefaultState()
+				.withProperty(BlockRedstoneRepeater.DELAY, 4)
+				.withProperty(BlockRedstoneRepeater.FACING, EnumFacing.EAST)
+				.withProperty(BlockRedstoneRepeater.LOCKED, Boolean.valueOf(false));
+		blockstateList[0][142] = Blocks.POWERED_REPEATER.getDefaultState()
+				.withProperty(BlockRedstoneRepeater.DELAY, 1)
+				.withProperty(BlockRedstoneRepeater.FACING, EnumFacing.SOUTH)
+				.withProperty(BlockRedstoneRepeater.LOCKED, Boolean.valueOf(false));
+		blockstateList[0][143] = Blocks.POWERED_REPEATER.getDefaultState()
+				.withProperty(BlockRedstoneRepeater.DELAY, 2)
+				.withProperty(BlockRedstoneRepeater.FACING, EnumFacing.SOUTH)
+				.withProperty(BlockRedstoneRepeater.LOCKED, Boolean.valueOf(false));
+		blockstateList[0][144] = Blocks.POWERED_REPEATER.getDefaultState()
+				.withProperty(BlockRedstoneRepeater.DELAY, 3)
+				.withProperty(BlockRedstoneRepeater.FACING, EnumFacing.SOUTH)
+				.withProperty(BlockRedstoneRepeater.LOCKED, Boolean.valueOf(false));
+		blockstateList[0][145] = Blocks.POWERED_REPEATER.getDefaultState()
+				.withProperty(BlockRedstoneRepeater.DELAY, 4)
+				.withProperty(BlockRedstoneRepeater.FACING, EnumFacing.SOUTH)
+				.withProperty(BlockRedstoneRepeater.LOCKED, Boolean.valueOf(false));
+
 		blockstateList[0][153] = Blocks.TORCH.getDefaultState().withProperty(BlockTorch.FACING, EnumFacing.UP);
 		blockstateList[0][154] = Blocks.TORCH.getDefaultState().withProperty(BlockTorch.FACING, EnumFacing.NORTH);
 		blockstateList[0][155] = Blocks.TORCH.getDefaultState().withProperty(BlockTorch.FACING, EnumFacing.SOUTH);
@@ -359,6 +502,17 @@ public class LevelFeaturesStorage {
 		blockstateList[0][176] = Blocks.LOG.getDefaultState().withProperty(BlockLog.LOG_AXIS, EnumAxis.Z);
 		blockstateList[0][177] = Blocks.OAK_STAIRS.getDefaultState().withProperty(BlockStairs.FACING, EnumFacing.NORTH)
 				.withProperty(BlockStairs.HALF, EnumHalf.BOTTOM);
+		blockstateList[0][178] = Blocks.FARMLAND.getDefaultState().withProperty(BlockFarmland.MOISTURE, Integer.valueOf(7));
+		blockstateList[0][179] = Blocks.REDSTONE_BLOCK.getDefaultState();
+		blockstateList[0][180] = Blocks.LIT_REDSTONE_LAMP.getDefaultState();
+		blockstateList[0][181] = Blocks.WHEAT.getDefaultState().withProperty(BlockCrops.AGE, 7);
+		blockstateList[0][182] = Blocks.BEETROOTS.getDefaultState().withProperty(BlockBeetroot.BEETROOT_AGE, 3);
+		blockstateList[0][183] = Blocks.HAY_BLOCK.getDefaultState().withProperty(BlockHay.AXIS, EnumFacing.Axis.X);
+		blockstateList[0][184] = Blocks.HAY_BLOCK.getDefaultState().withProperty(BlockHay.AXIS, EnumFacing.Axis.Y);
+		blockstateList[0][185] = Blocks.HAY_BLOCK.getDefaultState().withProperty(BlockHay.AXIS, EnumFacing.Axis.Z);
+		blockstateList[0][186] = Blocks.GRASS.getDefaultState();
+		blockstateList[0][187] = Blocks.ACACIA_FENCE_GATE.getDefaultState().withProperty(BlockHorizontal.FACING, EnumFacing.WEST);
+		blockstateList[0][188] = Blocks.ACACIA_FENCE_GATE.getDefaultState().withProperty(BlockHorizontal.FACING, EnumFacing.SOUTH);
 		blockstateList[0][255] = Blocks.AIR.getDefaultState();
 
 		for (int i = 1; i < blockstateList.length; i++)

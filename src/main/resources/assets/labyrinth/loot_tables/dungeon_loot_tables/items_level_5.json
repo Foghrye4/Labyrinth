@@ -1,0 +1,23 @@
+{
+    "pools": [
+        {
+	    "name":"labyrinth",
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "item",
+                    "name": "minecraft:ghast_tear",
+                    "quality": 2
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:reeds"
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:egg"
+                }
+            ]
+        }
+    ]
+}

@@ -10,7 +10,7 @@ import labyrinth.entity.EntityEraserFrame;
 import labyrinth.event.EntityEventHandler;
 import labyrinth.init.LabyrinthBlocks;
 import labyrinth.init.LabyrinthEntities;
-import labyrinth.item.ItemEraser;
+import labyrinth.item.*;
 import labyrinth.world.WorldEventHandler;
 import labyrinth.worldgen.LabyrinthWorldGen;
 import net.minecraft.creativetab.CreativeTabs;
@@ -44,6 +44,7 @@ public class LabyrinthMod {
 
 	public static boolean DEBUG_STOP_ENTITY_TICK = false;
 	public static ItemEraser eraser;
+	public static ItemBlockFiller blockFiller;
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) throws IOException, IllegalAccessException {
@@ -68,6 +69,11 @@ public class LabyrinthMod {
 		eraser.setUnlocalizedName("eraser");
 		eraser.setRegistryName(MODID, "eraser");
 		GameRegistry.register(eraser);
+		blockFiller = new ItemBlockFiller();
+		blockFiller.setCreativeTab(CreativeTabs.TOOLS);
+		blockFiller.setUnlocalizedName("block_filler");
+		blockFiller.setRegistryName(MODID, "block_filler");
+		GameRegistry.register(blockFiller);
 	}
 
 	@EventHandler
@@ -85,6 +91,7 @@ public class LabyrinthMod {
 		event.registerServerCommand(new LPlaceStructureBlock());
 		event.registerServerCommand(new LWriteWithRotationsCommand());
 		event.registerServerCommand(new LStopEntityTick());
+		event.registerServerCommand(new LFindAVillage());
 	}
 
 }

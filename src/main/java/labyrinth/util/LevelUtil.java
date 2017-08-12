@@ -24,7 +24,7 @@ public class LevelUtil {
 	}
 
 	public static int getSlimeSize(int levelIn) {
-		return levelIn < 6 ? levelIn + 2 : 8;
+		return 4;
 	}
 
 	public static void setMobAttributes(EntityLivingBase entity, int levelIn) {

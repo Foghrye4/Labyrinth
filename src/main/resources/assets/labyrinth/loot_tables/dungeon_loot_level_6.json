@@ -6,18 +6,43 @@
             "entries": [
                 {
                     "type": "loot_table",
-                    "weight": 32,
-                    "name": "labyrinth:dungeon_loot_level_5"
+                    "weight": 8,
+                    "name": "labyrinth:dungeon_loot_tables/items_level_0"
                 },
                 {
-                    "type": "empty"
+                    "type": "loot_table",
+                    "weight": 7,
+                    "name": "labyrinth:dungeon_loot_tables/items_level_1"
                 },
                 {
-                    "type": "item",
-                    "name": "minecraft:diamond",
-                    "quality": 8
+                    "type": "loot_table",
+                    "weight": 6,
+                    "name": "labyrinth:dungeon_loot_tables/items_level_2"
+                },
+                {
+                    "type": "loot_table",
+                    "weight": 5,
+                    "name": "labyrinth:dungeon_loot_tables/items_level_3"
+                },
+                {
+                    "type": "loot_table",
+                    "weight": 4,
+                    "name": "labyrinth:dungeon_loot_tables/items_level_4"
+                },
+                {
+                    "type": "loot_table",
+                    "weight": 3,
+                    "name": "labyrinth:dungeon_loot_tables/items_level_5"
+                },
+                {
+                    "type": "loot_table",
+                    "weight": 2,
+                    "name": "labyrinth:dungeon_loot_tables/items_level_6"
+                },
+                {
+                    "type": "empty",
+                    "weight": 1
                 }
-                
             ]
         }
     ]

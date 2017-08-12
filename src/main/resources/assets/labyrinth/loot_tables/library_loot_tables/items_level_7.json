@@ -5,14 +5,6 @@
             "rolls": 1,
             "entries": [
                 {
-                    "type": "loot_table",
-                    "weight": 32,
-                    "name": "labyrinth:library/library_loot_level_6"
-                },
-                {
-                    "type": "empty"
-                },
-                {
                     "type": "item",
                     "name": "minecraft:book",
                     "quality": 2,

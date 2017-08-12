@@ -1,0 +1,15 @@
+{
+    "pools": [
+        {
+	    "name":"labyrinth",
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "item",
+                    "name": "minecraft:apple",
+                    "quality": 2
+                }
+            ]
+        }
+    ]
+}

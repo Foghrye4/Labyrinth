@@ -1,0 +1,28 @@
+{
+    "pools": [
+        {
+	    "name":"labyrinth",
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "item",
+                    "name": "minecraft:gold_ingot",
+                    "quality": 2
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:redstone"
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:blaze_rod",
+                    "quality": 2
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:nether_wart"
+                }
+           ]
+        }
+    ]
+}
