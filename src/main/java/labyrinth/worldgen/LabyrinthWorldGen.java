@@ -12,12 +12,7 @@ import cubicchunks.world.cube.Cube;
 import labyrinth.LabyrinthMod;
 import labyrinth.world.WorldSavedDataLabyrinthConfig;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -31,7 +26,7 @@ public class LabyrinthWorldGen {
 	private final CubicPopulatorList biomeDecorators = new CubicPopulatorList();
 	public final ICubeStructureGenerator basicCubeStructureGenerator = new RegularCubeStructureGenerator(this);
 	public final ICubeStructureGenerator lavaCubeStructureGenerator = new LavaCubeStructureGenerator(this);
-	public final VillageCubeStructureGenerator villageCubeStructureGenerator = new VillageCubeStructureGenerator();
+	public final VillageCubeStructureGenerator villageCubeStructureGenerator = new VillageCubeStructureGenerator(this);
 
 	public final ResourceLocation[] regularLoot = new ResourceLocation[]{
 			new ResourceLocation(LabyrinthMod.MODID, "dungeon_loot_level_0"),
@@ -92,6 +87,7 @@ public class LabyrinthWorldGen {
 		if (is == DungeonCube.NOTHING) {
 			return;
 		}
+		ICubeStructureGenerator currentGenerator = this.selectGenerator(pos, world);
 		random.setSeed(level << 8 ^ world.getSeed());
 		IBlockState[] bl = this.storage.blockstateList[random.nextInt(this.storage.blockstateList.length)];
 		if (level < this.storage.blockstateList.length) {
@@ -108,31 +104,10 @@ public class LabyrinthWorldGen {
 			cstorage = new ExtendedBlockStorage(pos.getMinBlockY(), true);
 			cube.setStorage(cstorage);
 		}
-		for (int index = 0; index < data.length; index++) {
-			int dx = index >>> 8;
-			int dy = (index >>> 4) & 15;
-			int dz = index & 15;
-			int bstate = Byte.toUnsignedInt(data[index]);
-			BlockPos bpos = new BlockPos(pos.getMinBlockX() + dx, pos.getMinBlockY() + dy, pos.getMinBlockZ() + dz);
-			cstorage.setBlocklightArray(new NibbleArray(is.lightData.clone()));
-			cstorage.set(dx, dy, dz, bl[bstate]);
-			cube.getColumn().getOpacityIndex().onOpacityChange(dx, pos.getMinBlockY() + dy, dz, bl[bstate].getLightOpacity((IBlockAccess) world, bpos));
-			if (bstate >= 3 && bstate <= 6) {
-				TileEntityChest chest = new TileEntityChest();
-				NBTTagCompound compound = new NBTTagCompound();
-				if (is.isLibrary)
-					compound.setString("LootTable", libraryLoot[level >= libraryLoot.length ? libraryLoot.length - 1 : level].toString());
-				else
-					compound.setString("LootTable", regularLoot[level >= regularLoot.length ? regularLoot.length - 1 : level].toString());
-				chest.readFromNBT(compound);
-				chest.markDirty();
-				chest.setPos(bpos);
-				world.setTileEntity(bpos, chest);
-			}
-		}
+		currentGenerator.placeCube(level, cube, cstorage, pos, world, data, bl, is);
 		random.setSeed(pos.hashCode());
 		if (random.nextInt(MOB_SPAWN_RARITY) == 0)
-			this.selectGenerator(pos, world).spawnMobs(level, world, pos, cstorage);
+			currentGenerator.spawnMobs(level, world, pos, cstorage);
 		event.setCanceled(true);
 	}
 

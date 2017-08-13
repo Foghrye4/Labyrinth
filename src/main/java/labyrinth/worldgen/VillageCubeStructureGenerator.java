@@ -4,7 +4,10 @@ import java.util.Random;
 
 import cubicchunks.util.CubePos;
 import cubicchunks.world.ICubicWorld;
+import cubicchunks.world.cube.Cube;
+import labyrinth.village.UndergroundVillage;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.passive.EntityChicken;
@@ -14,13 +17,26 @@ import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.entity.passive.EntitySheep;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.passive.EntityVillager;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntityChest;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.village.Village;
+import net.minecraft.village.VillageDoorInfo;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraftforge.fml.common.registry.VillagerRegistry;
 
 public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 
 	private final Random random = new Random();
+
+	private LabyrinthWorldGen generator;
+	public VillageCubeStructureGenerator(LabyrinthWorldGen generatorIn){
+		generator = generatorIn;
+	}
 
 	@SuppressWarnings("unchecked")
 	private final Class<? extends EntityLiving>[] VILLAGE_ENTITIES = new Class[]{
@@ -44,8 +60,8 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 	};
 
 	public boolean isVillage(CubePos cpos, ICubicWorld world) {
-		int x = cpos.getX() >> 3;
-		int z = cpos.getZ() >> 3;
+		int x = cpos.getX() >> UndergroundVillage.BIT_SIZE;
+		int z = cpos.getZ() >> UndergroundVillage.BIT_SIZE;
 		if((x & 3 | z & 3) != 0)
 			return false;
 		long hash = 3;
@@ -107,17 +123,19 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 		Class<? extends EntityLiving> entityClass;
 		int dy = 0;
 		int space = 10;
-		if (this.getDungeonCubeType(pos, world).isCorral) {
+		DungeonCube ct = this.getDungeonCubeType(pos, world);
+		if (ct.isCorral) {
 			dy = 1;
 			space = 4;
-			entityClass = VILLAGE_CORRAL_ENTITIES[random.nextInt(VILLAGE_CORRAL_ENTITIES.length)];
-		} else {
-			entityClass = VILLAGE_ENTITIES[random.nextInt(VILLAGE_ENTITIES.length)];
 		}
 		EntityLiving entity;
 		for (int dx = random.nextInt(space); dx < 15; dx += random.nextInt(space) + 2)
 			for (int dz = random.nextInt(space); dz < 15; dz += random.nextInt(space) + 2)
 				try {
+					if(ct.isCorral)
+						entityClass = VILLAGE_CORRAL_ENTITIES[random.nextInt(VILLAGE_CORRAL_ENTITIES.length)];
+					else
+						entityClass = VILLAGE_ENTITIES[random.nextInt(VILLAGE_ENTITIES.length)];
 					if (!data.get(dx, dy, dz).isFullBlock() || data.get(dx, dy+1, dz).getMaterial() != Material.AIR || data.get(dx, dy+2, dz).getMaterial() != Material.AIR)
 						continue;
 					entity = entityClass.getDeclaredConstructor(World.class).newInstance(world);
@@ -136,9 +154,52 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 						world.spawnEntity(entity);
 					else
 						entity.setDead();
-					world.spawnEntity(entity);
 				} catch (Throwable e) {
 					e.printStackTrace();
 				}
+	}
+	
+	@Override
+	public void placeCube(int level, Cube cube, ExtendedBlockStorage cstorage, CubePos pos, ICubicWorld world, byte[] data, IBlockState[] bl, DungeonCube is) {
+		UndergroundVillage currentVillage = null;
+		if (is.isVillageHome) {
+			for (Village village : ((WorldServer) world).villageCollection.getVillageList()) {
+				if (!(village instanceof UndergroundVillage))
+					continue;
+				UndergroundVillage uVillage = (UndergroundVillage) village;
+				if (uVillage.isBlockPosWithinSqVillageRadius(pos)) {
+					currentVillage = uVillage;
+					break;
+				}
+			}
+			if (currentVillage == null) {
+				currentVillage = new UndergroundVillage((World) world);
+				((WorldServer) world).villageCollection.getVillageList().add(currentVillage);
+			}
+		}
+		for (int index = 0; index < data.length; index++) {
+			int dx = index >>> 8;
+			int dy = (index >>> 4) & 15;
+			int dz = index & 15;
+			int bstate = Byte.toUnsignedInt(data[index]);
+			BlockPos bpos = new BlockPos(pos.getMinBlockX() + dx, pos.getMinBlockY() + dy, pos.getMinBlockZ() + dz);
+			cstorage.setBlocklightArray(new NibbleArray(is.lightData.clone()));
+			IBlockState blockState = bl[bstate];
+			cstorage.set(dx, dy, dz, blockState);
+			cube.getColumn().getOpacityIndex().onOpacityChange(dx, pos.getMinBlockY() + dy, dz, bl[bstate].getLightOpacity((IBlockAccess) world, bpos));
+			if (bstate >= 3 && bstate <= 6) {
+				TileEntityChest chest = new TileEntityChest();
+				NBTTagCompound compound = new NBTTagCompound();
+				compound.setString("LootTable", generator.regularLoot[level >= generator.regularLoot.length ? generator.regularLoot.length - 1 : level].toString());
+				chest.readFromNBT(compound);
+				chest.markDirty();
+				chest.setPos(bpos);
+				world.setTileEntity(bpos, chest);
+			}
+			else if(is.isVillageHome && bstate >= 58 && bstate <= 65 || bstate >= 78 && bstate <= 85)
+			{
+				currentVillage.addVillageDoorInfo(new VillageDoorInfo(bpos, 8-dx, 8-dz, 0));
+			}
+		}
 	}
 }

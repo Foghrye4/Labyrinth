@@ -92,6 +92,7 @@ public class LabyrinthMod {
 		event.registerServerCommand(new LWriteWithRotationsCommand());
 		event.registerServerCommand(new LStopEntityTick());
 		event.registerServerCommand(new LFindAVillage());
+		event.registerServerCommand(new LVillageInfo());
 	}
 
 }

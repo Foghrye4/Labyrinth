@@ -4,18 +4,25 @@ import java.util.Random;
 
 import cubicchunks.util.CubePos;
 import cubicchunks.world.ICubicWorld;
+import cubicchunks.world.cube.Cube;
 import labyrinth.entity.IMobLeveled;
 import labyrinth.entity.ISlime;
 import labyrinth.init.LabyrinthEntities;
 import labyrinth.util.LevelUtil;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
@@ -392,6 +399,32 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 				} catch (Throwable e) {
 					e.printStackTrace();
 				}
+	}
+
+	@Override
+	public void placeCube(int level, Cube cube, ExtendedBlockStorage cstorage, CubePos pos, ICubicWorld world, byte[] data, IBlockState[] bl, DungeonCube is) {
+		for (int index = 0; index < data.length; index++) {
+			int dx = index >>> 8;
+			int dy = (index >>> 4) & 15;
+			int dz = index & 15;
+			int bstate = Byte.toUnsignedInt(data[index]);
+			BlockPos bpos = new BlockPos(pos.getMinBlockX() + dx, pos.getMinBlockY() + dy, pos.getMinBlockZ() + dz);
+			cstorage.setBlocklightArray(new NibbleArray(is.lightData.clone()));
+			cstorage.set(dx, dy, dz, bl[bstate]);
+			cube.getColumn().getOpacityIndex().onOpacityChange(dx, pos.getMinBlockY() + dy, dz, bl[bstate].getLightOpacity((IBlockAccess) world, bpos));
+			if (bstate >= 3 && bstate <= 6) {
+				TileEntityChest chest = new TileEntityChest();
+				NBTTagCompound compound = new NBTTagCompound();
+				if (is.isLibrary)
+					compound.setString("LootTable", generator.libraryLoot[level >= generator.libraryLoot.length ? generator.libraryLoot.length - 1 : level].toString());
+				else
+					compound.setString("LootTable", generator.regularLoot[level >= generator.regularLoot.length ? generator.regularLoot.length - 1 : level].toString());
+				chest.readFromNBT(compound);
+				chest.markDirty();
+				chest.setPos(bpos);
+				world.setTileEntity(bpos, chest);
+			}
+		}
 	}
 
 }
