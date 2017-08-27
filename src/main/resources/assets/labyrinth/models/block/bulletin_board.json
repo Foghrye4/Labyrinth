@@ -1,0 +1,35 @@
+{
+    "__createdwith": "opl's Model Creator",
+    "ambientocclusion": false,
+    "textures": {
+        "particle": "blocks/planks_spruce",
+        "0": "blocks/planks_spruce",
+        "1": "labyrinth:blocks/bulletin_board"
+    },
+    "elements": [
+        {
+            "from": [0,0,7],
+            "to": [16,16,9],
+            "faces": {
+                "up": {
+                    "texture": "#0"
+                },
+                "down": {
+                    "texture": "#0"
+                },
+                "west": {
+                    "texture": "#0"
+                },
+                "east": {
+                    "texture": "#0"
+                },
+                "north": {
+                    "texture": "#0"
+                },
+                "south": {
+                    "texture": "#1"
+                }
+            }
+        }
+    ]
+}

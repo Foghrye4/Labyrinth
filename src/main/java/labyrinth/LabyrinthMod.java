@@ -11,6 +11,7 @@ import labyrinth.event.EntityEventHandler;
 import labyrinth.init.LabyrinthBlocks;
 import labyrinth.init.LabyrinthEntities;
 import labyrinth.item.*;
+import labyrinth.tileentity.TileEntityVillageMarket;
 import labyrinth.world.WorldEventHandler;
 import labyrinth.worldgen.LabyrinthWorldGen;
 import net.minecraft.creativetab.CreativeTabs;
@@ -38,8 +39,6 @@ public class LabyrinthMod {
 	public static Logger log;
 	@SidedProxy(clientSide = "labyrinth.ClientProxy", serverSide = "labyrinth.ServerProxy")
 	public static ServerProxy proxy;
-	@SidedProxy(clientSide = "labyrinth.ClientNetworkHandler", serverSide = "labyrinth.ServerNetworkHandler")
-	public static ServerNetworkHandler network;
 	public static LabyrinthConfig config;
 
 	public static boolean DEBUG_STOP_ENTITY_TICK = false;
@@ -52,7 +51,6 @@ public class LabyrinthMod {
 		config = new LabyrinthConfig(new Configuration(event.getSuggestedConfigurationFile()));
 		MinecraftForge.EVENT_BUS.register(config);
 		MinecraftForge.EVENT_BUS.register(new WorldEventHandler());
-		network = new ServerNetworkHandler();
 		LabyrinthBlocks.init();
 		LabyrinthBlocks.register();
 		proxy.preInit();
@@ -74,6 +72,7 @@ public class LabyrinthMod {
 		blockFiller.setUnlocalizedName("block_filler");
 		blockFiller.setRegistryName(MODID, "block_filler");
 		GameRegistry.register(blockFiller);
+		GameRegistry.registerTileEntity(TileEntityVillageMarket.class, MODID+":counter");
 	}
 
 	@EventHandler
@@ -94,5 +93,4 @@ public class LabyrinthMod {
 		event.registerServerCommand(new LFindAVillage());
 		event.registerServerCommand(new LVillageInfo());
 	}
-
 }

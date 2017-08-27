@@ -18,7 +18,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class LabyrinthWorldGen {
 
-	private final static int MOB_SPAWN_RARITY = 8;
+	private final static int MOB_SPAWN_RARITY = 6;
 	private WorldSavedDataLabyrinthConfig config;
 	public static LabyrinthWorldGen instance;
 	public LevelFeaturesStorage storage;
@@ -105,7 +105,7 @@ public class LabyrinthWorldGen {
 			cube.setStorage(cstorage);
 		}
 		currentGenerator.placeCube(level, cube, cstorage, pos, world, data, bl, is);
-		random.setSeed(pos.hashCode());
+		random.setSeed(pos.hashCode()^world.getSeed());
 		if (random.nextInt(MOB_SPAWN_RARITY) == 0)
 			currentGenerator.spawnMobs(level, world, pos, cstorage);
 		event.setCanceled(true);

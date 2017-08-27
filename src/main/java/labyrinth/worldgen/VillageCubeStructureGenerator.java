@@ -5,7 +5,10 @@ import java.util.Random;
 import cubicchunks.util.CubePos;
 import cubicchunks.world.ICubicWorld;
 import cubicchunks.world.cube.Cube;
+import labyrinth.tileentity.TileEntityVillageMarket;
 import labyrinth.village.UndergroundVillage;
+
+import static labyrinth.village.UndergroundVillage.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityAgeable;
@@ -34,7 +37,7 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 	private final Random random = new Random();
 
 	private LabyrinthWorldGen generator;
-	public VillageCubeStructureGenerator(LabyrinthWorldGen generatorIn){
+	public VillageCubeStructureGenerator(LabyrinthWorldGen generatorIn) {
 		generator = generatorIn;
 	}
 
@@ -60,9 +63,9 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 	};
 
 	public boolean isVillage(CubePos cpos, ICubicWorld world) {
-		int x = cpos.getX() >> UndergroundVillage.BIT_SIZE;
-		int z = cpos.getZ() >> UndergroundVillage.BIT_SIZE;
-		if((x & 3 | z & 3) != 0)
+		int x = cpos.getX() >> BIT_SIZE;
+		int z = cpos.getZ() >> BIT_SIZE;
+		if ((x & 3 | z & 3) != 0)
 			return false;
 		long hash = 3;
 		hash = 41 * hash + world.getSeed();
@@ -70,7 +73,21 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 		hash = 41 * hash + x;
 		hash = 41 * hash + z;
 		random.setSeed(hash);
-		return random.nextInt(16) == 0;
+		boolean canPlaceVillageHere = random.nextInt(16) == 0;
+		if (!canPlaceVillageHere)
+			return false;
+		int cy = cpos.getY();
+		int cx1 = cpos.getX() & INV_BIT_MASK;
+		int cz1 = cpos.getZ() & INV_BIT_MASK;
+		int cx2 = cx1 | LOCAL_BIT_MASK;
+		int cz2 = cz1 | LOCAL_BIT_MASK;
+		int cxmax = Math.max(cx1, cx2);
+		int czmax = Math.max(cz1, cz2);
+		for (int cx = Math.min(cx1, cx2); cx <= cxmax; cx++)
+			for (int cz = Math.min(cz1, cz2); cz <= czmax; cz++)
+				if (!this.generator.shouldGenerateAtPos(new CubePos(cx, cy, cz), world))
+					return false;
+		return true;
 	}
 
 	@Override
@@ -83,6 +100,7 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 		boolean northBorder = localZ == 0;
 		boolean centralWest = localX == 3;
 		boolean centralEast = localX == 4;
+		boolean centralNorth = localZ == 3;
 		if (northBorder && westBorder)
 			return DungeonCube.VILLAGE_NORTH_WEST;
 		if (northBorder && eastBorder)
@@ -107,12 +125,14 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 			return DungeonCube.VILLAGE_SOUTH;
 		if (northBorder)
 			return DungeonCube.VILLAGE_NORTH;
+		if (centralWest && centralNorth)
+			return DungeonCube.VILLAGE_MARKET;
 		if (centralWest)
 			return DungeonCube.VILLAGE_CENTRAL_WEST_SIDE;
 		if (centralEast)
 			return DungeonCube.VILLAGE_CENTRAL_EAST_SIDE;
 
-		if((localX & 1 | localZ & 1) == 0)
+		if ((localX & 1 | localZ & 1) == 0)
 			return DungeonCube.VILLAGE_HOME;
 		else
 			return DungeonCube.VILLAGE_PARK;
@@ -121,22 +141,20 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 	@Override
 	public void spawnMobs(int level, ICubicWorld world, CubePos pos, ExtendedBlockStorage data) {
 		Class<? extends EntityLiving> entityClass;
-		int dy = 0;
 		int space = 10;
 		DungeonCube ct = this.getDungeonCubeType(pos, world);
-		if (ct.isCorral) {
-			dy = 1;
+		if (ct.isCorral || ct == DungeonCube.VILLAGE_MARKET)
 			space = 4;
-		}
 		EntityLiving entity;
-		for (int dx = random.nextInt(space); dx < 15; dx += random.nextInt(space) + 2)
-			for (int dz = random.nextInt(space); dz < 15; dz += random.nextInt(space) + 2)
+		for (int dy = 0; dy < 2; dy++)
+		for (int dx = random.nextInt(space); dx < 15; dx += random.nextInt(space) + 1)
+			for (int dz = random.nextInt(space); dz < 15; dz += random.nextInt(space) + 1)
 				try {
-					if(ct.isCorral)
+					if (ct.isCorral)
 						entityClass = VILLAGE_CORRAL_ENTITIES[random.nextInt(VILLAGE_CORRAL_ENTITIES.length)];
 					else
 						entityClass = VILLAGE_ENTITIES[random.nextInt(VILLAGE_ENTITIES.length)];
-					if (!data.get(dx, dy, dz).isFullBlock() || data.get(dx, dy+1, dz).getMaterial() != Material.AIR || data.get(dx, dy+2, dz).getMaterial() != Material.AIR)
+					if (!data.get(dx, dy, dz).isFullBlock() || data.get(dx, dy + 1, dz).getMaterial() != Material.AIR || data.get(dx, dy + 2, dz).getMaterial() != Material.AIR)
 						continue;
 					entity = entityClass.getDeclaredConstructor(World.class).newInstance(world);
 					entity.setLocationAndAngles(pos.getMinBlockX() + dx + 0.5, pos.getMinBlockY() + dy + 1,
@@ -150,7 +168,7 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 					if (entity instanceof EntityTameable) {
 						((EntityTameable) entity).setTamed(true);
 					}
-					if(entity.isNotColliding())
+					if (entity.isNotColliding())
 						world.spawnEntity(entity);
 					else
 						entity.setDead();
@@ -158,7 +176,7 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 					e.printStackTrace();
 				}
 	}
-	
+
 	@Override
 	public void placeCube(int level, Cube cube, ExtendedBlockStorage cstorage, CubePos pos, ICubicWorld world, byte[] data, IBlockState[] bl, DungeonCube is) {
 		UndergroundVillage currentVillage = null;
@@ -195,10 +213,15 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 				chest.markDirty();
 				chest.setPos(bpos);
 				world.setTileEntity(bpos, chest);
-			}
-			else if(is.isVillageHome && bstate >= 58 && bstate <= 65 || bstate >= 78 && bstate <= 85)
-			{
-				currentVillage.addVillageDoorInfo(new VillageDoorInfo(bpos, 8-dx, 8-dz, 0));
+				chest.validate();
+			} else if (bstate == 121) {
+				TileEntityVillageMarket counter = new TileEntityVillageMarket();
+				counter.setPos(bpos);
+				counter.markDirty();
+				world.setTileEntity(bpos, counter);
+				counter.validate();
+			} else if (is.isVillageHome && bstate >= 58 && bstate <= 65 || bstate >= 78 && bstate <= 85) {
+				currentVillage.addVillageDoorInfo(new VillageDoorInfo(bpos, 8 - dx, 8 - dz, 0));
 			}
 		}
 	}

@@ -2,10 +2,14 @@ package labyrinth.init;
 
 import labyrinth.LabyrinthMod;
 import labyrinth.block.BlockStoneTile;
+import labyrinth.block.BlockVillageMarket;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemMultiTexture;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -13,10 +17,13 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class LabyrinthBlocks {
 	public static Block STONE;
+	public static Block COUNTER;
 
 	public static void init() {
 		STONE = (new BlockStoneTile()).setHardness(1.5F).setResistance(10.0F).setUnlocalizedName("stone")
 				.setRegistryName(LabyrinthMod.MODID, "stone");
+		COUNTER = (new BlockVillageMarket(Material.WOOD)).setHardness(0.5F).setResistance(5.0F).setUnlocalizedName("counter")
+				.setRegistryName(LabyrinthMod.MODID, "counter").setCreativeTab(CreativeTabs.DECORATIONS);
 	}
 
 	public static void register() {
@@ -25,6 +32,7 @@ public class LabyrinthBlocks {
 				return BlockStoneTile.EnumType.byMetadata(stack.getMetadata()).getUnlocalizedName();
 			}
 		})).setUnlocalizedName("stone"));
+		registerBlock(COUNTER, (new ItemBlock(COUNTER)).setUnlocalizedName("counter"));
 	}
 
 	private static void registerBlock(Block block, Item item) {
@@ -34,13 +42,14 @@ public class LabyrinthBlocks {
 	}
 
 	public static void registerRenders() {
-		registerRender(STONE);
+		for (BlockStoneTile.EnumType type : BlockStoneTile.EnumType.values()) {
+			registerRender(STONE, type.getMetadata(), new ResourceLocation(LabyrinthMod.MODID, type.getName()));
+		}
+		registerRender(COUNTER, 0, COUNTER.getRegistryName());
 	}
 
-	private static void registerRender(Block block) {
-		for(BlockStoneTile.EnumType type:BlockStoneTile.EnumType.values()){
-			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(Item.getItemFromBlock(block), type.getMetadata(),
-					new ModelResourceLocation(new ResourceLocation(LabyrinthMod.MODID,type.getName()), "inventory"));
-		}
+	private static void registerRender(Block block, int metadata, ResourceLocation modelResourceLocation) {
+		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(Item.getItemFromBlock(block), metadata,
+				new ModelResourceLocation(modelResourceLocation, "inventory"));
 	}
 }

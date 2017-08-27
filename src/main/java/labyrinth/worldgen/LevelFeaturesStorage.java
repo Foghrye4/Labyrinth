@@ -402,6 +402,7 @@ public class LevelFeaturesStorage {
 		blockstateList[0][119] = Blocks.ANVIL.getDefaultState().withProperty(BlockAnvil.FACING, EnumFacing.EAST)
 				.withProperty(BlockAnvil.DAMAGE, Integer.valueOf(0));
 		blockstateList[0][120] = Blocks.ACACIA_FENCE.getDefaultState();
+		blockstateList[0][121] = LabyrinthBlocks.COUNTER.getDefaultState();
 		blockstateList[0][129] = Blocks.STICKY_PISTON.getDefaultState()
 				.withProperty(BlockPistonBase.EXTENDED, Boolean.valueOf(true))
 				.withProperty(BlockPistonBase.FACING, EnumFacing.NORTH);

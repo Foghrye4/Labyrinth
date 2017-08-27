@@ -161,6 +161,7 @@ public enum DungeonCube {
 		VILLAGE_SOUTH_GATE_EAST_SIDE("village_south_gate_east_side.cube_structure"),
 		VILLAGE_CENTRAL_WEST_SIDE("village_central_west_side.cube_structure"),
 		VILLAGE_CENTRAL_EAST_SIDE("village_central_east_side.cube_structure"),
+		VILLAGE_MARKET("village_market.cube_structure"),
 		
 		NOTHING(""),
 		UNDEFINED("");
