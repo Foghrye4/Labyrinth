@@ -15,9 +15,7 @@ public class ServerProxy {
 	
 	private ServerNetworkHandler networkHandler = new ServerNetworkHandler();
 
-	public void load() {
-
-	}
+	public void load() {}
 
 	public File getMinecraftDir() {
 		return new File(".");

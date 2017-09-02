@@ -59,7 +59,7 @@ public class ServerNetworkHandler {
 				byteBufInputStream.close();
 				throw new NullPointerException("Server is null");
 			}
-			World world = FMLServerHandler.instance().getServer().worldServerForDimension(worldDimensionId);
+			World world = FMLServerHandler.instance().getServer().getWorld(worldDimensionId);
 			EntityPlayerMP player = (EntityPlayerMP) world.getEntityByID(playerEntityId);
 			((ContainerVillageMarket)player.openContainer).setCurrentMerchant(merchantId);
 			break;

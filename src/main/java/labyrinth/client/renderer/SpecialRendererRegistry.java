@@ -3,6 +3,7 @@ package labyrinth.client.renderer;
 import java.util.HashSet;
 import java.util.Set;
 
+import labyrinth.LabyrinthMod;
 import labyrinth.client.Icon;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -20,7 +21,9 @@ public class SpecialRendererRegistry {
 	
 	@SubscribeEvent
 	public void onTextureStitchEvent(TextureStitchEvent.Pre event) {
+		LabyrinthMod.log.info("Hooking on texture stitch event");
 		for (Icon icon : icons) {
+			LabyrinthMod.log.info("Registering icon at "+icon.getLocation().toString());
 			icon.registerIcon(event.getMap());
 		}
 	}

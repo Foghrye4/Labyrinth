@@ -514,6 +514,8 @@ public class LevelFeaturesStorage {
 		blockstateList[0][186] = Blocks.GRASS.getDefaultState();
 		blockstateList[0][187] = Blocks.ACACIA_FENCE_GATE.getDefaultState().withProperty(BlockHorizontal.FACING, EnumFacing.WEST);
 		blockstateList[0][188] = Blocks.ACACIA_FENCE_GATE.getDefaultState().withProperty(BlockHorizontal.FACING, EnumFacing.SOUTH);
+		blockstateList[0][189] = Blocks.ACACIA_FENCE_GATE.getDefaultState().withProperty(BlockHorizontal.FACING, EnumFacing.NORTH);
+		blockstateList[0][190] = Blocks.ACACIA_FENCE_GATE.getDefaultState().withProperty(BlockHorizontal.FACING, EnumFacing.EAST);
 		blockstateList[0][255] = Blocks.AIR.getDefaultState();
 
 		for (int i = 1; i < blockstateList.length; i++)

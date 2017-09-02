@@ -161,7 +161,8 @@ public enum DungeonCube {
 		VILLAGE_SOUTH_GATE_EAST_SIDE("village_south_gate_east_side.cube_structure"),
 		VILLAGE_CENTRAL_WEST_SIDE("village_central_west_side.cube_structure"),
 		VILLAGE_CENTRAL_EAST_SIDE("village_central_east_side.cube_structure"),
-		VILLAGE_MARKET("village_market.cube_structure"),
+		VILLAGE_MARKET_WEST("village_market.cube_structure", DungeonCubeFlag.MARKET),
+		VILLAGE_MARKET_EAST("village_market_east.cube_structure", DungeonCubeFlag.MARKET),
 		
 		NOTHING(""),
 		UNDEFINED("");
@@ -181,6 +182,7 @@ public enum DungeonCube {
 		boolean isLibrary = false;
 		boolean isCorral = false;
 		boolean isVillageHome = false;
+		boolean isMarket = false;
 		public final byte[] data = new byte[4096];
 		public final byte[] lightData = new byte[2048];
 
@@ -224,6 +226,9 @@ public enum DungeonCube {
 					break;
 				case CORRAL:
 					isCorral = true;
+					break;
+				case MARKET:
+					isMarket = true;
 					break;
 				case VILLAGE_HOME:
 					isVillageHome = true;
@@ -292,6 +297,7 @@ public enum DungeonCube {
 			STAIR_BOTTOM, 
 			LIBRARY, 
 			CORRAL, 
-			VILLAGE_HOME;
+			VILLAGE_HOME, 
+			MARKET;
 		}
 }

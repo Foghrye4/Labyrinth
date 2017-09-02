@@ -41,7 +41,7 @@ public class RenderEntityEraserFrame extends Render<EntityEraserFrame>{
         GlStateManager.disableTexture2D();
         GlStateManager.depthMask(false);
 
-        RenderGlobal.drawSelectionBoundingBox(axisalignedbb.expandXyz(0.002D).offset(-this.renderPosX, -this.renderPosY, -this.renderPosZ), (frame & 255)/255f, (frame+64 & 255)/255f, (frame+128 & 255)/255f, 1.0F);
+        RenderGlobal.drawSelectionBoundingBox(axisalignedbb.expand(0.002D, 0.002D, 0.002D).offset(-this.renderPosX, -this.renderPosY, -this.renderPosZ), (frame & 255)/255f, (frame+64 & 255)/255f, (frame+128 & 255)/255f, 1.0F);
         
         GlStateManager.depthMask(true);
         GlStateManager.enableTexture2D();

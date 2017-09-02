@@ -11,40 +11,44 @@ import net.minecraftforge.fml.relauncher.Side;
 public class Icon {
 	private TextureAtlasSprite sprite;
 	private ResourceLocation location;
-	
-	public Icon(ResourceLocation locationIn){
-		this.location=locationIn;
+
+	public Icon(ResourceLocation locationIn) {
+		this.location = locationIn;
 	}
 
 	public void registerIcon(TextureMap map) {
 		sprite = map.registerSprite(location);
 	}
-	
-	public float getMinU(){
+
+	public ResourceLocation getLocation() {
+		return this.location;
+	}
+
+	public float getMinU() {
 		return sprite.getMinU();
 	}
-	
-	public float getMinV(){
+
+	public float getMinV() {
 		return sprite.getMinV();
 	}
-	
-	public float getMaxU(){
+
+	public float getMaxU() {
 		return sprite.getMaxU();
 	}
-	
-	public float getMaxV(){
+
+	public float getMaxV() {
 		return sprite.getMaxV();
 	}
 
-	public int getOriginX(){
+	public int getOriginX() {
 		return sprite.getOriginX();
 	}
 
-	public int getOriginY(){
+	public int getOriginY() {
 		return sprite.getOriginY();
 	}
-	
-	public int getIconHeight(){
+
+	public int getIconHeight() {
 		return sprite.getIconHeight();
 	}
 

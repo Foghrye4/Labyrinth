@@ -13,6 +13,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemMultiTexture;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class LabyrinthBlocks {
@@ -36,9 +37,9 @@ public class LabyrinthBlocks {
 	}
 
 	private static void registerBlock(Block block, Item item) {
-		GameRegistry.register(block);
+		RegistryEventHandler.blocks.add(block);
 		item.setRegistryName(block.getRegistryName());
-		GameRegistry.register(item);
+		RegistryEventHandler.items.add(item);
 	}
 
 	public static void registerRenders() {

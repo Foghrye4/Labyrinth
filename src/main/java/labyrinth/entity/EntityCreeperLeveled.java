@@ -50,8 +50,9 @@ public class EntityCreeperLeveled extends EntityCreeper implements IMobLeveled {
 				this.getHealth() > 0.0F && 
 				this.getCreeperState() > 0 && 
 				((ICubicWorld)world).isAreaLoaded(new BlockPos(this.getPosition().add(-16, -16, -16)), new BlockPos(this.getPosition().add(16, 16, 16)))) {
+			double es = LevelUtil.getExplosionStrength(level);
 			List<Entity> elist = this.world.getEntitiesInAABBexcluding(this,
-					this.getEntityBoundingBox().expandXyz(LevelUtil.getExplosionStrength(level)), EXPLOSION_TARGETS);
+					this.getEntityBoundingBox().expand(es,es,es), EXPLOSION_TARGETS);
 	        AxisAlignedBB ebb = this.getEntityBoundingBox();
 			Vec3d traceFrom = new Vec3d(ebb.minX + (ebb.maxX - ebb.minX) * 0.5D, ebb.minY + (ebb.maxY - ebb.minY) * 0.5D, ebb.minZ + (ebb.maxZ - ebb.minZ) * 0.5D);
 			for (Entity target : elist) {

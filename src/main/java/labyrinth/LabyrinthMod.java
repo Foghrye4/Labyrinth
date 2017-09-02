@@ -10,6 +10,8 @@ import labyrinth.entity.EntityEraserFrame;
 import labyrinth.event.EntityEventHandler;
 import labyrinth.init.LabyrinthBlocks;
 import labyrinth.init.LabyrinthEntities;
+import labyrinth.init.LabyrinthItems;
+import labyrinth.init.RegistryEventHandler;
 import labyrinth.item.*;
 import labyrinth.tileentity.TileEntityVillageMarket;
 import labyrinth.world.WorldEventHandler;
@@ -23,6 +25,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
@@ -33,7 +36,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 public class LabyrinthMod {
 	public static final String MODID = "labyrinth";
 	public static final String NAME = "Labyrinth";
-	public static final String VERSION = "0.1.10";
+	public static final String VERSION = "0.1.12";
 	public static final String GUI_FACTORY = "labyrinth.gui.LabyrinthGuiFactory";
 
 	public static Logger log;
@@ -42,8 +45,6 @@ public class LabyrinthMod {
 	public static LabyrinthConfig config;
 
 	public static boolean DEBUG_STOP_ENTITY_TICK = false;
-	public static ItemEraser eraser;
-	public static ItemBlockFiller blockFiller;
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) throws IOException, IllegalAccessException {
@@ -52,40 +53,33 @@ public class LabyrinthMod {
 		MinecraftForge.EVENT_BUS.register(config);
 		MinecraftForge.EVENT_BUS.register(new WorldEventHandler());
 		LabyrinthBlocks.init();
+		LabyrinthItems.init();
 		LabyrinthBlocks.register();
+		LabyrinthItems.register();
 		proxy.preInit();
 		LabyrinthEntities.register(this);
 		MinecraftForge.EVENT_BUS.register(new LabyrinthWorldGen());
 		MinecraftForge.EVENT_BUS.register(new EntityEventHandler());
+		MinecraftForge.EVENT_BUS.register(new RegistryEventHandler());
 		if (config.shouldRemoveMobSpawn())
-			for (Biome biome : Biome.EXPLORATION_BIOMES_LIST) {
+			for (Biome biome : Biome.REGISTRY) {
 				biome.getSpawnableList(EnumCreatureType.MONSTER).clear();
 			}
 		EntityRegistry.registerModEntity(new ResourceLocation(MODID, "eraser_frame"), EntityEraserFrame.class, "EraserFrame", 255, this, 64, 1, true);
-		eraser = new ItemEraser();
-		eraser.setCreativeTab(CreativeTabs.TOOLS);
-		eraser.setUnlocalizedName("eraser");
-		eraser.setRegistryName(MODID, "eraser");
-		GameRegistry.register(eraser);
-		blockFiller = new ItemBlockFiller();
-		blockFiller.setCreativeTab(CreativeTabs.TOOLS);
-		blockFiller.setUnlocalizedName("block_filler");
-		blockFiller.setRegistryName(MODID, "block_filler");
-		GameRegistry.register(blockFiller);
 		GameRegistry.registerTileEntity(TileEntityVillageMarket.class, MODID+":counter");
 	}
-
+	
 	@EventHandler
-	public void init(FMLPostInitializationEvent event) throws IOException, IllegalAccessException {
+	public void init(FMLInitializationEvent event) {
 		proxy.load();
 	}
+
 
 	@EventHandler
 	public void serverStart(FMLServerStartingEvent event) {
 		event.registerServerCommand(new LWriteCubeCommand());
 		event.registerServerCommand(new LPlaceCubeCommand());
 		event.registerServerCommand(new LMixInCubeCommand());
-		event.registerServerCommand(new LGetStructureBlockStateCommand());
 		event.registerServerCommand(new LGetStructureInfo());
 		event.registerServerCommand(new LPlaceStructureBlock());
 		event.registerServerCommand(new LWriteWithRotationsCommand());

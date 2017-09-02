@@ -100,7 +100,7 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 		boolean northBorder = localZ == 0;
 		boolean centralWest = localX == 3;
 		boolean centralEast = localX == 4;
-		boolean centralNorth = localZ == 3;
+		boolean center = (localZ == 3 || localZ == 4) && (localX == 3 || localX == 4);
 		if (northBorder && westBorder)
 			return DungeonCube.VILLAGE_NORTH_WEST;
 		if (northBorder && eastBorder)
@@ -125,8 +125,10 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 			return DungeonCube.VILLAGE_SOUTH;
 		if (northBorder)
 			return DungeonCube.VILLAGE_NORTH;
-		if (centralWest && centralNorth)
-			return DungeonCube.VILLAGE_MARKET;
+		if (center && centralWest)
+			return DungeonCube.VILLAGE_MARKET_WEST;
+		if (center && centralEast)
+			return DungeonCube.VILLAGE_MARKET_EAST;
 		if (centralWest)
 			return DungeonCube.VILLAGE_CENTRAL_WEST_SIDE;
 		if (centralEast)
@@ -143,12 +145,12 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 		Class<? extends EntityLiving> entityClass;
 		int space = 10;
 		DungeonCube ct = this.getDungeonCubeType(pos, world);
-		if (ct.isCorral || ct == DungeonCube.VILLAGE_MARKET)
-			space = 4;
+		if (ct.isCorral || ct.isMarket)
+			space = 6;
 		EntityLiving entity;
-		for (int dy = 0; dy < 2; dy++)
-		for (int dx = random.nextInt(space); dx < 15; dx += random.nextInt(space) + 1)
-			for (int dz = random.nextInt(space); dz < 15; dz += random.nextInt(space) + 1)
+		for (int dy = 0; dy <= 1; dy++)
+		for (int dx = random.nextInt(space); dx < 15; dx += random.nextInt(space) + 2)
+		for (int dz = random.nextInt(space); dz < 15; dz += random.nextInt(space) + 2)
 				try {
 					if (ct.isCorral)
 						entityClass = VILLAGE_CORRAL_ENTITIES[random.nextInt(VILLAGE_CORRAL_ENTITIES.length)];
@@ -201,7 +203,7 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 			int dz = index & 15;
 			int bstate = Byte.toUnsignedInt(data[index]);
 			BlockPos bpos = new BlockPos(pos.getMinBlockX() + dx, pos.getMinBlockY() + dy, pos.getMinBlockZ() + dz);
-			cstorage.setBlocklightArray(new NibbleArray(is.lightData.clone()));
+			cstorage.setBlockLight(new NibbleArray(is.lightData.clone()));
 			IBlockState blockState = bl[bstate];
 			cstorage.set(dx, dy, dz, blockState);
 			cube.getColumn().getOpacityIndex().onOpacityChange(dx, pos.getMinBlockY() + dy, dz, bl[bstate].getLightOpacity((IBlockAccess) world, bpos));

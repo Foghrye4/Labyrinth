@@ -22,7 +22,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -67,11 +66,15 @@ public class TileEntityVillageMarket extends TileEntity {
 		}
 		super.invalidate();
 	}
+	
+	private boolean recipeIsOutdated(){
+		return (merchant != null && merchant.isDead) ||
+		(recipe != null && recipe.isRecipeDisabled());
+	}
 
 	public void updateMarket() {
 		boolean sendUpdate = false; 
-		if ((merchant != null && merchant.isDead) ||
-				(recipe != null && recipe.isRecipeDisabled())) {
+		if (recipeIsOutdated()) {
 			occupiedVillagers.remove(merchant);
 			occupiedRecipes.remove(recipe);
 			merchant = null;
@@ -122,7 +125,7 @@ public class TileEntityVillageMarket extends TileEntity {
 	}
 
 	public void tryTrade(EntityPlayer player) {
-		if (this.trade(player, false)) {
+		if (recipeIsOutdated() || this.trade(player, false)) {
 			for (TileEntityVillageMarket market : eventListeners)
 				market.updateMarket();
 		}
@@ -133,6 +136,8 @@ public class TileEntityVillageMarket extends TileEntity {
 	}
 
 	public boolean trade(EntityPlayer player, boolean checkOnly) {
+		if (recipe == null)
+			return false;
 		ItemStack stack = recipe.getItemToSell().copy();
 		stack.onCrafting(player.world, player, stack.getCount());
 
@@ -249,6 +254,7 @@ public class TileEntityVillageMarket extends TileEntity {
 
 	@Override
 	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+		super.onDataPacket(net, pkt);
 		this.readItems(pkt.getNbtCompound());
 	}
 

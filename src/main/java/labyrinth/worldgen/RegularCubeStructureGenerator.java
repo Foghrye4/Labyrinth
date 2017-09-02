@@ -27,6 +27,8 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 
+	private final static int MOB_SPAWN_RARITY = 6;
+	
 	private LabyrinthWorldGen generator;
 	private final Random random = new Random();
 	private DungeonCube[] randomDungeonsArray = new DungeonCube[]{
@@ -368,6 +370,9 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 	
 	@Override
 	public void spawnMobs(int level, ICubicWorld world, CubePos pos, ExtendedBlockStorage data) {
+		random.setSeed(pos.hashCode()^world.getSeed());
+		if(random.nextInt(MOB_SPAWN_RARITY)!=0)
+			return;
 		LevelFeaturesStorage storage = generator.storage;
 		ResourceLocation[] regularLoot = generator.regularLoot;
 		int mobRandom = level < storage.levelToMob.length ? level : random.nextInt() & (storage.levelToMob.length - 1);
@@ -409,7 +414,7 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 			int dz = index & 15;
 			int bstate = Byte.toUnsignedInt(data[index]);
 			BlockPos bpos = new BlockPos(pos.getMinBlockX() + dx, pos.getMinBlockY() + dy, pos.getMinBlockZ() + dz);
-			cstorage.setBlocklightArray(new NibbleArray(is.lightData.clone()));
+			cstorage.setBlockLight(new NibbleArray(is.lightData.clone()));
 			cstorage.set(dx, dy, dz, bl[bstate]);
 			cube.getColumn().getOpacityIndex().onOpacityChange(dx, pos.getMinBlockY() + dy, dz, bl[bstate].getLightOpacity((IBlockAccess) world, bpos));
 			if (bstate >= 3 && bstate <= 6) {
@@ -426,5 +431,4 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 			}
 		}
 	}
-
 }

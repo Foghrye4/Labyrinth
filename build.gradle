@@ -12,7 +12,7 @@ buildscript {
 	}
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
         classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
     }
 }
@@ -33,7 +33,7 @@ compileJava {
 }
 
 minecraft {
-    version = "1.11.2-13.20.0.2299"
+    version = "1.12.1-14.22.0.2460"
     runDir = "run"
     
     // the mappings can be changed at any time, and must be in the following format.
@@ -41,7 +41,7 @@ minecraft {
     // stable_#            stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not always work.
     // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings = "snapshot_20170516"
+    mappings = "snapshot_20170822"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 
@@ -55,7 +55,8 @@ repositories {
 
 dependencies {
 	compile "org.spongepowered:mixin:0.6.8-SNAPSHOT"
-	compile project(':CubicChunks')
+	compile files('lib/CubicChunks-1.12.1-0.0.710.0-dev.jar')
+//	compile project(':CubicChunks')
 }
 
 processResources {

@@ -144,7 +144,7 @@ public class EntityVexLeveled extends EntityVex implements IMobLeveled {
 		public void startExecuting() {
 			EntityLivingBase entitylivingbase = EntityVexLeveled.this.getAttackTarget();
 			Vec3d vec3d = entitylivingbase.getPositionEyes(1.0F);
-			EntityVexLeveled.this.moveHelper.setMoveTo(vec3d.xCoord, vec3d.yCoord, vec3d.zCoord, 1.0D);
+			EntityVexLeveled.this.moveHelper.setMoveTo(vec3d.x, vec3d.y, vec3d.z, 1.0D);
 			EntityVexLeveled.this.setIsCharging(true);
 			EntityVexLeveled.this.playSound(SoundEvents.ENTITY_VEX_CHARGE, 1.0F, 1.0F);
 		}
@@ -162,7 +162,7 @@ public class EntityVexLeveled extends EntityVex implements IMobLeveled {
 		public void updateTask() {
 			EntityLivingBase entitylivingbase = EntityVexLeveled.this.getAttackTarget();
 
-			if (EntityVexLeveled.this.getEntityBoundingBox().intersectsWith(entitylivingbase.getEntityBoundingBox())) {
+			if (EntityVexLeveled.this.getEntityBoundingBox().intersects(entitylivingbase.getEntityBoundingBox())) {
 				EntityVexLeveled.this.attackEntityAsMob(entitylivingbase);
 				EntityVexLeveled.this.setIsCharging(false);
 			} else {
@@ -170,7 +170,7 @@ public class EntityVexLeveled extends EntityVex implements IMobLeveled {
 
 				if (d0 < 9.0D) {
 					Vec3d vec3d = entitylivingbase.getPositionEyes(1.0F);
-					EntityVexLeveled.this.moveHelper.setMoveTo(vec3d.xCoord, vec3d.yCoord, vec3d.zCoord, 1.0D);
+					EntityVexLeveled.this.moveHelper.setMoveTo(vec3d.x, vec3d.y, vec3d.z, 1.0D);
 				}
 			}
 		}

@@ -25,7 +25,7 @@ public class BlockVillageMarket extends Block implements ITileEntityProvider {
 
 	public static final AxisAlignedBB BOARD_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1D / 16D, 1.0D);
 	public static final AxisAlignedBB PLATE_AABB = new AxisAlignedBB(7/16D, 6/16D, 1/16D, 1.0D, 15D / 16D, 2/16D);
-	public static final AxisAlignedBB SELECTION_AABB = new AxisAlignedBB(1/16D, 0.0D, 1/16D, 15/16D, 15D / 16D, 15/16D);
+	public static final AxisAlignedBB SELECTION_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 2D / 16D, 1.0D);
 	
 	public BlockVillageMarket(Material materialIn) {
 		super(materialIn);
@@ -33,12 +33,11 @@ public class BlockVillageMarket extends Block implements ITileEntityProvider {
 
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if (!worldIn.isRemote) {
-			TileEntity te = worldIn.getTileEntity(pos);
-			if (te instanceof TileEntityVillageMarket) {
-				((TileEntityVillageMarket) te).tryTrade(playerIn);
-			}
-		}
+		if (!worldIn.isRemote)
+			return true;
+		TileEntity te = worldIn.getTileEntity(pos);
+		if (te instanceof TileEntityVillageMarket)
+			((TileEntityVillageMarket) te).tryTrade(playerIn);
 		return true;
 	}
 
@@ -49,11 +48,11 @@ public class BlockVillageMarket extends Block implements ITileEntityProvider {
 	}
 
 	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
-		if (!this.canPlaceBlockAt(worldIn, pos)) {
-			if (worldIn.getBlockState(pos).getBlock() == this) {
-				this.dropBlockAsItem(worldIn, pos, state, 0);
-				worldIn.setBlockToAir(pos);
-			}
+		if (this.canPlaceBlockAt(worldIn, pos))
+			return;
+		if (worldIn.getBlockState(pos).getBlock() == this) {
+			this.dropBlockAsItem(worldIn, pos, state, 0);
+			worldIn.setBlockToAir(pos);
 		}
 	}
 
@@ -87,5 +86,10 @@ public class BlockVillageMarket extends Block implements ITileEntityProvider {
 	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta) {
 		return new TileEntityVillageMarket();
+	}
+	
+	@Override
+	public boolean hasTileEntity(IBlockState state) {
+		return true;
 	}
 }

@@ -3,7 +3,6 @@ package labyrinth;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import labyrinth.block.BlockStoneTile;
 import labyrinth.client.renderer.RenderEntityEraserFrame;
@@ -11,40 +10,31 @@ import labyrinth.client.renderer.SpecialRendererRegistry;
 import labyrinth.client.renderer.TileEntityVillageMarketRenderer;
 import labyrinth.entity.EntityEraserFrame;
 import labyrinth.init.LabyrinthBlocks;
+import labyrinth.init.LabyrinthItems;
 import labyrinth.tileentity.TileEntityVillageMarket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SideOnly(value = Side.CLIENT)
 public class ClientProxy extends ServerProxy {
 	
 	private ClientNetworkHandler networkHandler = new ClientNetworkHandler();
-
+	TileEntityVillageMarketRenderer vmr = new TileEntityVillageMarketRenderer();
+	
 	@Override
 	public void load() {
-		MinecraftForge.EVENT_BUS.register(SpecialRendererRegistry.instance);
 		LabyrinthBlocks.registerRenders();
+		LabyrinthItems.registerRenders();
 		for(BlockStoneTile.EnumType type:BlockStoneTile.EnumType.values()){
 			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(LabyrinthBlocks.STONE), type.getMetadata(), new ModelResourceLocation(new ResourceLocation(LabyrinthMod.MODID,type.getName()), "inventory"));
 		}
 		Minecraft.getMinecraft().getRenderManager().entityRenderMap.put(EntityEraserFrame.class, new RenderEntityEraserFrame(Minecraft.getMinecraft().getRenderManager()));
-		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(LabyrinthMod.eraser, 0,
-				new ModelResourceLocation(new ResourceLocation(LabyrinthMod.MODID,"eraser"), "inventory"));
-		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(LabyrinthMod.blockFiller, 0,
-				new ModelResourceLocation(new ResourceLocation(LabyrinthMod.MODID,"block_filler"), "inventory"));
-		
-		TileEntityVillageMarketRenderer vmr = new TileEntityVillageMarketRenderer();
+		vmr.setRenders();
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityVillageMarket.class, vmr);
-		MinecraftForge.EVENT_BUS.register(vmr);
 	}
 
 	@Override
@@ -54,6 +44,8 @@ public class ClientProxy extends ServerProxy {
 	
 	@Override
 	public void preInit() {
+		MinecraftForge.EVENT_BUS.register(SpecialRendererRegistry.instance);
+		MinecraftForge.EVENT_BUS.register(vmr);
 	}
 	
 	@Override

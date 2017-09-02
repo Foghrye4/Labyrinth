@@ -4,7 +4,7 @@ import cubicchunks.util.CubePos;
 import labyrinth.LabyrinthMod;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.WorldSavedData;
+import net.minecraft.world.storage.WorldSavedData;
 
 public class WorldSavedDataLabyrinthConfig extends WorldSavedData {
 	public int dungeonStartHeight = 0;

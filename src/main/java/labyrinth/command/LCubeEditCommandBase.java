@@ -19,5 +19,9 @@ public abstract class LCubeEditCommandBase extends CommandBase {
 		return new File(folder, filename);
 	}
 	
+	@Override
+	public int getRequiredPermissionLevel() {
+		return 2;
+	}
 }
 

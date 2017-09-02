@@ -10,6 +10,7 @@ import labyrinth.client.Icon;
 import labyrinth.tileentity.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
@@ -20,11 +21,8 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformT
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
@@ -32,12 +30,11 @@ import static labyrinth.LabyrinthMod.log;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class TileEntityVillageMarketRenderer extends TileEntitySpecialRenderer<TileEntityVillageMarket> {
 
-	private final RenderItem itemRenderer;
-	private final FontRenderer fontRenderer;
+	private RenderItem itemRenderer;
+	private FontRenderer fontRenderer;
 
 	private int fb = -1;
 	private final int textureWidth = 64;
@@ -49,13 +46,15 @@ public class TileEntityVillageMarketRenderer extends TileEntitySpecialRenderer<T
 	
 	private final static float CLOSE_RANGE_CUTTING_EDGE = 0.01F;
 
-	public TileEntityVillageMarketRenderer() {
+	public TileEntityVillageMarketRenderer() {}
+	
+	public void setRenders() {
 		itemRenderer = Minecraft.getMinecraft().getRenderItem();
 		fontRenderer = Minecraft.getMinecraft().fontRenderer;
 	}
-
+	
 	@Override
-	public void renderTileEntityAt(TileEntityVillageMarket te, double x, double y, double z, float partialTicks, int destroyStage) {
+	public void render(TileEntityVillageMarket te, double x, double y, double z, float partialTicks, int destroyStage, float alphaValue) {
 		if (!framebufferReady) {
 			this.generateFrameBuffer();
 			Minecraft.getMinecraft().getFramebuffer().bindFramebuffer(false);
@@ -76,7 +75,7 @@ public class TileEntityVillageMarketRenderer extends TileEntitySpecialRenderer<T
 		GlStateManager.translate(0.5D, 2.0D / 16.0D, 0.5D);
 		this.renderItem(te);
 		GlStateManager.popMatrix();
-		super.renderTileEntityAt(te, x, y, z, partialTicks, destroyStage);
+		super.render(te, x, y, z, partialTicks, destroyStage, alphaValue);
 	}
 
 	private void drawSquare(double scale, int subIconId) {
@@ -92,7 +91,7 @@ public class TileEntityVillageMarketRenderer extends TileEntitySpecialRenderer<T
 		double z1 = 1 / 16D;
 		double z2 = 2 / 16D;
 
-		VertexBuffer vb = Tessellator.getInstance().getBuffer();
+		BufferBuilder vb = Tessellator.getInstance().getBuffer();
 
 		vb.begin(7, DefaultVertexFormats.OLDMODEL_POSITION_TEX_NORMAL);
 		vb.pos(x1 * scale, y1 * scale, z1 * scale)
@@ -201,7 +200,7 @@ public class TileEntityVillageMarketRenderer extends TileEntitySpecialRenderer<T
 		double y2 = 1D;
 		double z1 = 0D;
 
-		VertexBuffer vb = Tessellator.getInstance().getBuffer();
+		BufferBuilder vb = Tessellator.getInstance().getBuffer();
 
 		vb.begin(7, DefaultVertexFormats.OLDMODEL_POSITION_TEX_NORMAL);
 		vb.pos(x1 * scale, y1 * scale, z1 * scale)
