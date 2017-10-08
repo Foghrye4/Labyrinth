@@ -68,35 +68,4 @@ public class EntityEndermanLeveled extends EntityEnderman implements IMobLeveled
 	 * Remove despawn.
 	 */
 	protected void despawnEntity() {}
-	int playerListIndex = 0;
-	int maxPlayerListIndex = 10;
-	Entity nearestPlayer = null;
-	/**
-	 * Do not update entities too far from player (to avoid lag).
-	 */
-	@Override
-	public void onUpdate() {
-		if (!world.isRemote) {
-			if(LabyrinthMod.DEBUG_STOP_ENTITY_TICK)
-				return;
-			if (nearestPlayer != null) {
-				int dy = (int) (nearestPlayer.posY - this.posY);
-				if (dy * dy > 256) {
-					nearestPlayer = null;
-					return;
-				}
-			} else {
-				for (EntityPlayer player:this.getEntityWorld().playerEntities) {
-					int dy = (int) (player.posY - this.posY);
-					if (dy * dy < 64) {
-						nearestPlayer = player;
-					}
-				}
-				if (nearestPlayer == null) {
-					return;
-				}
-			}
-		}
-		super.onUpdate();
-	}
 }

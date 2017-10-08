@@ -168,7 +168,7 @@ public class LevelFeaturesStorage {
 
 	@SuppressWarnings("unchecked")
 	private final Class<? extends EntityLiving>[] MOB_CANDIDATES_SECOND = new Class[] { LabyrinthEntities.BLAZE,
-			LabyrinthEntities.SKELETON, LabyrinthEntities.STRAY, LabyrinthEntities.VINDICATOR, LabyrinthEntities.WITCH,
+			LabyrinthEntities.SKELETON, LabyrinthEntities.STRAY, LabyrinthEntities.VINDICATOR,
 			LabyrinthEntities.VEX };
 	@SuppressWarnings("unchecked")
 	final Class<? extends EntityLiving>[][] levelToMob = new Class[128][2];

@@ -11,6 +11,7 @@ import labyrinth.tileentity.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
@@ -58,22 +59,27 @@ public class TileEntityVillageMarketRenderer extends TileEntitySpecialRenderer<T
 		if (!framebufferReady) {
 			this.generateFrameBuffer();
 			Minecraft.getMinecraft().getFramebuffer().bindFramebuffer(false);
-		} else {
-			if (te.getIconId() == 0) {
-				te.setIconId(++nextAvailableId);
-			}
-			if (te.needRenderUpdate) {
-				pendingRenderUpdate.add(te);
-				te.needRenderUpdate = false;
-			}
+		}
+		if (te.getIconId() == 0) {
+			te.setIconId(++nextAvailableId);
+			te.displayList = GLAllocation.generateDisplayLists(1);
+		}
+		if (te.needRenderUpdate) {
+			pendingRenderUpdate.add(te);
+	        GlStateManager.glNewList(te.displayList, 4864);
+			GlStateManager.pushMatrix();
+			this.drawSquare(1d, te.getIconId());
+			GlStateManager.translate(0.5D, 2.0D / 16.0D, 0.5D);
+			this.renderItem(te);
+			GlStateManager.popMatrix();
+	        GlStateManager.glEndList();
+			te.needRenderUpdate = false;
 		}
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
 		this.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-		this.drawSquare(1d, te.getIconId());
-		GlStateManager.translate(0.5D, 2.0D / 16.0D, 0.5D);
-		this.renderItem(te);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+		GlStateManager.callList(te.displayList);
 		GlStateManager.popMatrix();
 		super.render(te, x, y, z, partialTicks, destroyStage, alphaValue);
 	}

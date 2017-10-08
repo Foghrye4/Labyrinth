@@ -36,7 +36,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 public class LabyrinthMod {
 	public static final String MODID = "labyrinth";
 	public static final String NAME = "Labyrinth";
-	public static final String VERSION = "0.1.12";
+	public static final String VERSION = "0.2.4";
 	public static final String GUI_FACTORY = "labyrinth.gui.LabyrinthGuiFactory";
 
 	public static Logger log;
@@ -86,5 +86,6 @@ public class LabyrinthMod {
 		event.registerServerCommand(new LStopEntityTick());
 		event.registerServerCommand(new LFindAVillage());
 		event.registerServerCommand(new LVillageInfo());
+		event.registerServerCommand(new LThickenWalls());
 	}
 }

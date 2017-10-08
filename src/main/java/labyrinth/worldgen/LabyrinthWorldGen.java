@@ -26,6 +26,11 @@ public class LabyrinthWorldGen {
 	public final ICubeStructureGenerator basicCubeStructureGenerator = new RegularCubeStructureGenerator(this);
 	public final ICubeStructureGenerator lavaCubeStructureGenerator = new LavaCubeStructureGenerator(this);
 	public final VillageCubeStructureGenerator villageCubeStructureGenerator = new VillageCubeStructureGenerator(this);
+	public final TunnelCubeStructureGenerator tunnelGenerator = new TunnelCubeStructureGenerator(this);
+	static final int CITY_MASK = 0x3f;
+	static final int CITY_EVEN_OR_ODD_MASK = 0x40;
+	static final int TUNNEL_LOCATION = CITY_MASK>>1;
+	static final int TUNNEL_MASK = 0x7f;
 
 	public final ResourceLocation[] regularLoot = new ResourceLocation[]{
 			new ResourceLocation(LabyrinthMod.MODID, "dungeon_loot_level_0"),
@@ -68,8 +73,20 @@ public class LabyrinthWorldGen {
 		if (biomeHeightBase < config.dungeonBiomeHeightLowerBound
 				|| biomeHeightBase > config.dungeonBiomeHeightUpperBound)
 			return false;
-		else
-			return true;
+		else {
+			if((pos.getX() & CITY_EVEN_OR_ODD_MASK | pos.getZ() & CITY_EVEN_OR_ODD_MASK) == 0)
+				return true;
+			else {
+				if((level & 1) == 0)
+					return false;
+				if((pos.getY() & 1) == 0)
+					return false;
+				if((pos.getX() & TUNNEL_MASK) == TUNNEL_LOCATION||(pos.getZ() & TUNNEL_MASK) == TUNNEL_LOCATION){
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	@SubscribeEvent
@@ -122,6 +139,8 @@ public class LabyrinthWorldGen {
 
 	private ICubeStructureGenerator selectGenerator(CubePos pos, ICubicWorld world) {
 		int level = config.getLevel(pos);
+		if((pos.getX() & CITY_EVEN_OR_ODD_MASK | pos.getZ() & CITY_EVEN_OR_ODD_MASK) != 0)
+			return this.tunnelGenerator;
 		if (level > 7) {
 			if (level > 8 && this.villageCubeStructureGenerator.isVillage(pos, world))
 				return this.villageCubeStructureGenerator;

@@ -19,7 +19,6 @@ import labyrinth.entity.EntitySpiderLeveled;
 import labyrinth.entity.EntityStrayLeveled;
 import labyrinth.entity.EntityVexLeveled;
 import labyrinth.entity.EntityVindicatorLeveled;
-import labyrinth.entity.EntityWitchLeveled;
 import labyrinth.entity.EntityWitherSkeletonLeveled;
 import labyrinth.entity.EntityZombieLeveled;
 import net.minecraft.entity.EntityLiving;
@@ -48,7 +47,6 @@ public class LabyrinthEntities {
 	public static Class<? extends EntityLiving> STRAY = EntityStrayLeveled.class;
 	public static Class<? extends EntityLiving> VEX = EntityVexLeveled.class;
 	public static Class<? extends EntityLiving> VINDICATOR = EntityVindicatorLeveled.class;
-	public static Class<? extends EntityLiving> WITCH = EntityWitchLeveled.class;
 	public static Class<? extends EntityLiving> WITHER_SKELETON = EntityWitherSkeletonLeveled.class;
 	
 	public static void register(Object mod) {
@@ -71,7 +69,6 @@ public class LabyrinthEntities {
 		registerModEntity(STRAY, "Stray", mod);
 		registerModEntity(VEX, "Vex", mod);
 		registerModEntity(VINDICATOR, "Vindicator", mod);
-		registerModEntity(WITCH, "Witch", mod);
 		registerModEntity(WITHER_SKELETON, "WitherSkeleton", mod);
 	}
 	

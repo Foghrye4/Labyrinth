@@ -26,7 +26,6 @@ public class EntityVexLeveled extends EntityVex implements IMobLeveled {
 	@Override
 	public void setLevel(int levelIn) {
 		this.experienceValue = LevelUtil.getExperienceValue(levelIn);
-		this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(16.0D);
 		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(0.5d);
 		this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(LevelUtil.getMovementSpeed(levelIn));
 		this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(LevelUtil.getAttackDamage(levelIn/2));
@@ -83,36 +82,6 @@ public class EntityVexLeveled extends EntityVex implements IMobLeveled {
 	 * Remove despawn.
 	 */
 	protected void despawnEntity() {
-	}
-	/**
-	 * Do not update entities too far from player (to avoid lag).
-	 */
-	Entity nearestPlayer = null;
-
-	@Override
-	public void onUpdate() {
-		if (!world.isRemote) {
-			if (LabyrinthMod.DEBUG_STOP_ENTITY_TICK)
-				return;
-			if (nearestPlayer != null) {
-				int dy = (int) (nearestPlayer.posY - this.posY);
-				if (dy * dy > 256) {
-					nearestPlayer = null;
-					return;
-				}
-			} else {
-				for (EntityPlayer player : this.getEntityWorld().playerEntities) {
-					int dy = (int) (player.posY - this.posY);
-					if (dy * dy < 64) {
-						nearestPlayer = player;
-					}
-				}
-				if (nearestPlayer == null) {
-					return;
-				}
-			}
-		}
-		super.onUpdate();
 	}
 
 	class AIChargeAttackVexSingle extends EntityAIBase {

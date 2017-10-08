@@ -30,7 +30,7 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 	private final static int MOB_SPAWN_RARITY = 6;
 	
 	private LabyrinthWorldGen generator;
-	private final Random random = new Random();
+	protected final Random random = new Random();
 	private DungeonCube[] randomDungeonsArray = new DungeonCube[]{
 			DungeonCube.COLUMN_CEIL,
 			DungeonCube.COLUMN_MIDDLE,
@@ -414,7 +414,6 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 			int dz = index & 15;
 			int bstate = Byte.toUnsignedInt(data[index]);
 			BlockPos bpos = new BlockPos(pos.getMinBlockX() + dx, pos.getMinBlockY() + dy, pos.getMinBlockZ() + dz);
-			cstorage.setBlockLight(new NibbleArray(is.lightData.clone()));
 			cstorage.set(dx, dy, dz, bl[bstate]);
 			cube.getColumn().getOpacityIndex().onOpacityChange(dx, pos.getMinBlockY() + dy, dz, bl[bstate].getLightOpacity((IBlockAccess) world, bpos));
 			if (bstate >= 3 && bstate <= 6) {
@@ -430,5 +429,6 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 				world.setTileEntity(bpos, chest);
 			}
 		}
+		cstorage.setBlockLight(new NibbleArray(is.lightData.clone()));
 	}
 }

@@ -203,7 +203,6 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 			int dz = index & 15;
 			int bstate = Byte.toUnsignedInt(data[index]);
 			BlockPos bpos = new BlockPos(pos.getMinBlockX() + dx, pos.getMinBlockY() + dy, pos.getMinBlockZ() + dz);
-			cstorage.setBlockLight(new NibbleArray(is.lightData.clone()));
 			IBlockState blockState = bl[bstate];
 			cstorage.set(dx, dy, dz, blockState);
 			cube.getColumn().getOpacityIndex().onOpacityChange(dx, pos.getMinBlockY() + dy, dz, bl[bstate].getLightOpacity((IBlockAccess) world, bpos));
@@ -226,5 +225,6 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 				currentVillage.addVillageDoorInfo(new VillageDoorInfo(bpos, 8 - dx, 8 - dz, 0));
 			}
 		}
+		cstorage.setBlockLight(new NibbleArray(is.lightData.clone()));
 	}
 }

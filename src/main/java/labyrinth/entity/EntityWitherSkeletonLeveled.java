@@ -59,34 +59,4 @@ public class EntityWitherSkeletonLeveled extends EntityWitherSkeleton implements
 	 * Remove despawn.
 	 */
 	protected void despawnEntity() {}
-	/**
-	 * Do not update entities too far from player (to avoid lag).
-	 */
-	Entity nearestPlayer = null;
-	
-	@Override
-	public void onUpdate() {
-		if (!world.isRemote) {
-			if(LabyrinthMod.DEBUG_STOP_ENTITY_TICK)
-				return;
-			if (nearestPlayer != null) {
-				int dy = (int) (nearestPlayer.posY - this.posY);
-				if (dy * dy > 256) {
-					nearestPlayer = null;
-					return;
-				}
-			} else {
-				for (EntityPlayer player:this.getEntityWorld().playerEntities) {
-					int dy = (int) (player.posY - this.posY);
-					if (dy * dy < 64) {
-						nearestPlayer = player;
-					}
-				}
-				if (nearestPlayer == null) {
-					return;
-				}
-			}
-		}
-		super.onUpdate();
-	}
 }

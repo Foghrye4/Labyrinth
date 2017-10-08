@@ -164,25 +164,29 @@ public enum DungeonCube {
 		VILLAGE_MARKET_WEST("village_market.cube_structure", DungeonCubeFlag.MARKET),
 		VILLAGE_MARKET_EAST("village_market_east.cube_structure", DungeonCubeFlag.MARKET),
 		
+		//Tunnel
+		TUNNEL_PROP_EAST_WEST("tunnel_prop_east_west.cube_structure"),
+		TUNNEL_PROP_SOUTH_NORTH("tunnel_prop_south_north.cube_structure"),
+		
 		NOTHING(""),
 		UNDEFINED("");
 
 		public final String name;
-		boolean isEastWall = false;
-		boolean isWestWall = false;
-		boolean isSouthWall = false;
-		boolean isNorthWall = false;
-		boolean isColumnTop = false;
-		boolean isColumnMiddle = false;
-		boolean isColumnTopOrMiddle = false;
-		boolean isColumnBottomOrMiddle = false;
-		boolean isColumnBottom = false;
-		boolean isStairTop = false;
-		boolean isStairBottom = false;
-		boolean isLibrary = false;
-		boolean isCorral = false;
-		boolean isVillageHome = false;
-		boolean isMarket = false;
+		public boolean isEastWall = false;
+		public boolean isWestWall = false;
+		public boolean isSouthWall = false;
+		public boolean isNorthWall = false;
+		public boolean isColumnTop = false;
+		public boolean isColumnMiddle = false;
+		public boolean isColumnTopOrMiddle = false;
+		public boolean isColumnBottomOrMiddle = false;
+		public boolean isColumnBottom = false;
+		public boolean isStairTop = false;
+		public boolean isStairBottom = false;
+		public boolean isLibrary = false;
+		public boolean isCorral = false;
+		public boolean isVillageHome = false;
+		public boolean isMarket = false;
 		public final byte[] data = new byte[4096];
 		public final byte[] lightData = new byte[2048];
 

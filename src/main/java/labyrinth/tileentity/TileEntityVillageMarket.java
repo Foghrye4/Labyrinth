@@ -41,10 +41,10 @@ public class TileEntityVillageMarket extends TileEntity {
 	private EntityVillager merchant = null;
 	private MerchantRecipe recipe = null;
 	
-	@SideOnly(Side.CLIENT)
+	//Client-only
 	private int iconId = 0;
-	@SideOnly(Side.CLIENT)
 	public boolean needRenderUpdate = true;
+	public int displayList = -1;
 
 	public ItemStack getDisplayedItem() {
 		return displayedItem;
