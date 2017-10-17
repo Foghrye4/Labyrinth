@@ -33,16 +33,9 @@ compileJava {
 }
 
 minecraft {
-    version = "1.12.1-14.22.0.2460"
+    version = "1.12.2-14.23.0.2487"
     runDir = "run"
-    
-    // the mappings can be changed at any time, and must be in the following format.
-    // snapshot_YYYYMMDD   snapshot are built nightly.
-    // stable_#            stables are built at the discretion of the MCP team.
-    // Use non-default mappings at your own risk. they may not always work.
-    // simply re-run your setup task after changing the mappings to update your workspace.
     mappings = "snapshot_20170822"
-    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 
 repositories {
@@ -55,8 +48,8 @@ repositories {
 
 dependencies {
 	compile "org.spongepowered:mixin:0.6.8-SNAPSHOT"
-	compile files('lib/CubicChunks-1.12.1-0.0.710.0-dev.jar')
-//	compile project(':CubicChunks')
+//	compile files('lib/CubicChunks-1.12.2-0.0.757.0-dev.jar')
+	compile project(':CubicChunks')
 }
 
 processResources {

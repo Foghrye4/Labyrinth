@@ -32,7 +32,7 @@ public class EntitySkeletonLeveled extends EntitySkeleton implements IMobLeveled
 	@Override
     protected EntityArrow getArrow(float distanceFactor)
     {
-        return super.getArrow(distanceFactor/4f*((float)LevelUtil.getAttackDamage(level)-2f));
+        return super.getArrow(distanceFactor/2f*((float)LevelUtil.getAttackDamage(level)-2f));
     }
 	
 	ResourceLocation lootTable = new ResourceLocation(LabyrinthMod.MODID+":dungeon_loot_level_0");

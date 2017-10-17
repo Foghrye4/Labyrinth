@@ -9,10 +9,10 @@ public class WorldEventHandler {
 	@SubscribeEvent
 	public void onWorldLoadEvent(net.minecraftforge.event.world.WorldEvent.Load event) {
 		if(!event.getWorld().isRemote){
-			WorldSavedDataLabyrinthConfig worldgenConfig = (WorldSavedDataLabyrinthConfig) event.getWorld().getMapStorage()
-					.getOrLoadData(WorldSavedDataLabyrinthConfig.class, CONFIG_DATA_IDENTIFIER);
+			WorldSavedDataLabyrinth worldgenConfig = (WorldSavedDataLabyrinth) event.getWorld().getMapStorage()
+					.getOrLoadData(WorldSavedDataLabyrinth.class, CONFIG_DATA_IDENTIFIER);
 			if (worldgenConfig == null) {
-				worldgenConfig = new WorldSavedDataLabyrinthConfig(CONFIG_DATA_IDENTIFIER);
+				worldgenConfig = new WorldSavedDataLabyrinth(CONFIG_DATA_IDENTIFIER);
 				worldgenConfig.setDirty(true);
 				event.getWorld().getMapStorage().setData(CONFIG_DATA_IDENTIFIER, worldgenConfig);
 				event.getWorld().getMapStorage().saveAllData();

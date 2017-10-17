@@ -26,7 +26,7 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 public class TunnelCubeStructureGenerator implements ICubeStructureGenerator {
 
-	private final static int MOB_SPAWN_RARITY = 12;
+	private final static int MOB_SPAWN_RARITY = 10;
 	
 	private LabyrinthWorldGen generator;
 	private final Random random = new Random();

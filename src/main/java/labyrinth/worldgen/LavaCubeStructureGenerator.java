@@ -27,6 +27,35 @@ public class LavaCubeStructureGenerator extends RegularCubeStructureGenerator {
 			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,
 			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,};
 	
+	private DungeonCube[] randomDungeonsSafeUp = new DungeonCube[]{
+			DungeonCube.COLUMN_FLOOR_LAVA,
+			DungeonCube.STAIR_FLOOR_LAVA,
+			DungeonCube.LIBRARY_LAVA,
+			DungeonCube.WORKSHOP_LAVA,
+			DungeonCube.WALL_EAST_NORTH_LAVA,
+			DungeonCube.WALL_EAST_SOUTH_LAVA,
+			DungeonCube.WALL_SOUTH_NORTH_LAVA,
+			DungeonCube.WALL_WEST_EAST_LAVA,
+			DungeonCube.WALL_WEST_NORTH_LAVA,
+			DungeonCube.WALL_WEST_SOUTH_LAVA,
+			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,
+			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,};
+	
+	private DungeonCube[] randomDungeonsSafeDown = new DungeonCube[]{
+			DungeonCube.COLUMN_CEIL,
+			DungeonCube.LIBRARY_LAVA,
+			DungeonCube.WORKSHOP_LAVA,
+			DungeonCube.WALL_EAST_NORTH_LAVA,
+			DungeonCube.WALL_EAST_SOUTH_LAVA,
+			DungeonCube.WALL_SOUTH_NORTH_LAVA,
+			DungeonCube.WALL_WEST_EAST_LAVA,
+			DungeonCube.WALL_WEST_NORTH_LAVA,
+			DungeonCube.WALL_WEST_SOUTH_LAVA,
+			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,
+			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,};
+
+
+	
 	private LabyrinthWorldGen generator;
 	
 	public LavaCubeStructureGenerator(LabyrinthWorldGen generatorIn){
@@ -43,8 +72,13 @@ public class LavaCubeStructureGenerator extends RegularCubeStructureGenerator {
 		long seed = 41 * hash + cpos.getZ();
 		random.setSeed(seed);
 		int typedefiner = random.nextInt(this.randomDungeonsArray.length);
-		if (isAnchorPoint(cpos))
+		if (isAnchorPoint(cpos)) {
+			if(!this.generator.shouldGenerateAtPos(cpos.below(), world))
+				return randomDungeonsSafeUp[typedefiner % randomDungeonsSafeUp.length];
+			if(!this.generator.shouldGenerateAtPos(cpos.above(), world))
+				return randomDungeonsSafeDown[typedefiner % randomDungeonsSafeDown.length];
 			return randomDungeonsArray[typedefiner];
+		}
 
 		DungeonCube d_up = DungeonCube.UNDEFINED;
 		DungeonCube d_down = DungeonCube.UNDEFINED;
@@ -331,7 +365,7 @@ public class LavaCubeStructureGenerator extends RegularCubeStructureGenerator {
 			if (d_north.isSouthWall)
 				return DungeonCube.WALL_NORTH_WEST_EAST_LAVA;
 
-			return DungeonCube.WALL_WEST_EAST_LAVA;
+			return DungeonCube.COLUMN_FLOOR_CEIL_LAVA;
 		}
 
 		if (d_up != DungeonCube.UNDEFINED && d_down != DungeonCube.UNDEFINED ||

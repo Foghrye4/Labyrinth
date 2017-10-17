@@ -49,6 +49,34 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,
 			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,};
 	
+	private DungeonCube[] randomDungeonsSafeUp = new DungeonCube[]{
+			DungeonCube.COLUMN_FLOOR,
+			DungeonCube.STAIR_FLOOR,
+			DungeonCube.LIBRARY,
+			DungeonCube.WORKSHOP,
+			DungeonCube.WALL_EAST_NORTH_BARS,
+			DungeonCube.WALL_EAST_SOUTH_BARS,
+			DungeonCube.WALL_SOUTH_NORTH_DOOR,
+			DungeonCube.WALL_WEST_EAST_BARS,
+			DungeonCube.WALL_WEST_NORTH_BARS,
+			DungeonCube.WALL_WEST_SOUTH_BARS,
+			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,
+			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,};
+	
+	private DungeonCube[] randomDungeonsSafeDown = new DungeonCube[]{
+			DungeonCube.COLUMN_CEIL,
+			DungeonCube.LIBRARY,
+			DungeonCube.WORKSHOP,
+			DungeonCube.WALL_EAST_NORTH_BARS,
+			DungeonCube.WALL_EAST_SOUTH_BARS,
+			DungeonCube.WALL_SOUTH_NORTH_DOOR,
+			DungeonCube.WALL_WEST_EAST_BARS,
+			DungeonCube.WALL_WEST_NORTH_BARS,
+			DungeonCube.WALL_WEST_SOUTH_BARS,
+			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,
+			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,};
+
+	
 	public RegularCubeStructureGenerator(LabyrinthWorldGen generatorIn){
 		generator = generatorIn;
 	}
@@ -66,9 +94,13 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 		long seed = 41 * hash + cpos.getZ();
 		random.setSeed(seed);
 		int typedefiner = random.nextInt(this.randomDungeonsArray.length);
-		if (isAnchorPoint(cpos))
+		if (isAnchorPoint(cpos)) {
+			if(!this.generator.shouldGenerateAtPos(cpos.below(), world))
+				return randomDungeonsSafeUp[typedefiner % randomDungeonsSafeUp.length];
+			if(!this.generator.shouldGenerateAtPos(cpos.above(), world))
+				return randomDungeonsSafeDown[typedefiner % randomDungeonsSafeDown.length];
 			return randomDungeonsArray[typedefiner];
-
+		}
 		DungeonCube d_up = DungeonCube.UNDEFINED;
 		DungeonCube d_down = DungeonCube.UNDEFINED;
 		DungeonCube d_east = DungeonCube.UNDEFINED;
@@ -354,7 +386,7 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 			if (d_north.isSouthWall)
 				return DungeonCube.WALL_NORTH_WEST_EAST;
 
-			return DungeonCube.WALL_WEST_EAST;
+			return DungeonCube.COLUMN_FLOOR_CEIL;
 		}
 
 		if (d_up != DungeonCube.UNDEFINED && d_down != DungeonCube.UNDEFINED ||
