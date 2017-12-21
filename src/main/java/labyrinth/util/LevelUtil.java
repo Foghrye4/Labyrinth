@@ -10,11 +10,11 @@ public class LevelUtil {
 	}
 
 	public static double getMaxHealth(int levelIn) {
-		return 7.0d + levelIn * 2;
+		return 7.0d + levelIn * 4;
 	}
 
 	public static double getMovementSpeed(int levelIn) {
-		return 0.2d + (levelIn > 20 ? 20 : levelIn) * 0.01d;
+		return 0.2d + (levelIn > 40 ? 40 : levelIn) * 0.015d;
 	}
 	public static double getAttackDamage(int levelIn) {
 		return 8.0d + levelIn;
@@ -24,7 +24,7 @@ public class LevelUtil {
 	}
 
 	public static int getSlimeSize(int levelIn) {
-		return 4;
+		return levelIn > 3 ? 2 : 1;
 	}
 
 	public static void setMobAttributes(EntityLivingBase entity, int levelIn) {

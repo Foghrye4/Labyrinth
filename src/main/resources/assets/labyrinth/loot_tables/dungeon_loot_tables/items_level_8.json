@@ -8,7 +8,18 @@
                     "type": "item",
                     "name": "minecraft:apple",
                     "quality": 2
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:emerald",
+                    "quality": 2
+                },
+                {
+                    "type": "item",
+                    "name": "minecraft:ender_pearl",
+                    "quality": 2
                 }
+                
             ]
         }
     ]

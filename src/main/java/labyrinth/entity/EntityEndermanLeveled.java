@@ -2,19 +2,17 @@ package labyrinth.entity;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
-
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
 import labyrinth.LabyrinthMod;
 import labyrinth.util.LevelUtil;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
@@ -22,6 +20,12 @@ public class EntityEndermanLeveled extends EntityEnderman implements IMobLeveled
 
 	public EntityEndermanLeveled(World worldIn) {
 		super(worldIn);
+	}
+	
+	@Override
+	protected void initEntityAI() {
+		super.initEntityAI();
+		this.targetTasks.addTask(4, new EntityAINearestAttackableTarget<EntityPlayer>(this, EntityPlayer.class, true));
 	}
 
 	@Override
@@ -31,8 +35,25 @@ public class EntityEndermanLeveled extends EntityEnderman implements IMobLeveled
 		this.setHealth(this.getMaxHealth());
 	}
 
+	public boolean attackEntityFrom(DamageSource source, float amount) {
+		boolean r = super.attackEntityFrom(source, amount);
+		Entity entity1 = source.getTrueSource();
+		if (entity1 != null && this.getRevengeTarget() != null && entity1 instanceof EntityLivingBase) {
+			List<EntityEndermanLeveled> comrads = world.getEntitiesWithinAABB(this.getClass(), this.getEntityBoundingBox().grow(16, 4, 16), new Predicate<EntityEndermanLeveled>() {
+				@Override
+				public boolean apply(EntityEndermanLeveled input) {
+					return !input.isDead && input != EntityEndermanLeveled.this && input.getRevengeTarget() == null;
+				}
+			});
+			for (EntityEndermanLeveled comrad : comrads) {
+				comrad.setRevengeTarget((EntityLivingBase) entity1);
+			}
+		}
+		return r;
+	}
+
 	int level = 0;
-	ResourceLocation lootTable = new ResourceLocation(LabyrinthMod.MODID+":dungeon_loot_level_0");
+	ResourceLocation lootTable = new ResourceLocation(LabyrinthMod.MODID + ":dungeon_loot_level_0");
 
 	public void writeEntityToNBT(NBTTagCompound compound) {
 		super.writeEntityToNBT(compound);
@@ -67,5 +88,6 @@ public class EntityEndermanLeveled extends EntityEnderman implements IMobLeveled
 	/**
 	 * Remove despawn.
 	 */
-	protected void despawnEntity() {}
+	protected void despawnEntity() {
+	}
 }

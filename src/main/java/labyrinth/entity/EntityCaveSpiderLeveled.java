@@ -2,10 +2,8 @@ package labyrinth.entity;
 
 import labyrinth.LabyrinthMod;
 import labyrinth.util.LevelUtil;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.monster.EntityCaveSpider;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -21,7 +19,7 @@ public class EntityCaveSpiderLeveled extends EntityCaveSpider implements IMobLev
 	public void setLevel(int levelIn) {
 		this.experienceValue=LevelUtil.getExperienceValue(levelIn);
 		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(LevelUtil.getMaxHealth(levelIn)/4d);
-		this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(LevelUtil.getMovementSpeed(levelIn)/4d);
+		this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(LevelUtil.getMovementSpeed(levelIn));
 		this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(LevelUtil.getAttackDamage(levelIn)/4d);
         this.setHealth(this.getMaxHealth());
 	}

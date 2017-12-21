@@ -6,7 +6,6 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 import labyrinth.ClientNetworkHandler;
-import labyrinth.ClientProxy;
 import labyrinth.LabyrinthMod;
 import labyrinth.inventory.ContainerVillageMarket;
 import net.minecraft.client.gui.GuiButton;

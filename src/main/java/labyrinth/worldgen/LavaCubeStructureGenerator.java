@@ -287,6 +287,25 @@ public class LavaCubeStructureGenerator extends RegularCubeStructureGenerator {
 
 			if (d_east.isWestWall && d_south.isNorthWall)
 				return DungeonCube.WALL_EAST_SOUTH_LAVA;
+			
+			if (d_east.isWestWall && d_west.isEastWall)
+				return DungeonCube.WALL_WEST_EAST_LAVA;
+
+			if (d_north.isSouthWall && d_south.isNorthWall)
+				return DungeonCube.WALL_SOUTH_NORTH_LAVA;
+			
+			if (d_west.isEastWall)
+				return DungeonCube.WALL_WEST_LAVA;
+
+			if (d_south.isNorthWall)
+				return DungeonCube.WALL_SOUTH_LAVA;
+
+			if (d_east.isWestWall)
+				return DungeonCube.WALL_EAST_LAVA;
+
+			if (d_south.isNorthWall)
+				return DungeonCube.WALL_SOUTH_LAVA;
+
 		}
 
 		// East- west
@@ -378,5 +397,9 @@ public class LavaCubeStructureGenerator extends RegularCubeStructureGenerator {
 	@Override
 	protected int getSpawnHeight(){
 		return 6;
+	}
+	
+	protected int getMobSpawnRarity(){
+		return 3;
 	}
 }

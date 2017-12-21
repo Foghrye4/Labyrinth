@@ -1,17 +1,15 @@
 package labyrinth.init;
 
-import static labyrinth.LabyrinthMod.*;
+import static labyrinth.LabyrinthMod.MODID;
 
 import labyrinth.LabyrinthMod;
 import labyrinth.item.ItemBlockFiller;
 import labyrinth.item.ItemEraser;
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.ModelLoader;
 
 public class LabyrinthItems {
 	public static Item ERASER;

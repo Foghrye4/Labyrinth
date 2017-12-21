@@ -1,6 +1,7 @@
 package labyrinth.worldgen;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -117,6 +118,11 @@ public enum DungeonCube {
 		WEST_BORDER_COLUMN_FLOOR_LAVA("west_border_column_floor_lava.cube_structure", DungeonCubeFlag.COLUMN_BOTTOM), 
 		EAST_BORDER_COLUMN_FLOOR_LAVA("east_border_column_floor_lava.cube_structure", DungeonCubeFlag.COLUMN_BOTTOM), 
 		
+		WALL_EAST_LAVA("wall_east_lava.cube_structure", DungeonCubeFlag.EAST_WALL),
+		WALL_SOUTH_LAVA("wall_south_lava.cube_structure", DungeonCubeFlag.SOUTH_WALL),
+		WALL_NORTH_LAVA("wall_north_lava.cube_structure", DungeonCubeFlag.NORTH_WALL),
+		WALL_WEST_LAVA("wall_west_lava.cube_structure", DungeonCubeFlag.WEST_WALL),
+		
 		WALL_EAST_NORTH_SOUTH_LAVA("wall_north_south_east_lava.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.SOUTH_WALL),
 		WALL_SOUTH_EAST_WEST_LAVA("wall_east_west_south_lava.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.WEST_WALL),
 		WALL_WEST_SOUTH_NORTH_LAVA("wall_south_north_west_lava.cube_structure", DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL),
@@ -143,6 +149,28 @@ public enum DungeonCube {
 		WALL_WEST_EAST_LAVA("wall_west_east_lava.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.EAST_WALL),
 		WALL_WEST_NORTH_LAVA("wall_west_north_lava.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.NORTH_WALL),
 		WALL_WEST_SOUTH_LAVA("wall_south_west_lava.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
+
+		//Claustrophobic
+		X_ROADS("x_roads.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
+		X_ROADS_HIDDEN_ROOM("x_roads_hidden_room.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
+		LAVA_ROOM("lava_room.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
+		LAVA_ROOM_WORKSHOP("lava_room_workshop.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
+		LADDER_CEIL("ladder_ceil.cube_structure", DungeonCubeFlag.STAIR_TOP),
+		LADDER_MIDDLE("ladder_middle.cube_structure", DungeonCubeFlag.STAIR_TOP, DungeonCubeFlag.STAIR_BOTTOM),
+		LADDER_FLOOR("ladder_floor.cube_structure", DungeonCubeFlag.STAIR_BOTTOM),
+		LADDER_FLOOR_TRAP("ladder_floor_trap.cube_structure", DungeonCubeFlag.STAIR_BOTTOM),
+		ROAD_SOUTH_NORTH("road_south_north.cube_structure", DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.NORTH_WALL),
+		ROAD_SOUTH_NORTH_TRAP("road_south_north_trap.cube_structure", DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.NORTH_WALL),
+		ROAD_EAST_WEST("road_east_west.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.WEST_WALL),
+		ROAD_EAST_WEST_TRAP("road_east_west_trap.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.WEST_WALL),
+		ROAD_WEST_NORTH("road_west_north.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.NORTH_WALL),
+		ROAD_SOUTH_WEST("road_south_west.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
+		ROAD_NORTH_EAST("road_north_east.cube_structure", DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.EAST_WALL),
+		ROAD_EAST_SOUTH("road_east_south.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.SOUTH_WALL),
+		ROAD_WEST_NORTH_EAST("road_west_north_east.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.EAST_WALL),
+		ROAD_SOUTH_WEST_NORTH("road_south_west_north.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.SOUTH_WALL),
+		ROAD_NORTH_EAST_SOUTH("road_north_east_south.cube_structure", DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.SOUTH_WALL),
+		ROAD_EAST_SOUTH_WEST("road_east_south_west.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.WEST_WALL),
 		
 		//Village
 		VILLAGE_SOUTH_WEST("village_south_west.cube_structure", DungeonCubeFlag.CORRAL),
@@ -242,7 +270,9 @@ public enum DungeonCube {
 		}
 
 		void load() throws IOException {
-			LabyrinthMod.proxy.getResourceInputStream(new ResourceLocation("labyrinth", "cubes/" + name)).read(data);
+			InputStream stream = LabyrinthMod.proxy.getResourceInputStream(new ResourceLocation("labyrinth", "cubes/" + name));
+			stream.read(data);
+			stream.close();
 		}
 		
 		void precalculateLight() {

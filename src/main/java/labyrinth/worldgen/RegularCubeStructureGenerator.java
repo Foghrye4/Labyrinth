@@ -12,7 +12,6 @@ import labyrinth.util.LevelUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
@@ -26,8 +25,6 @@ import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
-
-	private final static int MOB_SPAWN_RARITY = 6;
 	
 	private LabyrinthWorldGen generator;
 	protected final Random random = new Random();
@@ -400,10 +397,14 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 		return 0;
 	}
 	
+	protected int getMobSpawnRarity(){
+		return 6;
+	}
+	
 	@Override
 	public void spawnMobs(int level, ICubicWorld world, CubePos pos, ExtendedBlockStorage data) {
 		random.setSeed(pos.hashCode()^world.getSeed());
-		if(random.nextInt(MOB_SPAWN_RARITY)!=0)
+		if(random.nextInt(getMobSpawnRarity())!=0)
 			return;
 		LevelFeaturesStorage storage = generator.storage;
 		ResourceLocation[] regularLoot = generator.regularLoot;

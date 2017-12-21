@@ -12,11 +12,9 @@ import labyrinth.init.LabyrinthBlocks;
 import labyrinth.init.LabyrinthEntities;
 import labyrinth.init.LabyrinthItems;
 import labyrinth.init.RegistryEventHandler;
-import labyrinth.item.*;
 import labyrinth.tileentity.TileEntityVillageMarket;
 import labyrinth.world.WorldEventHandler;
 import labyrinth.worldgen.LabyrinthWorldGen;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
@@ -26,7 +24,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
@@ -36,7 +33,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 public class LabyrinthMod {
 	public static final String MODID = "labyrinth";
 	public static final String NAME = "Labyrinth";
-	public static final String VERSION = "0.2.4";
+	public static final String VERSION = "0.2.6";
 	public static final String GUI_FACTORY = "labyrinth.gui.LabyrinthGuiFactory";
 
 	public static Logger log;
@@ -71,7 +68,7 @@ public class LabyrinthMod {
 	
 	@EventHandler
 	public void init(FMLInitializationEvent event) {
-		proxy.load();
+		proxy.registerRenders();
 	}
 
 
@@ -87,5 +84,7 @@ public class LabyrinthMod {
 		event.registerServerCommand(new LFindAVillage());
 		event.registerServerCommand(new LVillageInfo());
 		event.registerServerCommand(new LThickenWalls());
+		event.registerServerCommand(new LAlignPlatforms());
+		event.registerServerCommand(new LRemoveFence());
 	}
 }

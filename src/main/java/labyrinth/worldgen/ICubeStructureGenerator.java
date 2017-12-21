@@ -4,7 +4,6 @@ import cubicchunks.util.CubePos;
 import cubicchunks.world.ICubicWorld;
 import cubicchunks.world.cube.Cube;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 public interface ICubeStructureGenerator {

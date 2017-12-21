@@ -1,7 +1,7 @@
 package labyrinth.worldgen;
 
-import static labyrinth.worldgen.LabyrinthWorldGen.TUNNEL_MASK;
 import static labyrinth.worldgen.LabyrinthWorldGen.TUNNEL_LOCATION;
+import static labyrinth.worldgen.LabyrinthWorldGen.TUNNEL_MASK;
 
 import java.util.Random;
 

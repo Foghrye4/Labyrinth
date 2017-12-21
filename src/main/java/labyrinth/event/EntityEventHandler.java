@@ -28,6 +28,7 @@ public class EntityEventHandler {
 			}
 		}
 	}
+	
 	@SubscribeEvent
 	public void onEntityCheckSpawn(LivingSpawnEvent.CheckSpawn event) {
 		if (LabyrinthMod.config.shouldSkipSpawnVanillaMobsInDungeons()) {

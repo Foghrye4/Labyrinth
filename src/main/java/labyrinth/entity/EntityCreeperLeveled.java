@@ -8,12 +8,13 @@ import com.google.common.base.Predicate;
 
 import cubicchunks.world.ICubicWorld;
 import labyrinth.LabyrinthMod;
+import labyrinth.pathfinding.PathNavigateGroundFixed;
 import labyrinth.util.LevelUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityCreeper;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -25,6 +26,11 @@ public class EntityCreeperLeveled extends EntityCreeper implements IMobLeveled {
 
 	public EntityCreeperLeveled(World worldIn) {
 		super(worldIn);
+	}
+	
+	@Override
+	protected PathNavigate createNavigator(World worldIn) {
+		return new PathNavigateGroundFixed(this, worldIn);
 	}
 
 	private static final Predicate<Entity> EXPLOSION_TARGETS = new Predicate<Entity>() {

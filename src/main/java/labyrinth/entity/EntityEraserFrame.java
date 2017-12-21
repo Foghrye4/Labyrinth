@@ -1,9 +1,7 @@
 package labyrinth.entity;
 
-import labyrinth.LabyrinthMod;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 
 public class EntityEraserFrame extends Entity {

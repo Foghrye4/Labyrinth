@@ -1,5 +1,9 @@
 package labyrinth.worldgen;
 
+import static labyrinth.village.UndergroundVillage.BIT_SIZE;
+import static labyrinth.village.UndergroundVillage.INV_BIT_MASK;
+import static labyrinth.village.UndergroundVillage.LOCAL_BIT_MASK;
+
 import java.util.Random;
 
 import cubicchunks.util.CubePos;
@@ -7,8 +11,6 @@ import cubicchunks.world.ICubicWorld;
 import cubicchunks.world.cube.Cube;
 import labyrinth.tileentity.TileEntityVillageMarket;
 import labyrinth.village.UndergroundVillage;
-
-import static labyrinth.village.UndergroundVillage.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityAgeable;

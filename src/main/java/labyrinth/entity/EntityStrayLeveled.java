@@ -1,13 +1,13 @@
 package labyrinth.entity;
 
 import labyrinth.LabyrinthMod;
+import labyrinth.pathfinding.PathNavigateGroundFixed;
 import labyrinth.util.LevelUtil;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.monster.EntityStray;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
@@ -15,6 +15,11 @@ public class EntityStrayLeveled extends EntityStray implements IMobLeveled {
 
 	public EntityStrayLeveled(World worldIn) {
 		super(worldIn);
+	}
+	
+	@Override
+	protected PathNavigate createNavigator(World worldIn) {
+		return new PathNavigateGroundFixed(this, worldIn);
 	}
 	
 	int level = 0;

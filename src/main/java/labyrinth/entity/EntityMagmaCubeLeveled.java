@@ -1,20 +1,26 @@
 package labyrinth.entity;
 
 import labyrinth.LabyrinthMod;
+import labyrinth.pathfinding.PathNavigateGroundFixed;
 import labyrinth.util.LevelUtil;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.monster.EntityMagmaCube;
 import net.minecraft.entity.monster.EntitySlime;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 public class EntityMagmaCubeLeveled extends EntityMagmaCube implements IMobLeveled, ISlime {
 	
 	public EntityMagmaCubeLeveled(World worldIn) {
 		super(worldIn);
+	}
+	
+	@Override
+	protected PathNavigate createNavigator(World worldIn) {
+		return new PathNavigateGroundFixed(this, worldIn);
 	}
 
 	int level = 0;
@@ -30,7 +36,7 @@ public class EntityMagmaCubeLeveled extends EntityMagmaCube implements IMobLevel
 	}
 
 	protected int getAttackStrength() {
-		return this.getSlimeSize() * (1 + level);
+		return MathHelper.ceil(LevelUtil.getAttackDamage(level));
 	}
 
 	protected void setSlimeSize(int size, boolean setHealth) {

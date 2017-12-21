@@ -64,6 +64,23 @@ public class LPlaceCubeCommand extends LCubeEditCommandBase {
 			boolean mirrorX = args.length==4 && Boolean.valueOf(args[1]);
 			boolean mirrorY = args.length==4 && Boolean.valueOf(args[2]);
 			boolean mirrorZ = args.length==4 && Boolean.valueOf(args[3]);
+			this.writeStructureToEBS(world, pos, args, index, dis, rotateCV, mirrorX, mirrorY, mirrorZ);
+			dis.close();
+			is.close();
+			is = new FileInputStream(getFile("cubes",cubeS));
+			dis = new DataInputStream(is);
+			this.writeStructureToEBS(world, pos, args, index, dis, rotateCV, mirrorX, mirrorY, mirrorZ);
+			dis.close();
+			is.close();
+			last_placed_dungeon_type = cubeS;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		sender.sendMessage(new TextComponentString("Done placing "+cubeS));
+	}
+	
+	private void writeStructureToEBS(World world,BlockPos pos, String[] args, int index, DataInputStream dis, boolean rotateCV, boolean mirrorX, boolean mirrorY, boolean mirrorZ){
+		try {
 			while(dis.available()>0){
 				int dx = index>>>8;
 				int dy = (index>>>4)&15;
@@ -93,12 +110,9 @@ public class LPlaceCubeCommand extends LCubeEditCommandBase {
 				world.setBlockState(pos.east(dx).up(dy).south(dz), blockstate);
 				index++;
 			}
-			dis.close();
-			is.close();
-			last_placed_dungeon_type = cubeS;
-		} catch (IOException e) {
+		} catch (NumberFormatException | IOException e) {
 			e.printStackTrace();
 		}
-		sender.sendMessage(new TextComponentString("Done placing "+cubeS));
+
 	}
 }

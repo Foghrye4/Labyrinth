@@ -50,6 +50,7 @@ public class TileEntityVillageMarket extends TileEntity {
 		return displayedItem;
 	}
 
+	@Override
 	public void validate() {
 		if (!world.isRemote) {
 			eventListeners.add(this);
@@ -58,6 +59,7 @@ public class TileEntityVillageMarket extends TileEntity {
 		super.validate();
 	}
 
+	@Override
 	public void invalidate() {
 		if (!world.isRemote) {
 			eventListeners.remove(this);
@@ -95,8 +97,7 @@ public class TileEntityVillageMarket extends TileEntity {
 			if (occupiedVillagers.contains(villager))
 				continue;
 			MerchantRecipeList recipes = villager.getRecipes(player);
-			int recipeLastIndex = recipes.size() - 1;
-			for (int index = 0; index <= recipeLastIndex; index++) {
+			for (int index = 0; index < recipes.size(); index++) {
 				MerchantRecipe recipeIn = recipes.get(index);
 				if (occupiedRecipes.contains(recipeIn) || recipeIn.isRecipeDisabled())
 					continue;

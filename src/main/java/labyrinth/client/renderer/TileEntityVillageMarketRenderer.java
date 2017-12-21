@@ -1,5 +1,10 @@
 package labyrinth.client.renderer;
 
+import static labyrinth.LabyrinthMod.log;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
@@ -7,7 +12,7 @@ import org.lwjgl.util.glu.GLU;
 
 import labyrinth.LabyrinthMod;
 import labyrinth.client.Icon;
-import labyrinth.tileentity.*;
+import labyrinth.tileentity.TileEntityVillageMarket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -26,11 +31,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-
-import static labyrinth.LabyrinthMod.log;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TileEntityVillageMarketRenderer extends TileEntitySpecialRenderer<TileEntityVillageMarket> {
 

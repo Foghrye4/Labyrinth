@@ -13,8 +13,6 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemMultiTexture;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class LabyrinthBlocks {
 	public static Block STONE;
@@ -22,7 +20,7 @@ public class LabyrinthBlocks {
 
 	public static void init() {
 		STONE = (new BlockStoneTile()).setHardness(1.5F).setResistance(10.0F).setUnlocalizedName("stone")
-				.setRegistryName(LabyrinthMod.MODID, "stone");
+				.setRegistryName(LabyrinthMod.MODID, "stone").setCreativeTab(null);
 		COUNTER = (new BlockVillageMarket(Material.WOOD)).setHardness(0.5F).setResistance(5.0F).setUnlocalizedName("counter")
 				.setRegistryName(LabyrinthMod.MODID, "counter").setCreativeTab(CreativeTabs.DECORATIONS);
 	}

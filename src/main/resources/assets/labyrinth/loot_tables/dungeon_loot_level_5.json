@@ -6,17 +6,17 @@
             "entries": [
                 {
                     "type": "loot_table",
-                    "weight": 8,
+                    "weight": 5,
                     "name": "labyrinth:dungeon_loot_tables/items_level_0"
                 },
                 {
                     "type": "loot_table",
-                    "weight": 7,
+                    "weight": 5,
                     "name": "labyrinth:dungeon_loot_tables/items_level_1"
                 },
                 {
                     "type": "loot_table",
-                    "weight": 6,
+                    "weight": 5,
                     "name": "labyrinth:dungeon_loot_tables/items_level_2"
                 },
                 {
@@ -26,12 +26,12 @@
                 },
                 {
                     "type": "loot_table",
-                    "weight": 4,
+                    "weight": 5,
                     "name": "labyrinth:dungeon_loot_tables/items_level_4"
                 },
                 {
                     "type": "loot_table",
-                    "weight": 3,
+                    "weight": 5,
                     "name": "labyrinth:dungeon_loot_tables/items_level_5"
                 },
                 {

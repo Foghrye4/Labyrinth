@@ -15,16 +15,54 @@ import com.google.gson.stream.JsonWriter;
 import labyrinth.init.LabyrinthBlocks;
 import labyrinth.init.LabyrinthEntities;
 import labyrinth.util.ModIntegrationUtil;
-import net.minecraft.block.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockAnvil;
+import net.minecraft.block.BlockBed;
 import net.minecraft.block.BlockBed.EnumPartType;
+import net.minecraft.block.BlockBeetroot;
+import net.minecraft.block.BlockCarpet;
+import net.minecraft.block.BlockCauldron;
+import net.minecraft.block.BlockChest;
+import net.minecraft.block.BlockColored;
+import net.minecraft.block.BlockCrops;
+import net.minecraft.block.BlockDoor;
+import net.minecraft.block.BlockFarmland;
+import net.minecraft.block.BlockFlowerPot;
 import net.minecraft.block.BlockFlowerPot.EnumFlowerType;
+import net.minecraft.block.BlockFurnace;
+import net.minecraft.block.BlockHay;
+import net.minecraft.block.BlockHorizontal;
+import net.minecraft.block.BlockLadder;
+import net.minecraft.block.BlockLever;
+import net.minecraft.block.BlockLog;
 import net.minecraft.block.BlockLog.EnumAxis;
+import net.minecraft.block.BlockNewLeaf;
+import net.minecraft.block.BlockOldLeaf;
+import net.minecraft.block.BlockPistonBase;
+import net.minecraft.block.BlockPistonExtension;
+import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.BlockPlanks.EnumType;
-import net.minecraft.block.BlockStairs.*;
+import net.minecraft.block.BlockPrismarine;
+import net.minecraft.block.BlockQuartz;
+import net.minecraft.block.BlockRedSandstone;
+import net.minecraft.block.BlockRedstoneRepeater;
+import net.minecraft.block.BlockRedstoneWire;
+import net.minecraft.block.BlockSandStone;
+import net.minecraft.block.BlockSlab;
+import net.minecraft.block.BlockStainedGlassPane;
+import net.minecraft.block.BlockStairs;
+import net.minecraft.block.BlockStairs.EnumHalf;
+import net.minecraft.block.BlockStairs.EnumShape;
+import net.minecraft.block.BlockStem;
+import net.minecraft.block.BlockStone;
+import net.minecraft.block.BlockStoneBrick;
+import net.minecraft.block.BlockTorch;
+import net.minecraft.block.BlockTripWire;
+import net.minecraft.block.BlockTripWireHook;
+import net.minecraft.block.BlockWoodSlab;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.util.EnumFacing;
@@ -172,8 +210,16 @@ public class LevelFeaturesStorage {
 			LabyrinthEntities.VEX };
 	@SuppressWarnings("unchecked")
 	final Class<? extends EntityLiving>[][] levelToMob = new Class[128][2];
+
+	public long lastSeed = 0;
 	
 	public LevelFeaturesStorage(){
+		this.generateRandom(0);
+	}
+	
+	public void generateRandom(long seed) {
+		this.lastSeed  = seed;
+		random.setSeed(seed);
 		for (Class<? extends EntityLiving>[] levelMobs : levelToMob) {
 			levelMobs[0] = MOB_CANDIDATES_FIRST[random.nextInt(MOB_CANDIDATES_FIRST.length)];
 			levelMobs[1] = MOB_CANDIDATES_SECOND[random.nextInt(MOB_CANDIDATES_SECOND.length)];
@@ -516,6 +562,22 @@ public class LevelFeaturesStorage {
 		blockstateList[0][188] = Blocks.ACACIA_FENCE_GATE.getDefaultState().withProperty(BlockHorizontal.FACING, EnumFacing.SOUTH);
 		blockstateList[0][189] = Blocks.ACACIA_FENCE_GATE.getDefaultState().withProperty(BlockHorizontal.FACING, EnumFacing.NORTH);
 		blockstateList[0][190] = Blocks.ACACIA_FENCE_GATE.getDefaultState().withProperty(BlockHorizontal.FACING, EnumFacing.EAST);
+		blockstateList[0][191] = Blocks.TNT.getDefaultState();
+		blockstateList[0][192] = Blocks.TRIPWIRE_HOOK.getDefaultState().withProperty(BlockTripWireHook.FACING, EnumFacing.WEST).withProperty(BlockTripWireHook.ATTACHED, true);
+		blockstateList[0][193] = Blocks.TRIPWIRE_HOOK.getDefaultState().withProperty(BlockTripWireHook.FACING, EnumFacing.SOUTH).withProperty(BlockTripWireHook.ATTACHED, true);
+		blockstateList[0][194] = Blocks.TRIPWIRE_HOOK.getDefaultState().withProperty(BlockTripWireHook.FACING, EnumFacing.NORTH).withProperty(BlockTripWireHook.ATTACHED, true);
+		blockstateList[0][195] = Blocks.TRIPWIRE_HOOK.getDefaultState().withProperty(BlockTripWireHook.FACING, EnumFacing.EAST).withProperty(BlockTripWireHook.ATTACHED, true);
+		blockstateList[0][196] = Blocks.TRIPWIRE.getDefaultState().withProperty(BlockTripWire.ATTACHED, true);
+		blockstateList[0][197] = Blocks.PISTON.getDefaultState()
+				.withProperty(BlockPistonBase.EXTENDED, Boolean.valueOf(false))
+				.withProperty(BlockPistonBase.FACING, EnumFacing.SOUTH);
+		blockstateList[0][198] = Blocks.PISTON.getDefaultState()
+				.withProperty(BlockPistonBase.EXTENDED, Boolean.valueOf(false))
+				.withProperty(BlockPistonBase.FACING, EnumFacing.UP);
+		blockstateList[0][199] = Blocks.PISTON.getDefaultState()
+				.withProperty(BlockPistonBase.EXTENDED, Boolean.valueOf(false))
+				.withProperty(BlockPistonBase.FACING, EnumFacing.EAST);
+		blockstateList[0][200] = Blocks.STONE_PRESSURE_PLATE.getDefaultState();
 		blockstateList[0][255] = Blocks.AIR.getDefaultState();
 
 		for (int i = 1; i < blockstateList.length; i++)
@@ -570,14 +632,14 @@ public class LevelFeaturesStorage {
 		addStairs(blockstateList[6], stair);
 
 		blockstateList[7][1] = Blocks.RED_NETHER_BRICK.getDefaultState();
-		blockstateList[7][2] = Blocks.MAGMA.getDefaultState();
+		blockstateList[7][2] = Blocks.OBSIDIAN.getDefaultState();
 		blockstateList[7][18] = Blocks.NETHER_BRICK_FENCE.getDefaultState();
 		blockstateList[7][120] = Blocks.NETHER_BRICK_FENCE.getDefaultState();
 		stair = Blocks.NETHER_BRICK_STAIRS.getBlockState().getBaseState().withProperty(BlockStairs.SHAPE,
 				EnumShape.STRAIGHT);
 		addStairs(blockstateList[7], stair);
 
-		for (int i = 8; i < blockstateList.length; i++) {
+		for (int i = 0; i < blockstateList.length; i = i == 0 ? 8 : ++i) {
 			blockstateList[i][1] = WALL_CANDIDATES[random.nextInt(WALL_CANDIDATES.length)];
 			blockstateList[i][2] = FLOOR_CANDIDATES[random.nextInt(FLOOR_CANDIDATES.length)];
 			blockstateList[i][18] = WINDOW_CANDIDATES[random.nextInt(WINDOW_CANDIDATES.length)];

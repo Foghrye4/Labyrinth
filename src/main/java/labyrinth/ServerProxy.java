@@ -3,13 +3,8 @@ package labyrinth;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
-import labyrinth.inventory.ContainerVillageMarket;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
 
 public class ServerProxy {
 	
@@ -31,5 +26,8 @@ public class ServerProxy {
 	
 	public ServerNetworkHandler getNetwork() {
 		return networkHandler;
+	}
+
+	public void registerRenders() {
 	}
 }

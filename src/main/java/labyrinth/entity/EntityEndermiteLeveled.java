@@ -1,11 +1,11 @@
 package labyrinth.entity;
 
 import labyrinth.LabyrinthMod;
+import labyrinth.pathfinding.PathNavigateGroundFixed;
 import labyrinth.util.LevelUtil;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.EntityEndermite;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
@@ -13,6 +13,11 @@ public class EntityEndermiteLeveled extends EntityEndermite implements IMobLevel
 
 	public EntityEndermiteLeveled(World worldIn) {
 		super(worldIn);
+	}
+	
+	@Override
+	protected PathNavigate createNavigator(World worldIn) {
+		return new PathNavigateGroundFixed(this, worldIn);
 	}
 	
 	@Override
