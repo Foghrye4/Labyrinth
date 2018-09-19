@@ -23,7 +23,7 @@ apply plugin: "java"
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
 
-version = v
+version = "0.3.0"
 group = "labyrinth" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "labyrinth"
 
@@ -33,7 +33,7 @@ compileJava {
 }
 
 minecraft {
-    version = "1.12.2-14.23.0.2487"
+    version = "1.12.2-14.23.4.2705"
     runDir = "run"
     mappings = "snapshot_20170822"
 }
@@ -44,12 +44,18 @@ repositories {
         name = 'spongepowered-repo'
         url = 'http://repo.spongepowered.org/maven/'
     }
+    maven {
+        name = 'sonatype'
+        url = 'https://oss.sonatype.org/content/repositories/public/'
+    }
 }
 
 dependencies {
-	compile "org.spongepowered:mixin:0.6.8-SNAPSHOT"
-//	compile files('lib/CubicChunks-1.12.2-0.0.757.0-dev.jar')
-	compile project(':CubicChunks')
+//	compile "io.github.opencubicchunks:regionlib:0.44.0-SNAPSHOT"
+    deobfCompile "io.github.opencubicchunks:cubicchunks-api:1.12.2-0.0-SNAPSHOT"
+//    compile "org.spongepowered:mixin:0.7.10-SNAPSHOT"
+//	compile files('lib/CubicChunks-1.12.2-0.0.824.0-SNAPSHOT-dev.jar')
+//	compile project(':CubicChunks')
 }
 
 processResources {

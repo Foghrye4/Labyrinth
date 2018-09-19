@@ -17,11 +17,11 @@ public class LabyrinthItems {
 
 	public static void init() {
 		ERASER = new ItemEraser();
-		ERASER.setCreativeTab(CreativeTabs.TOOLS);
+		ERASER.setCreativeTab(LabyrinthMod.creativeTab);
 		ERASER.setUnlocalizedName("ERASER");
 		ERASER.setRegistryName(MODID, "ERASER");
 		BLOCK_FILLER = new ItemBlockFiller();
-		BLOCK_FILLER.setCreativeTab(CreativeTabs.TOOLS);
+		BLOCK_FILLER.setCreativeTab(LabyrinthMod.creativeTab);
 		BLOCK_FILLER.setUnlocalizedName("block_filler");
 		BLOCK_FILLER.setRegistryName(MODID, "block_filler");
 	}
@@ -42,9 +42,9 @@ public class LabyrinthItems {
 				new ModelResourceLocation(new ResourceLocation(LabyrinthMod.MODID,"block_filler"), "inventory"));
 	}
 	
-	private static void registerRender(Item item, int metadata, ResourceLocation modelResourceLocation) {
+	private static void registerRender(Item item, int metadata, ModelResourceLocation modelResourceLocation) {
 		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, metadata,
-				new ModelResourceLocation(modelResourceLocation, "inventory"));
+				modelResourceLocation);
 	}
 
 }

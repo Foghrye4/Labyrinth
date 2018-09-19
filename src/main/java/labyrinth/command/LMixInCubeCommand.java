@@ -5,7 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import cubicchunks.util.CubePos;
+import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import labyrinth.worldgen.DungeonCube;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -53,7 +53,7 @@ public class LMixInCubeCommand extends LCubeEditCommandBase {
 		}
 		try {
 			int index = 0;
-			InputStream is = new FileInputStream(getFile("cubes",cubeS));
+			InputStream is = new FileInputStream(getFile(server.worlds[0],"cubes",cubeS));
 			DataInputStream dis = new DataInputStream(is);
 			while(dis.available()>0){
 				int dx = index>>>8;

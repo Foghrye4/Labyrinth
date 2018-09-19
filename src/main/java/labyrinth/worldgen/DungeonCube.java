@@ -1,13 +1,18 @@
 package labyrinth.worldgen;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import labyrinth.LabyrinthMod;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.NibbleArray;
 
 public enum DungeonCube {
@@ -152,18 +157,19 @@ public enum DungeonCube {
 
 		//Claustrophobic
 		X_ROADS("x_roads.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
-		X_ROADS_HIDDEN_ROOM("x_roads_hidden_room.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
+		X_ROADS_HIDDEN_ROOM("x_roads_hidden_room.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.LIBRARY),
 		LAVA_ROOM("lava_room.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
 		LAVA_ROOM_WORKSHOP("lava_room_workshop.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
-		LADDER_CEIL("ladder_ceil.cube_structure", DungeonCubeFlag.STAIR_TOP),
+		LADDER_CEIL("ladder_ceil.cube_structure", DungeonCubeFlag.STAIR_TOP, DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
 		LADDER_MIDDLE("ladder_middle.cube_structure", DungeonCubeFlag.STAIR_TOP, DungeonCubeFlag.STAIR_BOTTOM),
-		LADDER_FLOOR("ladder_floor.cube_structure", DungeonCubeFlag.STAIR_BOTTOM),
-		LADDER_FLOOR_TRAP("ladder_floor_trap.cube_structure", DungeonCubeFlag.STAIR_BOTTOM),
+		LADDER_FLOOR("ladder_floor.cube_structure", DungeonCubeFlag.STAIR_BOTTOM, DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
+		LADDER_FLOOR_TRAP("ladder_floor_trap.cube_structure", DungeonCubeFlag.STAIR_BOTTOM, DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
 		ROAD_SOUTH_NORTH("road_south_north.cube_structure", DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.NORTH_WALL),
 		ROAD_SOUTH_NORTH_TRAP("road_south_north_trap.cube_structure", DungeonCubeFlag.SOUTH_WALL, DungeonCubeFlag.NORTH_WALL),
 		ROAD_EAST_WEST("road_east_west.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.WEST_WALL),
 		ROAD_EAST_WEST_TRAP("road_east_west_trap.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.WEST_WALL),
 		ROAD_WEST_NORTH("road_west_north.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.NORTH_WALL),
+		ROAD_WEST_NORTH_TRAP("road_west_north_trap.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.NORTH_WALL),
 		ROAD_SOUTH_WEST("road_south_west.cube_structure", DungeonCubeFlag.WEST_WALL, DungeonCubeFlag.SOUTH_WALL),
 		ROAD_NORTH_EAST("road_north_east.cube_structure", DungeonCubeFlag.NORTH_WALL, DungeonCubeFlag.EAST_WALL),
 		ROAD_EAST_SOUTH("road_east_south.cube_structure", DungeonCubeFlag.EAST_WALL, DungeonCubeFlag.SOUTH_WALL),
@@ -269,11 +275,19 @@ public enum DungeonCube {
 			}
 		}
 
-		void load() throws IOException {
-			InputStream stream = LabyrinthMod.proxy.getResourceInputStream(new ResourceLocation("labyrinth", "cubes/" + name));
-			stream.read(data);
-			stream.close();
+	public void load(@Nullable World world) throws IOException {
+		InputStream stream = null;
+		if (world != null && world.getSaveHandler().getWorldDirectory() != null) {
+			File file = new File(world.getSaveHandler().getWorldDirectory(), "cubes/" + name);
+			if (file.exists()) {
+				stream = new FileInputStream(file);
+			}
 		}
+		if (stream == null)
+			stream = LabyrinthMod.proxy.getResourceInputStream(new ResourceLocation("labyrinth", "cubes/" + name));
+		stream.read(data);
+		stream.close();
+	}
 		
 		void precalculateLight() {
 			NibbleArray lightNibbleArray = new NibbleArray(lightData);

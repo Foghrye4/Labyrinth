@@ -1,7 +1,7 @@
 package labyrinth.event;
 
-import cubicchunks.util.CubePos;
-import cubicchunks.world.ICubicWorld;
+import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
+import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorld;
 import labyrinth.LabyrinthMod;
 import labyrinth.tileentity.TileEntityVillageMarket;
 import labyrinth.worldgen.LabyrinthWorldGen;
@@ -33,8 +33,7 @@ public class EntityEventHandler {
 	public void onEntityCheckSpawn(LivingSpawnEvent.CheckSpawn event) {
 		if (LabyrinthMod.config.shouldSkipSpawnVanillaMobsInDungeons()) {
 			CubePos pos = CubePos.fromBlockCoords((int) (event.getX() - 0.5f), (int) event.getY(), (int) (event.getZ() - 0.5f));
-			ICubicWorld world = (ICubicWorld) event.getWorld();
-			if (LabyrinthWorldGen.instance.shouldGenerateAtPos(pos, world)) {
+			if (LabyrinthWorldGen.instance.shouldGenerateAtPos(pos, event.getWorld())) {
 				event.setResult(Result.DENY);
 			}
 		}

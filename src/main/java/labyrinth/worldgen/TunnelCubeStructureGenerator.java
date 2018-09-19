@@ -5,20 +5,21 @@ import static labyrinth.worldgen.LabyrinthWorldGen.TUNNEL_MASK;
 
 import java.util.Random;
 
-import cubicchunks.util.CubePos;
-import cubicchunks.world.ICubicWorld;
-import cubicchunks.world.cube.Cube;
+import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
+import io.github.opencubicchunks.cubicchunks.api.world.ICube;
 import labyrinth.entity.IMobLeveled;
 import labyrinth.entity.ISlime;
 import labyrinth.init.LabyrinthEntities;
 import labyrinth.util.LevelUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.NibbleArray;
@@ -36,19 +37,21 @@ public class TunnelCubeStructureGenerator implements ICubeStructureGenerator {
 	}
 	
 	@Override
-	public DungeonCube getDungeonCubeType(CubePos cpos, ICubicWorld world) {
+	public DungeonCube getDungeonCubeType(CubePos cpos, World world) {
 		if ((cpos.getX() & TUNNEL_MASK) == TUNNEL_LOCATION)
 			return DungeonCube.TUNNEL_PROP_SOUTH_NORTH;
 		return DungeonCube.TUNNEL_PROP_EAST_WEST;
 	}
 
 	@Override
-	public void spawnMobs(int level, ICubicWorld world, CubePos pos, ExtendedBlockStorage data) {
+	public void spawnMobs(int level, World world, CubePos pos, ExtendedBlockStorage data) {
 		random.setSeed(pos.hashCode()^world.getSeed());
 		if(random.nextInt(MOB_SPAWN_RARITY)!=0)
 			return;
 		LevelFeaturesStorage storage = generator.storage;
 		ResourceLocation[] regularLoot = generator.regularLoot;
+		DifficultyInstance difficulty = world.getDifficultyForLocation(pos.getCenterBlockPos());
+		IEntityLivingData livingdata = null;
 		int mobRandom = level < storage.levelToMob.length ? level : random.nextInt() & (storage.levelToMob.length - 1);
 		Class<? extends EntityLiving>[] mobs = storage.levelToMob[mobRandom];
 		EntityLiving mobEntity;
@@ -60,26 +63,21 @@ public class TunnelCubeStructureGenerator implements ICubeStructureGenerator {
 					mobEntity = mob.getDeclaredConstructor(World.class).newInstance(world);
 					mobEntity.setLocationAndAngles(pos.getMinBlockX() + dx + 0.5, pos.getMinBlockY() + dy + 1,
 							pos.getMinBlockZ() + dz + 0.5, random.nextFloat() * 360.0F, 0.0F);
-					if (mob == LabyrinthEntities.STRAY || mob == LabyrinthEntities.SKELETON)
-						mobEntity.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.BOW));
-					else if (mob == LabyrinthEntities.SLIME || mob == LabyrinthEntities.MAGMA_CUBE)
-						((ISlime) mobEntity).setSlimeSize(LevelUtil.getSlimeSize(level));
-					else if (mob == LabyrinthEntities.VINDICATOR)
-						mobEntity.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.IRON_AXE));
-					((IMobLeveled) mobEntity).setLevel(level);
-					((IMobLeveled) mobEntity).setLootTable(regularLoot[level >= regularLoot.length ? regularLoot.length - 1 : level]);
-					if(mobEntity.isNotColliding())
+					if (mobEntity.isNotColliding()) {
+						((IMobLeveled) mobEntity).setLevel(level);
+						livingdata = mobEntity.onInitialSpawn(difficulty, livingdata);
+						((IMobLeveled) mobEntity).setLootTable(regularLoot[level >= regularLoot.length ? regularLoot.length - 1 : level]);
 						world.spawnEntity(mobEntity);
-					else
+					} else {
 						mobEntity.setDead();
-						
+					}
 				} catch (Throwable e) {
 					e.printStackTrace();
 				}
 	}
 
 	@Override
-	public void placeCube(int level, Cube cube, ExtendedBlockStorage cstorage, CubePos pos, ICubicWorld world, byte[] data, IBlockState[] bl, DungeonCube is) {
+	public void placeCube(int level, ICube cube, ExtendedBlockStorage cstorage, CubePos pos, World world, byte[] data, IBlockState[] bl, DungeonCube is) {
 		for (int index = 0; index < data.length; index++) {
 			int dx = index >>> 8;
 			int dy = (index >>> 4) & 15;

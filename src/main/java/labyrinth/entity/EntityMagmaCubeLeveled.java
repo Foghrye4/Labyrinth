@@ -1,8 +1,11 @@
 package labyrinth.entity;
 
+import javax.annotation.Nullable;
+
 import labyrinth.LabyrinthMod;
 import labyrinth.pathfinding.PathNavigateGroundFixed;
 import labyrinth.util.LevelUtil;
+import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.monster.EntityMagmaCube;
 import net.minecraft.entity.monster.EntitySlime;
@@ -10,6 +13,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
 
 public class EntityMagmaCubeLeveled extends EntityMagmaCube implements IMobLeveled, ISlime {
@@ -45,6 +49,12 @@ public class EntityMagmaCubeLeveled extends EntityMagmaCube implements IMobLevel
 		this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(LevelUtil.getMovementSpeed(level));
 		this.getEntityAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(LevelUtil.getArmor(level));
 		this.experienceValue = LevelUtil.getExperienceValue(level);
+	}
+	
+	public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata) {
+		IEntityLivingData toReturn = super.onInitialSpawn(difficulty, livingdata);
+		this.setSlimeSize(LevelUtil.getSlimeSize(level));
+		return toReturn;
 	}
 
 	ResourceLocation lootTable = new ResourceLocation(LabyrinthMod.MODID+":dungeon_loot_level_0");

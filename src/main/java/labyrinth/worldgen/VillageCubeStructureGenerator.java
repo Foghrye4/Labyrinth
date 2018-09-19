@@ -6,15 +6,15 @@ import static labyrinth.village.UndergroundVillage.LOCAL_BIT_MASK;
 
 import java.util.Random;
 
-import cubicchunks.util.CubePos;
-import cubicchunks.world.ICubicWorld;
-import cubicchunks.world.cube.Cube;
+import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
+import io.github.opencubicchunks.cubicchunks.api.world.ICube;
 import labyrinth.tileentity.TileEntityVillageMarket;
 import labyrinth.village.UndergroundVillage;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.passive.EntityChicken;
 import net.minecraft.entity.passive.EntityCow;
 import net.minecraft.entity.passive.EntityOcelot;
@@ -27,6 +27,7 @@ import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.village.Village;
 import net.minecraft.village.VillageDoorInfo;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -64,7 +65,7 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 			DungeonCube.VILLAGE_HOME
 	};
 
-	public boolean isVillage(CubePos cpos, ICubicWorld world) {
+	public boolean isVillage(CubePos cpos, World world) {
 		int x = cpos.getX() >> BIT_SIZE;
 		int z = cpos.getZ() >> BIT_SIZE;
 		if ((x & 3 | z & 3) != 0)
@@ -93,7 +94,7 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 	}
 
 	@Override
-	public DungeonCube getDungeonCubeType(CubePos cpos, ICubicWorld world) {
+	public DungeonCube getDungeonCubeType(CubePos cpos, World world) {
 		int localX = cpos.getX() & 7;
 		int localZ = cpos.getZ() & 7;
 		boolean eastBorder = localX == 7;
@@ -143,13 +144,15 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 	}
 
 	@Override
-	public void spawnMobs(int level, ICubicWorld world, CubePos pos, ExtendedBlockStorage data) {
+	public void spawnMobs(int level, World world, CubePos pos, ExtendedBlockStorage data) {
 		Class<? extends EntityLiving> entityClass;
 		int space = 10;
 		DungeonCube ct = this.getDungeonCubeType(pos, world);
 		if (ct.isCorral || ct.isMarket)
 			space = 6;
 		EntityLiving entity;
+		DifficultyInstance difficulty = world.getDifficultyForLocation(pos.getCenterBlockPos());
+		IEntityLivingData livingdata = null;
 		for (int dy = 0; dy <= 1; dy++)
 		for (int dx = random.nextInt(space); dx < 15; dx += random.nextInt(space) + 2)
 		for (int dz = random.nextInt(space); dz < 15; dz += random.nextInt(space) + 2)
@@ -163,26 +166,24 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 					entity = entityClass.getDeclaredConstructor(World.class).newInstance(world);
 					entity.setLocationAndAngles(pos.getMinBlockX() + dx + 0.5, pos.getMinBlockY() + dy + 1,
 							pos.getMinBlockZ() + dz + 0.5, random.nextFloat() * 360.0F, 0.0F);
-					if (entityClass == EntityVillager.class) {
-						VillagerRegistry.setRandomProfession((EntityVillager) entity, random);
-					}
-					if (entity instanceof EntityAgeable && random.nextFloat() < 0.2f) {
-						((EntityAgeable) entity).setGrowingAge(-24000);
-					}
-					if (entity instanceof EntityTameable) {
-						((EntityTameable) entity).setTamed(true);
-					}
-					if (entity.isNotColliding())
+					if (entity.isNotColliding()) {
+						livingdata = entity.onInitialSpawn(difficulty, livingdata);
+						if (entity instanceof EntityAgeable && random.nextFloat() < 0.2f)
+							((EntityAgeable) entity).setGrowingAge(-24000);
+						if (entity instanceof EntityTameable)
+							((EntityTameable) entity).setTamed(true);
 						world.spawnEntity(entity);
-					else
+					}
+					else {
 						entity.setDead();
+					}
 				} catch (Throwable e) {
 					e.printStackTrace();
 				}
 	}
 
 	@Override
-	public void placeCube(int level, Cube cube, ExtendedBlockStorage cstorage, CubePos pos, ICubicWorld world, byte[] data, IBlockState[] bl, DungeonCube is) {
+	public void placeCube(int level, ICube cube, ExtendedBlockStorage cstorage, CubePos pos, World world, byte[] data, IBlockState[] bl, DungeonCube is) {
 		UndergroundVillage currentVillage = null;
 		if (is.isVillageHome) {
 			for (Village village : ((WorldServer) world).villageCollection.getVillageList()) {
@@ -204,6 +205,8 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 			int dy = (index >>> 4) & 15;
 			int dz = index & 15;
 			int bstate = Byte.toUnsignedInt(data[index]);
+			if (bstate == 255)
+				continue;
 			BlockPos bpos = new BlockPos(pos.getMinBlockX() + dx, pos.getMinBlockY() + dy, pos.getMinBlockZ() + dz);
 			IBlockState blockState = bl[bstate];
 			cstorage.set(dx, dy, dz, blockState);

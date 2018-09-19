@@ -5,7 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import cubicchunks.util.CubePos;
+import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -34,7 +34,7 @@ public class LWriteWithRotationsCommand extends LCubeEditCommandBase {
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		String filename;
 		if(args==null || args.length==0){
-			filename = LPlaceCubeCommand.last_placed_dungeon_type;
+			filename = LCubeEditCommandBase.lastPlacedDungeonType;
 		}
 		else {
 			filename = args[0];
@@ -80,25 +80,25 @@ public class LWriteWithRotationsCommand extends LCubeEditCommandBase {
 				}
 		DataOutputStream osWriter = null;
 		try {
-			osWriter = new DataOutputStream(new FileOutputStream(getFile("cubes",filename)));
+			osWriter = new DataOutputStream(new FileOutputStream(getFile(server.worlds[0],"cubes",filename)));
 			sender.sendMessage(new TextComponentString("Done writing "+filename));
 			osWriter.write(bf_straight.array());
 			osWriter.close();
 			
 			filename = getRotatedFilename(filename);
-			osWriter = new DataOutputStream(new FileOutputStream(getFile("cubes",filename)));
+			osWriter = new DataOutputStream(new FileOutputStream(getFile(server.worlds[0],"cubes",filename)));
 			sender.sendMessage(new TextComponentString("Done writing "+filename));
 			osWriter.write(bf_rotated1.array());
 			osWriter.close();
 
 			filename = getRotatedFilename(filename);
-			osWriter = new DataOutputStream(new FileOutputStream(getFile("cubes",filename)));
+			osWriter = new DataOutputStream(new FileOutputStream(getFile(server.worlds[0],"cubes",filename)));
 			sender.sendMessage(new TextComponentString("Done writing "+filename));
 			osWriter.write(bf_rotated2.array());
 			osWriter.close();
 			
 			filename = getRotatedFilename(filename);
-			osWriter = new DataOutputStream(new FileOutputStream(getFile("cubes",filename)));
+			osWriter = new DataOutputStream(new FileOutputStream(getFile(server.worlds[0],"cubes",filename)));
 			sender.sendMessage(new TextComponentString("Done writing "+filename));
 			osWriter.write(bf_rotated3.array());
 			osWriter.close();

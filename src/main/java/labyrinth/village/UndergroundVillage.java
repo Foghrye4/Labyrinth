@@ -1,7 +1,7 @@
 package labyrinth.village;
 
-import cubicchunks.util.Coords;
-import cubicchunks.util.CubePos;
+import io.github.opencubicchunks.cubicchunks.api.util.Coords;
+import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.village.Village;
 import net.minecraft.village.VillageDoorInfo;

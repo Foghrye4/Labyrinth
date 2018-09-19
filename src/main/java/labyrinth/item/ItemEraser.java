@@ -1,5 +1,6 @@
 package labyrinth.item;
 
+import labyrinth.LabyrinthMod;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.util.EnumActionResult;
@@ -19,11 +20,13 @@ public class ItemEraser extends Item {
 				from = pos;
 			} else if (to == null) {
 				to = pos;
+				LabyrinthMod.proxy.getNetwork().showEraserFrameForPlayer(player, from, to);
 			} else {
 				if (to.equals(pos)) {
 					BlockPos.getAllInBox(from, to).forEach(b -> {
 						worldIn.setBlockToAir(b);
 					});
+					LabyrinthMod.proxy.getNetwork().hideEraserFrameForPlayer(player);
 				}
 				from = null;
 				to = null;

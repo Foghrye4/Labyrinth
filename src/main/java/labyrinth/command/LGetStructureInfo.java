@@ -1,7 +1,7 @@
 package labyrinth.command;
 
-import cubicchunks.util.CubePos;
-import cubicchunks.world.ICubicWorld;
+import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
+import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorld;
 import labyrinth.worldgen.DungeonCube;
 import labyrinth.worldgen.LabyrinthWorldGen;
 import labyrinth.worldgen.LavaCubeStructureGenerator;
@@ -14,8 +14,6 @@ import net.minecraft.world.World;
 
 public class LGetStructureInfo extends LCubeEditCommandBase {
 	
-	LavaCubeStructureGenerator cubeStructureGenerator = (LavaCubeStructureGenerator) LabyrinthWorldGen.instance.lavaCubeStructureGenerator;
-
 	public LGetStructureInfo(){
 		super();
 	}
@@ -33,10 +31,7 @@ public class LGetStructureInfo extends LCubeEditCommandBase {
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		World world = sender.getEntityWorld();
 		BlockPos pos = sender.getPosition();
-		DungeonCube dc = cubeStructureGenerator.getDungeonCubeType(CubePos.fromBlockCoords(pos), (ICubicWorld) world);
-		if(cubeStructureGenerator.isAnchorPoint(CubePos.fromBlockCoords(pos)))
-			sender.sendMessage(new TextComponentString("Dungeon cube is "+dc.name() +" and it is anchor point"));
-		else
-			sender.sendMessage(new TextComponentString("Dungeon cube is "+dc.name() +" and it is not an anchor point"));
+		DungeonCube dc = LabyrinthWorldGen.instance.getDungeonCubeType(CubePos.fromBlockCoords(pos), (World) world);
+		sender.sendMessage(new TextComponentString("Dungeon cube is "+dc.name));
 	}
 }

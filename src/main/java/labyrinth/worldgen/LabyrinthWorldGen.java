@@ -1,20 +1,24 @@
 package labyrinth.worldgen;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
-import cubicchunks.api.CubeWatchEvent;
-import cubicchunks.api.worldgen.populator.CubePopulatorEvent;
-import cubicchunks.api.worldgen.populator.CubicPopulatorList;
-import cubicchunks.api.worldgen.populator.ICubicPopulator;
-import cubicchunks.util.Coords;
-import cubicchunks.util.CubePos;
-import cubicchunks.world.ICubeProvider;
-import cubicchunks.world.ICubicWorld;
-import cubicchunks.world.cube.Cube;
+import javax.annotation.Nullable;
+
+import io.github.opencubicchunks.cubicchunks.api.util.Coords;
+import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
+import io.github.opencubicchunks.cubicchunks.api.world.CubeWatchEvent;
+import io.github.opencubicchunks.cubicchunks.api.world.ICube;
+import io.github.opencubicchunks.cubicchunks.api.world.ICubeProvider;
+import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorld;
+import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.CubePopulatorEvent;
+import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.CubicPopulatorList;
+import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.ICubicPopulator;
 import labyrinth.LabyrinthMod;
 import labyrinth.world.WorldSavedDataLabyrinth;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -30,8 +34,9 @@ public class LabyrinthWorldGen {
 	public LevelFeaturesStorage storage;
 	private final Random random = new Random();
 	private final CubicPopulatorList biomeDecorators = new CubicPopulatorList();
-	public final ICubeStructureGenerator basicCubeStructureGenerator = new RegularCubeStructureGenerator(this);
-	public final ICubeStructureGenerator lavaCubeStructureGenerator = new LavaCubeStructureGenerator(this);
+	public final RegularCubeStructureGenerator basicCubeStructureGenerator = new RegularCubeStructureGenerator(this);
+	public final LavaCubeStructureGenerator lavaCubeStructureGenerator = new LavaCubeStructureGenerator(this);
+	public final ClaustrophobicCubeStructureGenerator claustrophobicCubeStructureGenerator = new ClaustrophobicCubeStructureGenerator(this);
 	public final VillageCubeStructureGenerator villageCubeStructureGenerator = new VillageCubeStructureGenerator(this);
 	public final TunnelCubeStructureGenerator tunnelGenerator = new TunnelCubeStructureGenerator(this);
 	static final int CITY_BIT_SIZE = 6; // 6
@@ -68,28 +73,35 @@ public class LabyrinthWorldGen {
 			new ResourceLocation(LabyrinthMod.MODID, "library_loot_level_5"),
 			new ResourceLocation(LabyrinthMod.MODID, "library_loot_level_6"),
 			new ResourceLocation(LabyrinthMod.MODID, "library_loot_level_7")};
+	private File prevSaveLocation;
 
 	public LabyrinthWorldGen() throws IOException {
 		instance = this;
 		storage = new LevelFeaturesStorage();
+		loadCubes(null);
+
+	}
+	
+	public void loadCubes(@Nullable World world) throws IOException{
 		for (DungeonCube cube : DungeonCube.values()) {
 			if (cube != DungeonCube.NOTHING && cube != DungeonCube.UNDEFINED) {
-				cube.load();
+				cube.load(world);
 				cube.precalculateLight();
 			}
 		}
-
 	}
 
-	public boolean shouldGenerateAtPos(CubePos pos, ICubicWorld world) {
+	public boolean shouldGenerateAtPos(CubePos pos, World world) {
 		int level = config.getLevel(pos);
 		if (level < 0)
 			return false;
-		float biomeHeightBase = world.getBiome(pos.getCenterBlockPos()).getBaseHeight();
+		float biomeHeightBase = ((World) world).getBiome(pos.getCenterBlockPos()).getBaseHeight();
 		if (biomeHeightBase < config.dungeonBiomeHeightLowerBound
 				|| biomeHeightBase > config.dungeonBiomeHeightUpperBound)
 			return false;
 		else {
+			if (level > 24)
+				return true;
 			if ((pos.getX() & CITY_EVEN_OR_ODD_MASK | pos.getZ() & CITY_EVEN_OR_ODD_MASK) == 0) {
 				return this.hasCityAtPos(pos.getX(), pos.getZ(), level, world);
 			} else {
@@ -116,7 +128,7 @@ public class LabyrinthWorldGen {
 		return false;
 	}
 
-	private boolean hasCityAtPos(int x, int z, int level, ICubicWorld world) {
+	private boolean hasCityAtPos(int x, int z, int level, World world) {
 		long hash = 3;
 		hash = 41 * hash + world.getSeed();
 		hash = 41 * hash + (x >>> CITY_BIT_SIZE);
@@ -128,11 +140,20 @@ public class LabyrinthWorldGen {
 
 	@SubscribeEvent
 	public void generate(CubePopulatorEvent event) {
-		ICubicWorld world = event.getWorld();
-		if (world.getProvider().getDimension() != 0)
+		World world = event.getWorld();
+		if (world.provider.getDimension() != 0)
 			return;
 		if(storage.lastSeed != world.getSeed())
 			storage.generateRandom(world.getSeed());
+		if (this.prevSaveLocation==null || !this.prevSaveLocation.equals(world.getSaveHandler().getWorldDirectory())) {
+			try {
+				this.loadCubes((World) world);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			this.prevSaveLocation = world.getSaveHandler().getWorldDirectory();
+		}
+		
 		CubePos pos = event.getCube().getCoords();
 		int level = config.getLevel(pos);
 		DungeonCube is = getDungeonCubeType(pos, world);
@@ -153,20 +174,20 @@ public class LabyrinthWorldGen {
 			}
 		}
 		byte[] data = is.data;
-		Cube cube = world.getCubeFromCubeCoords(pos.getX(), pos.getY(), pos.getZ());
+		ICube cube = event.getCube();
 		ExtendedBlockStorage cstorage = cube.getStorage();
 		if (cstorage == null) {
-			cstorage = new ExtendedBlockStorage(pos.getMinBlockY(), true);
-			cube.setStorage(cstorage);
+			cube.setBlockState(cube.getCoords().getCenterBlockPos(), Blocks.AIR.getDefaultState());
+			cstorage = cube.getStorage();
 		}
 		currentGenerator.placeCube(level, cube, cstorage, pos, world, data, bl, is);
 		this.config.spawnQuery.add(pos);
 		this.config.markDirty();
-		ICubeProvider cache = world.getCubeCache();
+		ICubeProvider cache = (ICubeProvider) world.getChunkProvider();
 		World vWorld = (World) world;
 		for (EnumFacing dir : EnumFacing.values()) {
 			CubePos ncpos = pos.add(dir.getFrontOffsetX(), dir.getFrontOffsetY(), dir.getFrontOffsetZ());
-			Cube loadedCube = cache.getLoadedCube(ncpos);
+			ICube loadedCube = cache.getLoadedCube(ncpos);
 			if (loadedCube == null || loadedCube.getStorage() == null)
 				continue;
 			int fromBlockX = ncpos.getMinBlockX();
@@ -223,13 +244,13 @@ public class LabyrinthWorldGen {
 
 	@SubscribeEvent
 	public void onCubeBeingWatched(CubeWatchEvent event) {
-		Cube cube = event.getCube();
+		ICube cube = event.getCube();
 		if (cube == null)
 			return;
 		CubePos pos = cube.getCoords();
 		if (this.config.spawnQuery.remove(pos)) {
-			ICubeStructureGenerator currentGenerator = this.selectGenerator(pos, event.getWorld());
-			currentGenerator.spawnMobs(this.config.getLevel(pos), event.getWorld(), pos, event.getCube().getStorage());
+			ICubeStructureGenerator currentGenerator = this.selectGenerator(pos, (World) event.getWorld());
+			currentGenerator.spawnMobs(this.config.getLevel(pos), (World) event.getWorld(), pos, event.getCube().getStorage());
 		}
 	}
 
@@ -241,14 +262,20 @@ public class LabyrinthWorldGen {
 		this.biomeDecorators.add(decorator);
 	}
 
-	public DungeonCube getDungeonCubeType(CubePos pos, ICubicWorld world) {
+	public DungeonCube getDungeonCubeType(CubePos pos, World world) {
 		if (!this.shouldGenerateAtPos(pos, world))
 			return DungeonCube.NOTHING;
 		return this.selectGenerator(pos, world).getDungeonCubeType(pos, world);
 	}
 
-	private ICubeStructureGenerator selectGenerator(CubePos pos, ICubicWorld world) {
+	private ICubeStructureGenerator selectGenerator(CubePos pos, World world) {
 		int level = config.getLevel(pos);
+		if (level > 24)
+			if (this.villageCubeStructureGenerator.isVillage(pos, world))
+				return this.villageCubeStructureGenerator;
+			else
+				return this.claustrophobicCubeStructureGenerator;
+		
 		if ((pos.getX() & CITY_EVEN_OR_ODD_MASK | pos.getZ() & CITY_EVEN_OR_ODD_MASK) != 0)
 			return this.tunnelGenerator;
 		if (level > 12) {

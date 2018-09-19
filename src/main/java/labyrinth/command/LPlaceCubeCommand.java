@@ -5,7 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import cubicchunks.util.CubePos;
+import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import labyrinth.worldgen.DungeonCube;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandException;
@@ -18,8 +18,6 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
 public class LPlaceCubeCommand extends LCubeEditCommandBase {
-	
-	public static String last_placed_dungeon_type = "";
 	
 	public LPlaceCubeCommand(){
 		super();
@@ -58,7 +56,7 @@ public class LPlaceCubeCommand extends LCubeEditCommandBase {
 		}
 		try {
 			int index = 0;
-			InputStream is = new FileInputStream(getFile("cubes",cubeS));
+			InputStream is = new FileInputStream(getFile(server.worlds[0],"cubes",cubeS));
 			DataInputStream dis = new DataInputStream(is);
 			boolean rotateCV = args.length==5 && Boolean.valueOf(args[4]);
 			boolean mirrorX = args.length==4 && Boolean.valueOf(args[1]);
@@ -67,12 +65,12 @@ public class LPlaceCubeCommand extends LCubeEditCommandBase {
 			this.writeStructureToEBS(world, pos, args, index, dis, rotateCV, mirrorX, mirrorY, mirrorZ);
 			dis.close();
 			is.close();
-			is = new FileInputStream(getFile("cubes",cubeS));
+			is = new FileInputStream(getFile(server.worlds[0],"cubes",cubeS));
 			dis = new DataInputStream(is);
 			this.writeStructureToEBS(world, pos, args, index, dis, rotateCV, mirrorX, mirrorY, mirrorZ);
 			dis.close();
 			is.close();
-			last_placed_dungeon_type = cubeS;
+			LCubeEditCommandBase.lastPlacedDungeonType = cubeS;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

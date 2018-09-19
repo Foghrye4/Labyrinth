@@ -6,7 +6,6 @@ import java.util.List;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import labyrinth.entity.EntityEraserFrame;
 import labyrinth.gui.GuiVillageMarket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -33,28 +32,13 @@ public class ClientNetworkHandler extends ServerNetworkHandler {
 		EntityPlayerSP player = mc.player;
 		switch (ClientCommands.values()[byteBufInputStream.readByte()]) {
 			case SHOW_ERASER_FRAME:
-				for (Entity entity : world.loadedEntityList) {
-					if (entity instanceof EntityEraserFrame)
-						entity.setDead();
-				}
 				BlockPos from = byteBufInputStream.readBlockPos();
 				BlockPos to = byteBufInputStream.readBlockPos();
-				Entity entity = new EntityEraserFrame(world);
-				entity.setPosition(to.getX(), to.getY(), to.getZ());
-				int x1 = from.getX();
-				int y1 = from.getY();
-				int z1 = from.getZ();
-				int x2 = to.getX();
-				int y2 = to.getY();
-				int z2 = to.getZ();
-				x1+=x1>x2?1:0;
-				y1+=y1>y2?1:0;
-				z1+=z1>z2?1:0;
-				x2+=x2>x1?1:0;
-				y2+=y2>y1?1:0;
-				z2+=z2>z1?1:0;
-				entity.setEntityBoundingBox(new AxisAlignedBB(x1,y1,z1,x2,y2,z2));
-				world.spawnEntity(entity);
+				ClientProxy.drawBlockHighlightHandler.setNewPos(from, to);
+				ClientProxy.drawBlockHighlightHandler.drawEraserFrame=true;
+				break;
+			case HIDE_ERASER_FRAME:
+				ClientProxy.drawBlockHighlightHandler.drawEraserFrame=false;
 				break;
 			case OPEN_GUI_VILLAGE_MARKET:
 				int windowId = byteBufInputStream.readInt();

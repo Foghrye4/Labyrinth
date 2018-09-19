@@ -5,12 +5,13 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import labyrinth.block.BlockStoneTile;
+import labyrinth.client.ClientEventHandler;
+import labyrinth.client.Icon;
 import labyrinth.client.model.ModelMiniSpider;
-import labyrinth.client.renderer.RenderEntityEraserFrame;
+import labyrinth.client.renderer.DrawBlockHighlightEventHandler;
 import labyrinth.client.renderer.RenderMiniSpider;
 import labyrinth.client.renderer.SpecialRendererRegistry;
 import labyrinth.client.renderer.TileEntityVillageMarketRenderer;
-import labyrinth.entity.EntityEraserFrame;
 import labyrinth.entity.EntityMiniSpiderLeveled;
 import labyrinth.init.LabyrinthBlocks;
 import labyrinth.init.LabyrinthItems;
@@ -20,6 +21,7 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -30,6 +32,9 @@ public class ClientProxy extends ServerProxy {
 	private final ClientNetworkHandler networkHandler = new ClientNetworkHandler();
 	private final TileEntityVillageMarketRenderer vmr = new TileEntityVillageMarketRenderer();
 	private final ModelMiniSpider miniSpider = new ModelMiniSpider();
+	private static final ResourceLocation SPIDER_TEXTURE = new ResourceLocation(LabyrinthMod.MODID, "entity/spider");
+	private static final Icon SPIDER_ICON = SpecialRendererRegistry.registerIcon(SPIDER_TEXTURE);
+	public static final DrawBlockHighlightEventHandler drawBlockHighlightHandler = new DrawBlockHighlightEventHandler();
 	
 	@Override
 	public void registerRenders() {
@@ -38,15 +43,14 @@ public class ClientProxy extends ServerProxy {
 		for(BlockStoneTile.EnumType type:BlockStoneTile.EnumType.values()){
 			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(LabyrinthBlocks.STONE), type.getMetadata(), new ModelResourceLocation(new ResourceLocation(LabyrinthMod.MODID,type.getName()), "inventory"));
 		}
-		Minecraft.getMinecraft().getRenderManager().entityRenderMap.put(EntityEraserFrame.class, new RenderEntityEraserFrame(Minecraft.getMinecraft().getRenderManager()));
-		Minecraft.getMinecraft().getRenderManager().entityRenderMap.put(EntityMiniSpiderLeveled.class, new RenderMiniSpider<EntityMiniSpiderLeveled>(Minecraft.getMinecraft().getRenderManager(), miniSpider));
+		Minecraft.getMinecraft().getRenderManager().entityRenderMap.put(EntityMiniSpiderLeveled.class, new RenderMiniSpider(Minecraft.getMinecraft().getRenderManager(), miniSpider));
 		vmr.setRenders();
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityVillageMarket.class, vmr);
 	}
-	
+
 	@SubscribeEvent
 	public void onModelBake(ModelBakeEvent event) {
-		miniSpider.bake();
+		miniSpider.bake(SPIDER_ICON);
 	}
 
 	@Override
@@ -59,6 +63,8 @@ public class ClientProxy extends ServerProxy {
 		MinecraftForge.EVENT_BUS.register(SpecialRendererRegistry.instance);
 		MinecraftForge.EVENT_BUS.register(vmr);
 		MinecraftForge.EVENT_BUS.register(this);
+		MinecraftForge.EVENT_BUS.register(new ClientEventHandler());
+		MinecraftForge.EVENT_BUS.register(drawBlockHighlightHandler);
 	}
 	
 	@Override

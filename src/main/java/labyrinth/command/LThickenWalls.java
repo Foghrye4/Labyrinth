@@ -82,7 +82,7 @@ public class LThickenWalls extends LCubeEditCommandBase {
 				continue;
 			DataOutputStream osWriter = null;
 			try {
-				osWriter = new DataOutputStream(new FileOutputStream(getFile("cubes", dcube.name)));
+				osWriter = new DataOutputStream(new FileOutputStream(getFile(server.worlds[0],"cubes", dcube.name)));
 				osWriter.write(data);
 				osWriter.close();
 			} catch (IOException e) {

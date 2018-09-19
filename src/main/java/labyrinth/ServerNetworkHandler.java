@@ -33,7 +33,8 @@ public class ServerNetworkHandler {
 	
 	public enum ClientCommands {
 		SHOW_ERASER_FRAME,
-		OPEN_GUI_VILLAGE_MARKET;
+		OPEN_GUI_VILLAGE_MARKET,
+		HIDE_ERASER_FRAME;
 	}
 
 	public ServerNetworkHandler() {
@@ -71,6 +72,14 @@ public class ServerNetworkHandler {
 		byteBufOutputStream.writeBlockPos(to);
 		channel.sendTo(new FMLProxyPacket(byteBufOutputStream, LabyrinthMod.MODID), (EntityPlayerMP) player);
 	}
+	
+	public void hideEraserFrameForPlayer(EntityPlayer player) {
+		ByteBuf bb = Unpooled.buffer(36);
+		PacketBuffer byteBufOutputStream = new PacketBuffer(bb);
+		byteBufOutputStream.writeByte(ClientCommands.HIDE_ERASER_FRAME.ordinal());
+		channel.sendTo(new FMLProxyPacket(byteBufOutputStream, LabyrinthMod.MODID), (EntityPlayerMP) player);
+	}
+
 
 	@SuppressWarnings("rawtypes")
 	public void sendOpenGuiVillageMarket(List vl, EntityPlayer playerIn, World worldIn) {

@@ -3,7 +3,7 @@ package labyrinth.world;
 import java.util.HashSet;
 import java.util.Set;
 
-import cubicchunks.util.CubePos;
+import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import labyrinth.LabyrinthMod;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagIntArray;

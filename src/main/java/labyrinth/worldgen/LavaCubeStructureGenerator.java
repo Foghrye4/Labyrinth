@@ -2,8 +2,8 @@ package labyrinth.worldgen;
 
 import java.util.Random;
 
-import cubicchunks.util.CubePos;
-import cubicchunks.world.ICubicWorld;
+import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
+import net.minecraft.world.World;
 
 public class LavaCubeStructureGenerator extends RegularCubeStructureGenerator {
 
@@ -64,7 +64,7 @@ public class LavaCubeStructureGenerator extends RegularCubeStructureGenerator {
 	}
 	
 	@Override
-	public DungeonCube getDungeonCubeType(CubePos cpos, ICubicWorld world) {
+	public DungeonCube getDungeonCubeType(CubePos cpos, World world) {
 		long hash = 3;
 		hash = 41 * hash + world.getSeed();
 		hash = 41 * hash + cpos.getX();

@@ -6,6 +6,8 @@ import labyrinth.block.BlockVillageMarket;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemModelMesher;
+import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -13,6 +15,8 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemMultiTexture;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LabyrinthBlocks {
 	public static Block STONE;
@@ -22,7 +26,7 @@ public class LabyrinthBlocks {
 		STONE = (new BlockStoneTile()).setHardness(1.5F).setResistance(10.0F).setUnlocalizedName("stone")
 				.setRegistryName(LabyrinthMod.MODID, "stone").setCreativeTab(null);
 		COUNTER = (new BlockVillageMarket(Material.WOOD)).setHardness(0.5F).setResistance(5.0F).setUnlocalizedName("counter")
-				.setRegistryName(LabyrinthMod.MODID, "counter").setCreativeTab(CreativeTabs.DECORATIONS);
+				.setRegistryName(LabyrinthMod.MODID, "counter").setCreativeTab(LabyrinthMod.creativeTab);;
 	}
 
 	public static void register() {
@@ -47,8 +51,11 @@ public class LabyrinthBlocks {
 		registerRender(COUNTER, 0, COUNTER.getRegistryName());
 	}
 
+	@SideOnly(value=Side.CLIENT)
 	private static void registerRender(Block block, int metadata, ResourceLocation modelResourceLocation) {
-		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(Item.getItemFromBlock(block), metadata,
+		RenderItem ritem = Minecraft.getMinecraft().getRenderItem();
+		ItemModelMesher mesher = ritem.getItemModelMesher();
+		mesher.register(Item.getItemFromBlock(block), metadata,
 				new ModelResourceLocation(modelResourceLocation, "inventory"));
 	}
 }

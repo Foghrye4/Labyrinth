@@ -1,5 +1,6 @@
 package labyrinth.client.model;
 
+import labyrinth.client.Icon;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
@@ -16,11 +17,11 @@ public class ObjModelRenderer extends ModelRenderer {
 		super(model);
 	}
 
-	public void bake() {
+	public void bake(final Icon iconIn) {
 		for (ModelBox box : this.cubeList) {
 			if (box instanceof ObjModelBoxExtended) {
 				ObjModelBoxExtended boxe = (ObjModelBoxExtended) box;
-				boxe.bake();
+				boxe.bake(iconIn);
 			}
 		}
 	}

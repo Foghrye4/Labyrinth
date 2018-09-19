@@ -14,7 +14,7 @@ public class LevelUtil {
 	}
 
 	public static double getMovementSpeed(int levelIn) {
-		return 0.2d + (levelIn > 40 ? 40 : levelIn) * 0.015d;
+		return 0.2d + (levelIn > 40 ? 40 : levelIn) * 0.01d;
 	}
 	public static double getAttackDamage(int levelIn) {
 		return 8.0d + levelIn;
@@ -24,7 +24,7 @@ public class LevelUtil {
 	}
 
 	public static int getSlimeSize(int levelIn) {
-		return levelIn > 3 ? 2 : 1;
+		return levelIn > 3 && levelIn <= 24 ? 2 : 1;
 	}
 
 	public static void setMobAttributes(EntityLivingBase entity, int levelIn) {

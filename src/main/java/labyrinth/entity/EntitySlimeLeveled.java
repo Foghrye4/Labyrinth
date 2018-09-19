@@ -1,14 +1,18 @@
 package labyrinth.entity;
 
+import javax.annotation.Nullable;
+
 import labyrinth.LabyrinthMod;
 import labyrinth.pathfinding.PathNavigateGroundFixed;
 import labyrinth.util.LevelUtil;
+import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
 
 public class EntitySlimeLeveled extends EntitySlime implements IMobLeveled, ISlime {
@@ -32,6 +36,12 @@ public class EntitySlimeLeveled extends EntitySlime implements IMobLeveled, ISli
 		this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(2*LevelUtil.getMovementSpeed(levelIn));
 		this.getEntityAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(LevelUtil.getArmor(levelIn));
 		this.setHealth(this.getMaxHealth());
+	}
+	
+	public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata) {
+		IEntityLivingData toReturn = super.onInitialSpawn(difficulty, livingdata);
+		this.setSlimeSize(LevelUtil.getSlimeSize(level));
+		return toReturn;
 	}
 
 	protected int getAttackStrength() {

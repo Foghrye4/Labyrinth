@@ -1,10 +1,10 @@
 package labyrinth.worldgen;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Random;
 
-import cubicchunks.util.CubePos;
-import cubicchunks.world.ICubicWorld;
-import cubicchunks.world.cube.Cube;
+import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
+import io.github.opencubicchunks.cubicchunks.api.world.ICube;
 import labyrinth.entity.IMobLeveled;
 import labyrinth.entity.ISlime;
 import labyrinth.init.LabyrinthEntities;
@@ -12,6 +12,7 @@ import labyrinth.util.LevelUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
@@ -19,6 +20,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.NibbleArray;
@@ -83,7 +86,7 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 	}
 
 	@Override
-	public DungeonCube getDungeonCubeType(CubePos cpos, ICubicWorld world) {
+	public DungeonCube getDungeonCubeType(CubePos cpos, World world) {
 		long hash = 3;
 		hash = 41 * hash + world.getSeed();
 		hash = 41 * hash + cpos.getX();
@@ -402,50 +405,55 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 	}
 	
 	@Override
-	public void spawnMobs(int level, ICubicWorld world, CubePos pos, ExtendedBlockStorage data) {
-		random.setSeed(pos.hashCode()^world.getSeed());
-		if(random.nextInt(getMobSpawnRarity())!=0)
+	public void spawnMobs(int level, World world, CubePos pos, ExtendedBlockStorage data) {
+		random.setSeed(pos.hashCode() ^ world.getSeed());
+		if (random.nextInt(getMobSpawnRarity()) != 0)
 			return;
+		if(((World)world).getDifficulty() == EnumDifficulty.PEACEFUL)
+			return;
+		DifficultyInstance difficulty = world.getDifficultyForLocation(pos.getCenterBlockPos());
 		LevelFeaturesStorage storage = generator.storage;
-		ResourceLocation[] regularLoot = generator.regularLoot;
+		IEntityLivingData livingdata = null;
 		int mobRandom = level < storage.levelToMob.length ? level : random.nextInt() & (storage.levelToMob.length - 1);
 		Class<? extends EntityLiving>[] mobs = storage.levelToMob[mobRandom];
-		EntityLiving mobEntity;
 		int dy = getSpawnHeight();
 		for (int dx = random.nextInt(8); dx < 15; dx += random.nextInt(8) + 2)
 			for (int dz = random.nextInt(8); dz < 15; dz += random.nextInt(8) + 2)
 				try {
-					Class<? extends EntityLiving> mob = mobs[this.random.nextInt(2)];
-					if (!data.get(dx, dy, dz).isFullBlock() || data.get(dx, dy+1, dz).getMaterial() != Material.AIR || data.get(dx, dy+2, dz).getMaterial() != Material.AIR)
-						continue;
-					mobEntity = mob.getDeclaredConstructor(World.class).newInstance(world);
-					mobEntity.setLocationAndAngles(pos.getMinBlockX() + dx + 0.5, pos.getMinBlockY() + dy + 1,
-							pos.getMinBlockZ() + dz + 0.5, random.nextFloat() * 360.0F, 0.0F);
-					if (mob == LabyrinthEntities.STRAY || mob == LabyrinthEntities.SKELETON)
-						mobEntity.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.BOW));
-					else if (mob == LabyrinthEntities.SLIME || mob == LabyrinthEntities.MAGMA_CUBE)
-						((ISlime) mobEntity).setSlimeSize(LevelUtil.getSlimeSize(level));
-					else if (mob == LabyrinthEntities.VINDICATOR)
-						mobEntity.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.IRON_AXE));
-					((IMobLeveled) mobEntity).setLevel(level);
-					((IMobLeveled) mobEntity).setLootTable(regularLoot[level >= regularLoot.length ? regularLoot.length - 1 : level]);
-					if(mobEntity.isNotColliding())
-						world.spawnEntity(mobEntity);
-					else
-						mobEntity.setDead();
-						
+					this.spawnMobIfPossible(world, pos, mobs, dx, dy, dz, data, difficulty, livingdata, level);
 				} catch (Throwable e) {
 					e.printStackTrace();
 				}
 	}
+	
+	protected void spawnMobIfPossible(World world, CubePos pos, Class<? extends EntityLiving>[] mobs, int dx,int dy, int dz, ExtendedBlockStorage data,
+			DifficultyInstance difficulty, IEntityLivingData livingdata, int level) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException{
+		ResourceLocation[] regularLoot = generator.regularLoot;
+		Class<? extends EntityLiving> mob = mobs[this.random.nextInt(2)];
+		if (!data.get(dx, dy, dz).isFullBlock() || data.get(dx, dy+1, dz).getMaterial() != Material.AIR || data.get(dx, dy+2, dz).getMaterial() != Material.AIR)
+			return;
+		EntityLiving mobEntity = mob.getDeclaredConstructor(World.class).newInstance(world);
+		mobEntity.setLocationAndAngles(pos.getMinBlockX() + dx + 0.5, pos.getMinBlockY() + dy + 1,
+				pos.getMinBlockZ() + dz + 0.5, random.nextFloat() * 360.0F, 0.0F);
+		if (mobEntity.isNotColliding()) {
+			((IMobLeveled) mobEntity).setLevel(level);
+			livingdata = mobEntity.onInitialSpawn(difficulty, livingdata);
+			((IMobLeveled) mobEntity).setLootTable(regularLoot[level >= regularLoot.length ? regularLoot.length - 1 : level]);
+			world.spawnEntity(mobEntity);
+		} else {
+			mobEntity.setDead();
+		}
+	}
 
 	@Override
-	public void placeCube(int level, Cube cube, ExtendedBlockStorage cstorage, CubePos pos, ICubicWorld world, byte[] data, IBlockState[] bl, DungeonCube is) {
+	public void placeCube(int level, ICube cube, ExtendedBlockStorage cstorage, CubePos pos, World world, byte[] data, IBlockState[] bl, DungeonCube is) {
 		for (int index = 0; index < data.length; index++) {
 			int dx = index >>> 8;
 			int dy = (index >>> 4) & 15;
 			int dz = index & 15;
 			int bstate = Byte.toUnsignedInt(data[index]);
+			if (bstate == 255)
+				continue;
 			BlockPos bpos = new BlockPos(pos.getMinBlockX() + dx, pos.getMinBlockY() + dy, pos.getMinBlockZ() + dz);
 			cstorage.set(dx, dy, dz, bl[bstate]);
 			cube.getColumn().getOpacityIndex().onOpacityChange(dx, pos.getMinBlockY() + dy, dz, bl[bstate].getLightOpacity((IBlockAccess) world, bpos));

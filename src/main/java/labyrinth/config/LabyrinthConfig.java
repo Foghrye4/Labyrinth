@@ -44,7 +44,7 @@ public class LabyrinthConfig {
         		"Biome height base upper bound under which dungeons will be generated. "
         		+ "A few examples: Ocean biome: -1.0, Deep ocean biome: -1.8,"
         		+" Plains: 0.125, Forest hills: 0.45, Savanna Plateau: 1.5"),
-        DUNGEON_BIOME_HEIGHT_LOWER_BOUND(-2.0f, 2.0f, -1.1f,
+        DUNGEON_BIOME_HEIGHT_LOWER_BOUND(-2.0f, 2.0f, -2.1f,
         		"Biome height base lower bound above which dungeons will be generated. "
         		+ "A few examples: Ocean biome: -1.0, Deep ocean biome: -1.8,"
         		+" Plains: 0.125, Forest hills: 0.45, Savanna Plateau: 1.5");

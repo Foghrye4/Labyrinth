@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 
 import com.google.common.base.Predicate;
 
-import cubicchunks.world.ICubicWorld;
+import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorld;
 import labyrinth.LabyrinthMod;
 import labyrinth.pathfinding.PathNavigateGroundFixed;
 import labyrinth.util.LevelUtil;
@@ -55,7 +55,7 @@ public class EntityCreeperLeveled extends EntityCreeper implements IMobLeveled {
 				!this.world.isRemote && 
 				this.getHealth() > 0.0F && 
 				this.getCreeperState() > 0 && 
-				((ICubicWorld)world).isAreaLoaded(new BlockPos(this.getPosition().add(-16, -16, -16)), new BlockPos(this.getPosition().add(16, 16, 16)))) {
+				world.isAreaLoaded(new BlockPos(this.getPosition().add(-16, -16, -16)), new BlockPos(this.getPosition().add(16, 16, 16)))) {
 			double es = LevelUtil.getExplosionStrength(level);
 			List<Entity> elist = this.world.getEntitiesInAABBexcluding(this,
 					this.getEntityBoundingBox().expand(es,es,es), EXPLOSION_TARGETS);

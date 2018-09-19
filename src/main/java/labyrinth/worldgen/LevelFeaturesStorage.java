@@ -1,11 +1,14 @@
 package labyrinth.worldgen;
 
+import java.util.List;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Random;
 
 import com.google.common.base.Optional;
@@ -27,6 +30,7 @@ import net.minecraft.block.BlockColored;
 import net.minecraft.block.BlockCrops;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.BlockFarmland;
+import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockFlowerPot;
 import net.minecraft.block.BlockFlowerPot.EnumFlowerType;
 import net.minecraft.block.BlockFurnace;
@@ -38,16 +42,14 @@ import net.minecraft.block.BlockLog;
 import net.minecraft.block.BlockLog.EnumAxis;
 import net.minecraft.block.BlockNewLeaf;
 import net.minecraft.block.BlockOldLeaf;
+import net.minecraft.block.BlockPane;
 import net.minecraft.block.BlockPistonBase;
 import net.minecraft.block.BlockPistonExtension;
 import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.BlockPlanks.EnumType;
-import net.minecraft.block.BlockPrismarine;
 import net.minecraft.block.BlockQuartz;
-import net.minecraft.block.BlockRedSandstone;
 import net.minecraft.block.BlockRedstoneRepeater;
 import net.minecraft.block.BlockRedstoneWire;
-import net.minecraft.block.BlockSandStone;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.block.BlockStainedGlassPane;
 import net.minecraft.block.BlockStairs;
@@ -55,10 +57,10 @@ import net.minecraft.block.BlockStairs.EnumHalf;
 import net.minecraft.block.BlockStairs.EnumShape;
 import net.minecraft.block.BlockStem;
 import net.minecraft.block.BlockStone;
-import net.minecraft.block.BlockStoneBrick;
 import net.minecraft.block.BlockTorch;
 import net.minecraft.block.BlockTripWire;
 import net.minecraft.block.BlockTripWireHook;
+import net.minecraft.block.BlockWall;
 import net.minecraft.block.BlockWoodSlab;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
@@ -71,132 +73,10 @@ public class LevelFeaturesStorage {
 	public IBlockState[][] blockstateList = new IBlockState[128][256];
 
 	private final Random random = new Random();
-	private final IBlockState[] WALL_CANDIDATES = new IBlockState[] {
-			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.ANDESITE),
-			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT,
-					BlockStone.EnumType.ANDESITE_SMOOTH),
-			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE),
-			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT,
-					BlockStone.EnumType.GRANITE_SMOOTH),
-			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE),
-			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT,
-					BlockStone.EnumType.DIORITE_SMOOTH),
-			Blocks.QUARTZ_BLOCK.getDefaultState(),
-			Blocks.QUARTZ_BLOCK.getDefaultState().withProperty(BlockQuartz.VARIANT, BlockQuartz.EnumType.CHISELED),
-			Blocks.QUARTZ_BLOCK.getDefaultState().withProperty(BlockQuartz.VARIANT, BlockQuartz.EnumType.LINES_X),
-			Blocks.QUARTZ_BLOCK.getDefaultState().withProperty(BlockQuartz.VARIANT, BlockQuartz.EnumType.LINES_Y),
-			Blocks.QUARTZ_BLOCK.getDefaultState().withProperty(BlockQuartz.VARIANT, BlockQuartz.EnumType.LINES_Z),
-			Blocks.COBBLESTONE.getDefaultState(), Blocks.SANDSTONE.getDefaultState(),
-			Blocks.SANDSTONE.getDefaultState().withProperty(BlockSandStone.TYPE, BlockSandStone.EnumType.CHISELED),
-			Blocks.SANDSTONE.getDefaultState().withProperty(BlockSandStone.TYPE, BlockSandStone.EnumType.SMOOTH),
-			Blocks.BRICK_BLOCK.getDefaultState(), Blocks.MOSSY_COBBLESTONE.getDefaultState(),
-			Blocks.OBSIDIAN.getDefaultState(), Blocks.SOUL_SAND.getDefaultState(), Blocks.NETHERRACK.getDefaultState(),
-			Blocks.STONEBRICK.getDefaultState(),
-			Blocks.STONEBRICK.getDefaultState().withProperty(BlockStoneBrick.VARIANT,
-					BlockStoneBrick.EnumType.CHISELED),
-			Blocks.STONEBRICK.getDefaultState().withProperty(BlockStoneBrick.VARIANT, BlockStoneBrick.EnumType.CRACKED),
-			Blocks.STONEBRICK.getDefaultState().withProperty(BlockStoneBrick.VARIANT, BlockStoneBrick.EnumType.MOSSY),
-			Blocks.NETHER_BRICK.getDefaultState(),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.BLACK),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.BLUE),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.BROWN),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.CYAN),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.GRAY),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.GREEN),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.LIME),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.ORANGE),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.PINK),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.RED),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.WHITE),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.YELLOW),
-			Blocks.PRISMARINE.getDefaultState().withProperty(BlockPrismarine.VARIANT, BlockPrismarine.EnumType.BRICKS),
-			Blocks.PRISMARINE.getDefaultState().withProperty(BlockPrismarine.VARIANT, BlockPrismarine.EnumType.DARK),
-			Blocks.COAL_BLOCK.getDefaultState(), Blocks.RED_SANDSTONE.getDefaultState(),
-			Blocks.RED_SANDSTONE.getDefaultState().withProperty(BlockRedSandstone.TYPE,
-					BlockRedSandstone.EnumType.CHISELED),
-			Blocks.RED_SANDSTONE.getDefaultState().withProperty(BlockRedSandstone.TYPE,
-					BlockRedSandstone.EnumType.SMOOTH),
-			Blocks.END_BRICKS.getDefaultState(), Blocks.NETHER_WART_BLOCK.getDefaultState(),
-			Blocks.RED_NETHER_BRICK.getDefaultState(), Blocks.BONE_BLOCK.getDefaultState(), };
-
-	private final IBlockState[] FLOOR_CANDIDATES = new IBlockState[] { LabyrinthBlocks.STONE.getDefaultState(),
-			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.ANDESITE),
-			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT,
-					BlockStone.EnumType.ANDESITE_SMOOTH),
-			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.GRANITE),
-			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT,
-					BlockStone.EnumType.GRANITE_SMOOTH),
-			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.DIORITE),
-			LabyrinthBlocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT,
-					BlockStone.EnumType.DIORITE_SMOOTH),
-			Blocks.IRON_BLOCK.getDefaultState(),
-			Blocks.GOLD_BLOCK.getDefaultState(),
-			Blocks.QUARTZ_BLOCK.getDefaultState(),
-			Blocks.QUARTZ_BLOCK.getDefaultState().withProperty(BlockQuartz.VARIANT, BlockQuartz.EnumType.CHISELED),
-			Blocks.QUARTZ_BLOCK.getDefaultState().withProperty(BlockQuartz.VARIANT, BlockQuartz.EnumType.LINES_X),
-			Blocks.QUARTZ_BLOCK.getDefaultState().withProperty(BlockQuartz.VARIANT, BlockQuartz.EnumType.LINES_Y),
-			Blocks.QUARTZ_BLOCK.getDefaultState().withProperty(BlockQuartz.VARIANT, BlockQuartz.EnumType.LINES_Z),
-			Blocks.SANDSTONE.getDefaultState().withProperty(BlockSandStone.TYPE, BlockSandStone.EnumType.CHISELED),
-			Blocks.OBSIDIAN.getDefaultState(), Blocks.SOUL_SAND.getDefaultState(), Blocks.NETHERRACK.getDefaultState(),
-			Blocks.STONEBRICK.getDefaultState(),
-			Blocks.STONEBRICK.getDefaultState().withProperty(BlockStoneBrick.VARIANT,
-					BlockStoneBrick.EnumType.CHISELED),
-			Blocks.STONEBRICK.getDefaultState().withProperty(BlockStoneBrick.VARIANT, BlockStoneBrick.EnumType.CRACKED),
-			Blocks.STONEBRICK.getDefaultState().withProperty(BlockStoneBrick.VARIANT, BlockStoneBrick.EnumType.MOSSY),
-			Blocks.NETHER_BRICK.getDefaultState(),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.BLUE),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.CYAN),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.GRAY),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.ORANGE),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.RED),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER),
-			Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.WHITE),
-			Blocks.PRISMARINE.getDefaultState(),
-			Blocks.PRISMARINE.getDefaultState().withProperty(BlockPrismarine.VARIANT, BlockPrismarine.EnumType.BRICKS),
-			Blocks.PRISMARINE.getDefaultState().withProperty(BlockPrismarine.VARIANT, BlockPrismarine.EnumType.DARK),
-			Blocks.COAL_BLOCK.getDefaultState(), Blocks.RED_SANDSTONE.getDefaultState(),
-			Blocks.RED_SANDSTONE.getDefaultState().withProperty(BlockRedSandstone.TYPE,
-					BlockRedSandstone.EnumType.CHISELED),
-			Blocks.RED_SANDSTONE.getDefaultState().withProperty(BlockRedSandstone.TYPE,
-					BlockRedSandstone.EnumType.SMOOTH),
-			Blocks.END_BRICKS.getDefaultState(), Blocks.NETHER_WART_BLOCK.getDefaultState(),
-			Blocks.RED_NETHER_BRICK.getDefaultState(), Blocks.BONE_BLOCK.getDefaultState(), };
-
-	private final IBlockState[] STAIR_CANDIDATES = new IBlockState[] {
-			Blocks.QUARTZ_STAIRS.getBlockState().getBaseState().withProperty(BlockStairs.SHAPE, EnumShape.STRAIGHT),
-			Blocks.STONE_STAIRS.getBlockState().getBaseState().withProperty(BlockStairs.SHAPE, EnumShape.STRAIGHT),
-			Blocks.STONE_BRICK_STAIRS.getBlockState().getBaseState().withProperty(BlockStairs.SHAPE,
-					EnumShape.STRAIGHT),
-			Blocks.NETHER_BRICK_STAIRS.getBlockState().getBaseState().withProperty(BlockStairs.SHAPE,
-					EnumShape.STRAIGHT),
-			Blocks.SANDSTONE_STAIRS.getBlockState().getBaseState().withProperty(BlockStairs.SHAPE, EnumShape.STRAIGHT),
-			Blocks.RED_SANDSTONE_STAIRS.getBlockState().getBaseState().withProperty(BlockStairs.SHAPE,
-					EnumShape.STRAIGHT), };
-	private final IBlockState[] WINDOW_CANDIDATES = new IBlockState[] { 
-			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.RED),
-			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.BLACK),
-			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.BLUE),
-			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.BROWN),
-			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.CYAN),
-			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.GRAY),
-			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.GREEN),
-			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.LIME),
-			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.LIGHT_BLUE),
-			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.MAGENTA),
-			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.ORANGE),
-			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.PINK),
-			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.PURPLE),
-			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.SILVER),
-			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.WHITE),
-			Blocks.STAINED_GLASS_PANE.getDefaultState().withProperty(BlockStainedGlassPane.COLOR, EnumDyeColor.YELLOW),
-			Blocks.NETHER_BRICK_FENCE.getDefaultState(), 
-			Blocks.IRON_BARS.getDefaultState()
-			};
-	private final IBlockState[] FENCE_CANDIDATES = new IBlockState[] { Blocks.OAK_FENCE.getDefaultState(),
-			Blocks.NETHER_BRICK_FENCE.getDefaultState(), Blocks.DARK_OAK_FENCE.getDefaultState(),
-			Blocks.ACACIA_FENCE.getDefaultState(), Blocks.BIRCH_FENCE.getDefaultState(),
-			Blocks.COBBLESTONE_WALL.getDefaultState() };
+	private final List<IBlockState> WALL_CANDIDATES = new ArrayList<IBlockState>();
+	private final List<IBlockState> STAIR_CANDIDATES = new ArrayList<IBlockState>();
+	private final List<IBlockState> WINDOW_CANDIDATES = new ArrayList<IBlockState>();
+	private final List<IBlockState> FENCE_CANDIDATES = new ArrayList<IBlockState>();
 
 	@SuppressWarnings("unchecked")
 	private final Class<? extends EntityLiving>[] MOB_CANDIDATES_FIRST = new Class[] { LabyrinthEntities.ZOMBIE,
@@ -208,21 +88,58 @@ public class LevelFeaturesStorage {
 	private final Class<? extends EntityLiving>[] MOB_CANDIDATES_SECOND = new Class[] { LabyrinthEntities.BLAZE,
 			LabyrinthEntities.SKELETON, LabyrinthEntities.STRAY, LabyrinthEntities.VINDICATOR,
 			LabyrinthEntities.VEX };
+	
+	@SuppressWarnings("unchecked")
+	private final Class<? extends EntityLiving>[] MOB_CANDIDATES_CLAUSTROPHOBIC = new Class[] { 
+			LabyrinthEntities.ZOMBIE, LabyrinthEntities.MINI_SPIDER,
+			LabyrinthEntities.CREEPER, LabyrinthEntities.ENDERMITE, 
+			LabyrinthEntities.MAGMA_CUBE, LabyrinthEntities.PIG_ZOMBIE,
+			LabyrinthEntities.SLIME, LabyrinthEntities.WITHER_SKELETON, 
+			LabyrinthEntities.BLAZE, LabyrinthEntities.SKELETON, LabyrinthEntities.STRAY,
+			LabyrinthEntities.VINDICATOR};
+
+	
 	@SuppressWarnings("unchecked")
 	final Class<? extends EntityLiving>[][] levelToMob = new Class[128][2];
 
 	public long lastSeed = 0;
 	
-	public LevelFeaturesStorage(){
-		this.generateRandom(0);
+	@SuppressWarnings("deprecation")
+	public void defineCandidates(){
+		Block.BLOCK_STATE_IDS.forEach(blockstate -> {
+			if(blockstate.getBlock().hasTileEntity(blockstate))
+				return;
+			if(blockstate.isFullBlock() && 
+					blockstate.isOpaqueCube() && 
+					blockstate.getMaterial().blocksMovement()){
+				WALL_CANDIDATES.add(blockstate);
+			}
+			Collection<IProperty<?>> properties = blockstate.getPropertyKeys();
+			if(properties.contains(BlockStairs.FACING) && 
+					properties.contains(BlockStairs.HALF) &&
+					properties.contains(BlockStairs.SHAPE)){
+				STAIR_CANDIDATES.add(blockstate);
+			}
+			if(blockstate.getBlock() instanceof BlockPane){
+				WINDOW_CANDIDATES.add(blockstate);
+			}
+			if(blockstate.getBlock() instanceof BlockFence || blockstate.getBlock() instanceof BlockWall){
+				FENCE_CANDIDATES.add(blockstate);
+			}
+		});
 	}
 	
 	public void generateRandom(long seed) {
 		this.lastSeed  = seed;
 		random.setSeed(seed);
-		for (Class<? extends EntityLiving>[] levelMobs : levelToMob) {
-			levelMobs[0] = MOB_CANDIDATES_FIRST[random.nextInt(MOB_CANDIDATES_FIRST.length)];
-			levelMobs[1] = MOB_CANDIDATES_SECOND[random.nextInt(MOB_CANDIDATES_SECOND.length)];
+		for (int i = 0; i < levelToMob.length; i++) {
+			if (i > 24) {
+				levelToMob[i][0] = MOB_CANDIDATES_CLAUSTROPHOBIC[random.nextInt(MOB_CANDIDATES_FIRST.length)];
+				levelToMob[i][1] = MOB_CANDIDATES_CLAUSTROPHOBIC[random.nextInt(MOB_CANDIDATES_SECOND.length)];
+			} else {
+				levelToMob[i][0] = MOB_CANDIDATES_FIRST[random.nextInt(MOB_CANDIDATES_FIRST.length)];
+				levelToMob[i][1] = MOB_CANDIDATES_SECOND[random.nextInt(MOB_CANDIDATES_SECOND.length)];
+			}
 		}
 		levelToMob[0][0] = LabyrinthEntities.ZOMBIE;
 		levelToMob[0][1] = LabyrinthEntities.ZOMBIE;
@@ -578,7 +495,7 @@ public class LevelFeaturesStorage {
 				.withProperty(BlockPistonBase.EXTENDED, Boolean.valueOf(false))
 				.withProperty(BlockPistonBase.FACING, EnumFacing.EAST);
 		blockstateList[0][200] = Blocks.STONE_PRESSURE_PLATE.getDefaultState();
-		blockstateList[0][255] = Blocks.AIR.getDefaultState();
+		blockstateList[0][255] = Blocks.STONE.getDefaultState();
 
 		for (int i = 1; i < blockstateList.length; i++)
 			blockstateList[i] = Arrays.copyOf(blockstateList[0], 256);
@@ -640,11 +557,11 @@ public class LevelFeaturesStorage {
 		addStairs(blockstateList[7], stair);
 
 		for (int i = 0; i < blockstateList.length; i = i == 0 ? 8 : ++i) {
-			blockstateList[i][1] = WALL_CANDIDATES[random.nextInt(WALL_CANDIDATES.length)];
-			blockstateList[i][2] = FLOOR_CANDIDATES[random.nextInt(FLOOR_CANDIDATES.length)];
-			blockstateList[i][18] = WINDOW_CANDIDATES[random.nextInt(WINDOW_CANDIDATES.length)];
-			blockstateList[i][120] = FENCE_CANDIDATES[random.nextInt(FENCE_CANDIDATES.length)];
-			stair = STAIR_CANDIDATES[random.nextInt(STAIR_CANDIDATES.length)];
+			blockstateList[i][1] = WALL_CANDIDATES.get(random.nextInt(WALL_CANDIDATES.size()));
+			blockstateList[i][2] = WALL_CANDIDATES.get(random.nextInt(WALL_CANDIDATES.size()));
+			blockstateList[i][18] = WINDOW_CANDIDATES.get(random.nextInt(WINDOW_CANDIDATES.size()));
+			blockstateList[i][120] = FENCE_CANDIDATES.get(random.nextInt(FENCE_CANDIDATES.size()));
+			stair = STAIR_CANDIDATES.get(random.nextInt(STAIR_CANDIDATES.size()));
 			addStairs(blockstateList[i], stair);
 		}
 		

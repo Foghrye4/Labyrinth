@@ -55,4 +55,8 @@ public class Icon {
 	public int getIconWidth() {
 		return sprite.getIconWidth();
 	}
+	
+	public TextureAtlasSprite getTextureAtlasSprite() {
+		return sprite;
+	}
 }
