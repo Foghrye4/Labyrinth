@@ -23,7 +23,7 @@ apply plugin: "java"
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
 
-version = "0.3.0"
+version = "0.3.1"
 group = "labyrinth" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "labyrinth"
 
@@ -51,11 +51,7 @@ repositories {
 }
 
 dependencies {
-//	compile "io.github.opencubicchunks:regionlib:0.44.0-SNAPSHOT"
     deobfCompile "io.github.opencubicchunks:cubicchunks-api:1.12.2-0.0-SNAPSHOT"
-//    compile "org.spongepowered:mixin:0.7.10-SNAPSHOT"
-//	compile files('lib/CubicChunks-1.12.2-0.0.824.0-SNAPSHOT-dev.jar')
-//	compile project(':CubicChunks')
 }
 
 processResources {

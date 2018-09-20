@@ -686,13 +686,17 @@ public class LevelFeaturesStorage {
 					int index_space = reader.nextInt();
 					String blockRegistryName = reader.nextName();
 			        Block block = Block.getBlockFromName(blockRegistryName);
-			        IBlockState blockState = block.getBlockState().getBaseState();
-					reader.beginObject();
-					while (reader.hasNext()) {
-			            IProperty property = block.getBlockState().getProperty(reader.nextName());
-			            blockState = blockState.withProperty(property, findPropertyValueByName(property, reader.nextString()));
-			        }
-					this.blockstateList[level][index_space]=blockState;
+					if (block == null) {
+						this.blockstateList[level][index_space] = WALL_CANDIDATES.get(random.nextInt(WALL_CANDIDATES.size()));
+					} else {
+						IBlockState blockState = block.getBlockState().getBaseState();
+						reader.beginObject();
+						while (reader.hasNext()) {
+							IProperty property = block.getBlockState().getProperty(reader.nextName());
+							blockState = blockState.withProperty(property, findPropertyValueByName(property, reader.nextString()));
+						}
+						this.blockstateList[level][index_space] = blockState;
+					}
 					reader.endObject();
 					reader.endObject();
 				}
