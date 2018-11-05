@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
@@ -19,6 +20,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.network.NetworkCheckHandler;
+import net.minecraftforge.fml.relauncher.Side;
 
 @Mod(modid = LabyrinthMod.MODID, name = LabyrinthMod.NAME, version = LabyrinthMod.VERSION, dependencies = "required-after:cubicchunks")
 public class LabyrinthMod {
@@ -65,4 +68,10 @@ public class LabyrinthMod {
 		resourceFile.createNewFile();
 		return new FileOutputStream(resourceFile);
 	}	
+	
+
+	@NetworkCheckHandler
+	public boolean checkModLists(Map<String, String> modList, Side sideIn) {
+		return true;
+	}
 }
