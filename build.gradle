@@ -13,7 +13,7 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.5-SNAPSHOT'
     }
 }
 
@@ -23,7 +23,7 @@ apply plugin: "java"
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
 
-version = "0.3.1"
+version = "0.4.0"
 group = "labyrinth" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "labyrinth"
 
@@ -51,7 +51,7 @@ repositories {
 }
 
 dependencies {
-    deobfCompile "io.github.opencubicchunks:cubicchunks-api:1.12.2-0.0-SNAPSHOT"
+    deobfCompile "io.github.opencubicchunks:cubicchunks:1.12.2-0.0-SNAPSHOT"
 }
 
 processResources {

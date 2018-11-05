@@ -1,19 +1,20 @@
 package labyrinth.worldgen;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashSet;
-import java.util.Set;
 
-import javax.annotation.Nullable;
-
+import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
+import io.github.opencubicchunks.cubicchunks.api.world.ICube;
 import labyrinth.LabyrinthMod;
+import net.minecraft.block.BlockChest;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.PooledMutableBlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.NibbleArray;
+import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 public enum DungeonCube {
 		COLUMN_CEIL("column_ceil.cube_structure", DungeonCubeFlag.COLUMN_TOP), 
@@ -199,8 +200,8 @@ public enum DungeonCube {
 		VILLAGE_MARKET_EAST("village_market_east.cube_structure", DungeonCubeFlag.MARKET),
 		
 		//Tunnel
-		TUNNEL_PROP_EAST_WEST("tunnel_prop_east_west.cube_structure"),
-		TUNNEL_PROP_SOUTH_NORTH("tunnel_prop_south_north.cube_structure"),
+		TUNNEL_EAST_WEST("tunnel_east_west.cube_structure"),
+		TUNNEL_SOUTH_NORTH("tunnel_south_north.cube_structure"),
 		
 		NOTHING(""),
 		UNDEFINED("");
@@ -275,64 +276,52 @@ public enum DungeonCube {
 			}
 		}
 
-	public void load(@Nullable World world) throws IOException {
-		InputStream stream = null;
-		if (world != null && world.getSaveHandler().getWorldDirectory() != null) {
-			File file = new File(world.getSaveHandler().getWorldDirectory(), "cubes/" + name);
-			if (file.exists()) {
-				stream = new FileInputStream(file);
-			}
-		}
-		if (stream == null)
-			stream = LabyrinthMod.proxy.getResourceInputStream(new ResourceLocation("labyrinth", "cubes/" + name));
+	public void load(World world) throws IOException {
+		InputStream stream  = LabyrinthMod.getResourceInputStream(world, new ResourceLocation("labyrinth", "cubes/" + name));
 		stream.read(data);
 		stream.close();
 	}
+	
+	public void placeCube(ICube cube, World world, DungeonLayer layer) {
+		placeCube(cube, data, layer.mapping, world, this.isLibrary ? layer.libraryLootTable : layer.regularLootTable, false);
+	}
 		
-		void precalculateLight() {
-			NibbleArray lightNibbleArray = new NibbleArray(lightData);
-			Set<BlockPos> pointsOfInterest = new HashSet<BlockPos>();
-			for(int index=0;index<data.length;index++) {
-				if((Byte.toUnsignedInt(data[index])>=153 && Byte.toUnsignedInt(data[index])<=157) ||Byte.toUnsignedInt(data[index])==16 ||Byte.toUnsignedInt(data[index])==180){
-					int dx = index >>> 8;
-					int dy = (index >>> 4) & 15;
-					int dz = index & 15;
-					pointsOfInterest.add(new BlockPos(dx,dy,dz));
-				}
-			}
-			for(BlockPos lightPos:pointsOfInterest){
-				setLight(lightPos, lightNibbleArray, 14);
+	public static void placeCube(ICube cube, byte[] data, IBlockState[] mapping,  World world, String lootTable, boolean use255) {
+		CubePos pos = cube.getCoords();
+		ExtendedBlockStorage cstorage = cube.getStorage();
+		if (cstorage == null) {
+			cube.setBlockState(pos.getCenterBlockPos(), Blocks.AIR.getDefaultState());
+			cstorage = cube.getStorage();
+		}
+		PooledMutableBlockPos bpos = PooledMutableBlockPos.retain();
+		for (int index = 0; index < data.length; index++) {
+			int dx = index >>> 8;
+			int dy = (index >>> 4) & 15;
+			int dz = index & 15;
+			int bstate = Byte.toUnsignedInt(data[index]);
+			if (!use255 && bstate == 255)
+				continue;
+			bpos.setPos(pos.getMinBlockX() + dx, pos.getMinBlockY() + dy, pos.getMinBlockZ() + dz);
+			IBlockState oldState = cstorage.get(dx, dy, dz);
+			IBlockState newState = mapping[bstate];
+			cstorage.set(dx, dy, dz, newState);
+			if(oldState.getLightValue(world, bpos)!= newState.getLightValue(world, bpos))
+				world.checkLight(bpos);
+			int newOpacity = newState.getLightOpacity(world, bpos);
+			if(oldState.getLightOpacity(world, bpos)!=newOpacity)
+				cube.getColumn().getOpacityIndex().onOpacityChange(dx, pos.getMinBlockY() + dy, dz, newOpacity);
+			if (newState.getBlock() instanceof BlockChest) {
+				TileEntityChest chest = new TileEntityChest();
+				NBTTagCompound compound = new NBTTagCompound();
+				compound.setString("LootTable", lootTable);
+				chest.readFromNBT(compound);
+				chest.markDirty();
+				chest.setPos(bpos);
+				world.setTileEntity(bpos, chest);
 			}
 		}
-
-		private void setLight(BlockPos lightPos, NibbleArray lightNibbleArray, int lightValue) {
-			int index = lightPos.getX()<<8|lightPos.getY()<<4|lightPos.getZ();
-			if(index<0 || 
-					index>=4096 || 
-					lightValue<=0 ||
-					lightPos.getX() < 0 ||
-					lightPos.getY() < 0 ||
-					lightPos.getZ() < 0 ||
-					lightPos.getX() > 15 ||
-					lightPos.getY() > 15 ||
-					lightPos.getZ() > 15){
-				return;
-			}
-			int blockStateNum = Byte.toUnsignedInt(data[index]);
-			if((blockStateNum>=1 && blockStateNum<=11) || (blockStateNum>=19 && blockStateNum<=54)){
-				return;
-			}
-			if(lightNibbleArray.get(lightPos.getX(), lightPos.getY(), lightPos.getZ()) < lightValue){
-				lightNibbleArray.set(lightPos.getX(), lightPos.getY(), lightPos.getZ(),lightValue);
-				setLight(lightPos.up(), lightNibbleArray, lightValue-1);
-				setLight(lightPos.down(), lightNibbleArray, lightValue-1);
-				setLight(lightPos.north(), lightNibbleArray, lightValue-1);
-				setLight(lightPos.south(), lightNibbleArray, lightValue-1);
-				setLight(lightPos.west(), lightNibbleArray, lightValue-1);
-				setLight(lightPos.east(), lightNibbleArray, lightValue-1);
-			}
-		}
-
+	}
+		
 		public enum DungeonCubeFlag {
 			EAST_WALL, 
 			WEST_WALL, 
