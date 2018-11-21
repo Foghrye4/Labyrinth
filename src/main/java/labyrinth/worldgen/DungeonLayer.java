@@ -8,6 +8,7 @@ import com.google.gson.stream.JsonReader;
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import labyrinth.noise.INoise;
 import labyrinth.noise.ManhattanNoise;
+import labyrinth.noise.SolidNoNoise;
 import labyrinth.noise.VillageNoise;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.JsonToNBT;
@@ -61,7 +62,7 @@ public class DungeonLayer {
 				String generatorName = reader.nextString();
 				if(generatorName.equalsIgnoreCase("basic")) {
 					generator = LabyrinthWorldGen.instance.basicCubeStructureGenerator;
-					noise = new ManhattanNoise();
+					noise = new SolidNoNoise();
 				}
 				else if(generatorName.equalsIgnoreCase("lava")) {
 					generator = LabyrinthWorldGen.instance.lavaCubeStructureGenerator;

@@ -54,6 +54,13 @@ public class LabyrinthWorldGen {
 	
 	@SubscribeEvent
 	public void generate(DecorateCubeBiomeEvent event) {
+		World world = event.getWorld();
+		if (world.provider.getDimension() != 0)
+			return;
+		
+		if (storage.levels.isEmpty())
+			return;
+		
 		CubePos pos = event.getCubePos();
 		DungeonCube is = getDungeonCubeType(pos, event.getWorld());
 		if (is == DungeonCube.UNDEFINED) {
@@ -89,6 +96,9 @@ public class LabyrinthWorldGen {
 		}
 		
 		if (world.provider.getDimension() != 0)
+			return;
+		
+		if (storage.levels.isEmpty())
 			return;
 		
 		CubePos pos = new CubePos(event.getCubeX(),event.getCubeY(),event.getCubeZ());

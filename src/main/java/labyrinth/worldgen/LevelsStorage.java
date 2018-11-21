@@ -169,27 +169,27 @@ public class LevelsStorage {
 		ALIASES.put("unused_135", 135);
 		ALIASES.put("unused_136", 136);
 		ALIASES.put("lever_east", 137);
-/*		ALIASES.put("", 138);
-		ALIASES.put("", 139);
-		ALIASES.put("", 140);
-		ALIASES.put("", 141);
-		ALIASES.put("", 142);
-		ALIASES.put("", 143);
-		ALIASES.put("", 144);
-		ALIASES.put("", 145);
-		ALIASES.put("", 146);
-		ALIASES.put("", 147);
-		ALIASES.put("", 148);
-		ALIASES.put("", 149);
-		ALIASES.put("", 150);
-		ALIASES.put("", 151);
-		ALIASES.put("", 152);
-		ALIASES.put("", 153);
-		ALIASES.put("", 154);
-		ALIASES.put("", 155);
-		ALIASES.put("", 156);
-		ALIASES.put("", 157);
-		ALIASES.put("", 158);
+		ALIASES.put("repeater_1_east", 138);
+		ALIASES.put("repeater_2_east", 139);
+		ALIASES.put("repeater_3_east", 140);
+		ALIASES.put("repeater_4_east", 141);
+		ALIASES.put("repeater_1_west", 142);
+		ALIASES.put("repeater_2_west", 143);
+		ALIASES.put("repeater_3_west", 144);
+		ALIASES.put("repeater_4_west", 145);
+		ALIASES.put("unused_146", 146);
+		ALIASES.put("unused_147", 147);
+		ALIASES.put("unused_148", 148);
+		ALIASES.put("unused_149", 149);
+		ALIASES.put("unused_150", 150);
+		ALIASES.put("unused_151", 151);
+		ALIASES.put("unused_152", 152);
+		ALIASES.put("torch_up", 153);
+		ALIASES.put("torch_north", 154);
+		ALIASES.put("torch_south", 155);
+		ALIASES.put("torch_west", 156);
+		ALIASES.put("torch_east", 157);
+/*		ALIASES.put("", 158);
 		ALIASES.put("", 159);
 		ALIASES.put("", 160);
 		ALIASES.put("", 161);
@@ -299,7 +299,8 @@ public class LevelsStorage {
 			return;
 		File resourceFile = new File(event.getWorld().getSaveHandler().getWorldDirectory(), "/data/" + MODID + "/" + "labyrinth_level_preset.json");
 		if (!resourceFile.exists()) {
-			throw new NullPointerException("No such file: " + resourceFile.getAbsolutePath());
+			LabyrinthMod.log.error("No such file: " + resourceFile.getAbsolutePath());
+			return;
 		}
 		try {
 			this.readConfigFromJson(new FileInputStream(resourceFile));
