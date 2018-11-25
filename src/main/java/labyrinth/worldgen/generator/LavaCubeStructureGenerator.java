@@ -76,9 +76,9 @@ public class LavaCubeStructureGenerator extends RegularCubeStructureGenerator {
 		random.setSeed(seed);
 		int typedefiner = random.nextInt(this.randomDungeonsArray.length);
 		if (isAnchorPoint(cpos)) {
-			if(this.generator.getDungeonCubeType(cpos.below(), world) == DungeonCube.NOTHING)
+			if(!level.canGenerateAt(cpos.below(), world))
 				return randomDungeonsSafeUp[typedefiner % randomDungeonsSafeUp.length];
-			if(this.generator.getDungeonCubeType(cpos.above(), world) == DungeonCube.NOTHING)
+			if(!level.canGenerateAt(cpos.above(), world))
 				return randomDungeonsSafeDown[typedefiner % randomDungeonsSafeDown.length];
 			return randomDungeonsArray[typedefiner];
 		}

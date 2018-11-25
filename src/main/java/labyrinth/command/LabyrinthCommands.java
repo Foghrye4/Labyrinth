@@ -96,10 +96,10 @@ public class LabyrinthCommands extends CommandBase {
 		return cubeName;
 	}
 
-	private void place(World world, CubePos cpos, byte[] bf) {
+	private void place(WorldServer world, CubePos cpos, byte[] bf) {
 		ICubicWorld cworld = (ICubicWorld) world;
 		ICube cube = cworld.getCubeCache().getCube(cpos);
-		DungeonCube.placeCube(cube, bf, LevelsStorage.defaultMapping.mapping, world, "", true);
+		DungeonCube.placeCube(cube, bf, LevelsStorage.defaultMapping.mapping, world, "", true, false);
 		List<Cube> cubes = new ArrayList<Cube>();
 		cubes.add((Cube) cube);
 		PacketCubes pc = new PacketCubes(cubes);
@@ -137,7 +137,7 @@ public class LabyrinthCommands extends CommandBase {
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		if (args.length < 1)
 			throw new WrongUsageException("Usage:"+getUsage(sender));
-		World world = server.getWorld(0);
+		WorldServer world = server.getWorld(0);
 		CubePos cpos = CubePos.fromBlockCoords(sender.getPosition());
 		if(args[0].equalsIgnoreCase("load")) {
 			if (args.length < 2)

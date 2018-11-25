@@ -2,18 +2,30 @@ package labyrinth.worldgen;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.world.ICube;
+import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorld;
 import labyrinth.LabyrinthMod;
+import labyrinth.village.UndergroundVillage;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockChest;
+import net.minecraft.block.BlockDoor;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.BlockPos.PooledMutableBlockPos;
+import net.minecraft.village.Village;
+import net.minecraft.village.VillageDoorInfo;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
 public enum DungeonCube {
@@ -223,7 +235,6 @@ public enum DungeonCube {
 		public boolean isVillageHome = false;
 		public boolean isMarket = false;
 		public final byte[] data = new byte[4096];
-		public final byte[] lightData = new byte[2048];
 
 		DungeonCube(String nameIn, DungeonCubeFlag... flagIn) {
 			name = nameIn;
@@ -282,18 +293,26 @@ public enum DungeonCube {
 		stream.close();
 	}
 	
-	public void placeCube(ICube cube, World world, DungeonLayer layer) {
-		placeCube(cube, data, layer.mapping, world, this.isLibrary ? layer.libraryLootTable : layer.regularLootTable, false);
+	public void placeCube(ICube cube, WorldServer world, DungeonLayer layer) {
+		placeCube(cube, data, layer.mapping, world, this.isLibrary ? layer.libraryLootTable : layer.regularLootTable, false, this.isVillageHome);
+		world.addScheduledTask(() -> {
+			layer.doInitialBlockLighting((ICubicWorld) world, cube, this);
+		});
 	}
-		
-	public static void placeCube(ICube cube, byte[] data, IBlockState[] mapping,  World world, String lootTable, boolean use255) {
+	
+	public static void placeCube(ICube cube, byte[] data, IBlockState[] mapping,  WorldServer world, String lootTable, boolean use255, boolean isVillage) {
+		Village currentVillage = null;
+		if (isVillage)
+			currentVillage = getOrCreateVillage(cube.getCoords(), world);
+
 		CubePos pos = cube.getCoords();
 		ExtendedBlockStorage cstorage = cube.getStorage();
 		if (cstorage == null) {
-			cube.setBlockState(pos.getCenterBlockPos(), Blocks.AIR.getDefaultState());
+			cube.setBlockState(pos.getCenterBlockPos(), Blocks.STONE.getDefaultState());
 			cstorage = cube.getStorage();
 		}
-		PooledMutableBlockPos bpos = PooledMutableBlockPos.retain();
+		List<BlockPos> lightUpdateQueue = new ArrayList<BlockPos>();
+		MutableBlockPos bpos = new BlockPos.MutableBlockPos();
 		for (int index = 0; index < data.length; index++) {
 			int dx = index >>> 8;
 			int dy = (index >>> 4) & 15;
@@ -305,8 +324,9 @@ public enum DungeonCube {
 			IBlockState oldState = cstorage.get(dx, dy, dz);
 			IBlockState newState = mapping[bstate];
 			cstorage.set(dx, dy, dz, newState);
-			if(oldState.getLightValue(world, bpos)!= newState.getLightValue(world, bpos))
-				world.checkLight(bpos);
+			if(oldState.getLightValue(world, bpos)!= newState.getLightValue(world, bpos)) {
+				lightUpdateQueue.add(bpos.toImmutable());
+			}
 			int newOpacity = newState.getLightOpacity(world, bpos);
 			if(oldState.getLightOpacity(world, bpos)!=newOpacity)
 				cube.getColumn().getOpacityIndex().onOpacityChange(dx, pos.getMinBlockY() + dy, dz, newOpacity);
@@ -319,9 +339,31 @@ public enum DungeonCube {
 				chest.setPos(bpos);
 				world.setTileEntity(bpos, chest);
 			}
+			else if(isVillage && newState.getBlock() instanceof BlockDoor && newState.getMaterial()  == Material.WOOD) {
+				currentVillage.addVillageDoorInfo(new VillageDoorInfo(bpos.toImmutable(), 8 - dx, 8 - dz, 0));
+			}
 		}
+/*		world.addScheduledTask(() -> {
+			for(BlockPos luPos:lightUpdateQueue)
+				world.checkLight(luPos);
+		});*/
 	}
-		
+	
+	public static Village getOrCreateVillage(CubePos pos, WorldServer world) {
+		Village currentVillage = null;
+		for (Village village : world.villageCollection.getVillageList()) {
+			if (village.isBlockPosWithinSqVillageRadius(pos.getCenterBlockPos())) {
+				currentVillage = village;
+				break;
+			}
+		}
+		if (currentVillage == null) {
+			currentVillage = new UndergroundVillage(world);
+			world.villageCollection.getVillageList().add(currentVillage);
+		}
+		return currentVillage;
+	}
+	
 		public enum DungeonCubeFlag {
 			EAST_WALL, 
 			WEST_WALL, 

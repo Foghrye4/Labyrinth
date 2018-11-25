@@ -71,23 +71,4 @@ public class VillageCubeStructureGenerator implements ICubeStructureGenerator {
 		else
 			return DungeonCube.VILLAGE_PARK;
 	}
-
-	public void onCubePlace(CubePos pos, World world, DungeonCube is) {
-		UndergroundVillage currentVillage = null;
-		if (is.isVillageHome) {
-			for (Village village : ((WorldServer) world).villageCollection.getVillageList()) {
-				if (!(village instanceof UndergroundVillage))
-					continue;
-				UndergroundVillage uVillage = (UndergroundVillage) village;
-				if (uVillage.isBlockPosWithinSqVillageRadius(pos)) {
-					currentVillage = uVillage;
-					break;
-				}
-			}
-			if (currentVillage == null) {
-				currentVillage = new UndergroundVillage(world);
-				((WorldServer) world).villageCollection.getVillageList().add(currentVillage);
-			}
-		}
-	}
 }

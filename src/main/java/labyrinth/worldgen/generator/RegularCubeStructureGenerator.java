@@ -4,7 +4,6 @@ import java.util.Random;
 
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import labyrinth.worldgen.DungeonCube;
-import labyrinth.worldgen.DungeonLayer;
 import labyrinth.worldgen.ICubeStructureGenerator;
 import labyrinth.worldgen.LabyrinthWorldGen;
 import net.minecraft.world.World;
@@ -27,7 +26,9 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 			DungeonCube.WALL_SOUTH_NORTH_DOOR,
 			DungeonCube.WALL_WEST_EAST_BARS,
 			DungeonCube.WALL_WEST_NORTH_BARS,
-			DungeonCube.WALL_WEST_SOUTH_BARS};
+			DungeonCube.WALL_WEST_SOUTH_BARS,
+			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,
+			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,};
 	
 	private DungeonCube[] randomDungeonsSafeUp = new DungeonCube[]{
 			DungeonCube.COLUMN_FLOOR,
@@ -39,7 +40,9 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 			DungeonCube.WALL_SOUTH_NORTH_DOOR,
 			DungeonCube.WALL_WEST_EAST_BARS,
 			DungeonCube.WALL_WEST_NORTH_BARS,
-			DungeonCube.WALL_WEST_SOUTH_BARS};
+			DungeonCube.WALL_WEST_SOUTH_BARS,
+			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,
+			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,};
 	
 	private DungeonCube[] randomDungeonsSafeDown = new DungeonCube[]{
 			DungeonCube.COLUMN_CEIL,
@@ -50,7 +53,9 @@ public class RegularCubeStructureGenerator implements ICubeStructureGenerator {
 			DungeonCube.WALL_SOUTH_NORTH_DOOR,
 			DungeonCube.WALL_WEST_EAST_BARS,
 			DungeonCube.WALL_WEST_NORTH_BARS,
-			DungeonCube.WALL_WEST_SOUTH_BARS};
+			DungeonCube.WALL_WEST_SOUTH_BARS,
+			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,
+			DungeonCube.NOTHING, DungeonCube.NOTHING, DungeonCube.NOTHING,};
 
 	
 	public RegularCubeStructureGenerator(LabyrinthWorldGen generatorIn){

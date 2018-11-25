@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
@@ -27,7 +29,7 @@ import net.minecraftforge.fml.relauncher.Side;
 public class LabyrinthMod {
 	public static final String MODID = "labyrinth";
 	public static final String NAME = "Labyrinth";
-	public static final String VERSION = "0.4.2";
+	public static final String VERSION = "0.4.8";
 
 	public static Logger log;
 
@@ -62,6 +64,8 @@ public class LabyrinthMod {
 	
 	public static OutputStream getOutputStream(World world, ResourceLocation resource) throws IOException {
 		File folder = new File(world.getSaveHandler().getWorldDirectory(), "/data/" + resource.getResourceDomain() + "/");
+		Path path = folder.toPath();
+		Files.createDirectories(path);
 		if (!folder.exists() && !folder.mkdirs())
 			throw new IOException("Cannot create new directory at " + folder.getAbsolutePath());
 		File resourceFile = new File(folder, resource.getResourcePath());
