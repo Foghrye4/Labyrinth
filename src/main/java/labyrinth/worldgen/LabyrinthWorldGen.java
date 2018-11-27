@@ -4,13 +4,11 @@ import java.io.IOException;
 
 import javax.annotation.Nullable;
 
-import io.github.opencubicchunks.cubicchunks.api.util.Coords;
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.world.ICube;
 import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorld;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.CubePopulatorEvent;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.event.DecorateCubeBiomeEvent;
-import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.event.PopulateCubeEvent;
 import labyrinth.noise.ManhattanNoise;
 import labyrinth.worldgen.generator.ClaustrophobicCubeStructureGenerator;
 import labyrinth.worldgen.generator.LavaCubeStructureGenerator;
@@ -18,7 +16,6 @@ import labyrinth.worldgen.generator.RegularCubeStructureGenerator;
 import labyrinth.worldgen.generator.VillageCubeStructureGenerator;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
-import net.minecraft.util.math.BlockPos.PooledMutableBlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
@@ -26,6 +23,7 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+@SuppressWarnings("deprecation")
 public class LabyrinthWorldGen {
 
 	public static LabyrinthWorldGen instance;

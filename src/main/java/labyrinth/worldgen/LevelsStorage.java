@@ -17,6 +17,7 @@ import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import labyrinth.LabyrinthMod;
+import net.minecraft.nbt.NBTException;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -304,12 +305,12 @@ public class LevelsStorage {
 		}
 		try {
 			this.readConfigFromJson(new FileInputStream(resourceFile));
-		} catch (IOException e) {
+		} catch (IOException | NBTException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private void readConfigFromJson(InputStream resourceStream) throws IOException {
+	private void readConfigFromJson(InputStream resourceStream) throws IOException, NBTException {
         JsonReader reader = new JsonReader(new InputStreamReader(resourceStream));
         reader.setLenient(true);
         reader.beginArray();

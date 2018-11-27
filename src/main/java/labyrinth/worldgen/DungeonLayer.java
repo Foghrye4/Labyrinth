@@ -1,19 +1,22 @@
 package labyrinth.worldgen;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.world.ICube;
 import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorld;
+import labyrinth.light.LightPropagator;
 import labyrinth.noise.INoise;
 import labyrinth.noise.ManhattanNoise;
 import labyrinth.noise.SolidNoNoise;
 import labyrinth.noise.VillageNoise;
+import labyrinth.worldgen.generator.Decorator;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
@@ -40,12 +43,13 @@ public class DungeonLayer {
 	private ICubeStructureGenerator generator = LabyrinthWorldGen.instance.basicCubeStructureGenerator;
 	private INoise noise = new SolidNoNoise();
 	private Map<DungeonCube, byte[]> lightCache = new HashMap<DungeonCube, byte[]>();
+	private List<Decorator> decorators = new ArrayList<Decorator>();
 	
 	public DungeonLayer() {
 		mapping = LevelsStorage.defaultMapping.mapping.clone();
 	}
 
-	public DungeonLayer readFromJson(JsonReader reader) throws IOException {
+	public DungeonLayer readFromJson(JsonReader reader) throws IOException, NBTException {
 		while (reader.hasNext()) {
 			String key = reader.nextName();
 			if (key.equals("library_loot_table")) {
@@ -102,16 +106,71 @@ public class DungeonLayer {
 					} else {
 						index = Integer.parseInt(name);
 					}
-					NBTTagCompound tag;
-					try {
-						tag = JsonToNBT.getTagFromJson(reader.nextString());
-					} catch (NBTException e) {
-						throw new JsonSyntaxException(e);
-					}
+					NBTTagCompound tag = JsonToNBT.getTagFromJson(reader.nextString());
 					IBlockState bstate = NBTUtil.readBlockState(tag);
 					mapping[index] = bstate;
 				}
 				reader.endObject();
+			}
+			else if (key.equals("decorators")) {
+				reader.beginArray();
+				while (reader.hasNext()) {
+					reader.beginObject();
+					Decorator decorator = new Decorator();
+					while (reader.hasNext()) {
+						String name = reader.nextName();
+						if(name.equals("chance")) {
+							decorator.chance = (float) reader.nextDouble();
+						}
+						else if(name.equals("nbt")) {
+							decorator.nbt = JsonToNBT.getTagFromJson(reader.nextString());
+						}
+						else if(name.equals("blockstate")) {
+							NBTTagCompound tag = JsonToNBT.getTagFromJson(reader.nextString());
+							decorator.state = NBTUtil.readBlockState(tag);
+						}
+						else if(name.equals("attach_to_floor")) {
+							decorator.attachToFloor = reader.nextBoolean();
+						}
+						else if(name.equals("attach_to_ceiling")) {
+							decorator.attachToCeiling = reader.nextBoolean();
+						}
+						else if(name.equals("attach_to_north_wall")) {
+							decorator.attachToNorthWall = reader.nextBoolean();
+						}
+						else if(name.equals("attach_to_south_wall")) {
+							decorator.attachToSouthWall = reader.nextBoolean();
+						}
+						else if(name.equals("attach_to_east_wall")) {
+							decorator.attachToEastWall = reader.nextBoolean();
+						}
+						else if(name.equals("attach_to_west_wall")) {
+							decorator.attachToWestWall = reader.nextBoolean();
+						}
+						else if(name.equals("can_attach_to_itself")) {
+							decorator.canAttachToItself = reader.nextBoolean();
+						}
+						else if(name.equals("replace_element")) {
+							String elemenet = reader.nextString();
+							int index = 0;
+							if (LevelsStorage.ALIASES.containsKey(elemenet)) {
+								index = LevelsStorage.ALIASES.getInt(elemenet);
+							} else {
+								index = Integer.parseInt(elemenet);
+							}
+							decorator.replaceBlock = index;
+						}
+						else if(name.equals("cluster_size")) {
+							decorator.clusterSize = reader.nextInt();
+						}
+						else {
+							reader.skipValue();
+						}
+					}
+					decorators.add(decorator);
+					reader.endObject();
+				}
+				reader.endArray();
 			}
 		}
 		return this;
@@ -141,7 +200,7 @@ public class DungeonLayer {
 		NibbleArray blockLight = cstorage.getBlockLight();
 		byte[] blockLightData = blockLight.getData();
 		System.arraycopy(lightData, 0, blockLightData, 0, lightData.length);
-		this.spreadLight(cube, cworld);
+		LightPropagator.spreadLight(cube, cworld);
 		int[] xyz = new int[] {0,0,-1,0,0,1,0,0};
 		for(int i=2;i<xyz.length;i++) {
 			CubePos cubePos = cube.getCoords();
@@ -149,116 +208,14 @@ public class DungeonLayer {
 			int cubePosY = cubePos.getY()+xyz[i-1];
 			int cubePosZ = cubePos.getZ()+xyz[i];
 			ICube cube1 = cworld.getCubeCache().getLoadedCube(cubePosX, cubePosY, cubePosZ);
-			if (cube1 == null || cube1.getStorage() == null)
+			if (cube1 == null) {
+				LightPropagator.schleduledLightPropagate.add(new CubePos(cubePosX, cubePosY, cubePosZ));
 				continue;
-			this.spreadLight(cube1, cworld);
-		}
-	}
-	
-	private void spreadLight(ICube cube, ICubicWorld cworld) {
-		ExtendedBlockStorage cstorage = cube.getStorage();
-		NibbleArray blockLight = cstorage.getBlockLight();
-		CubePos cubePos = cube.getCoords();
-		int cubePosX = cubePos.getX();
-		int cubePosY = cubePos.getY();
-		int cubePosZ = cubePos.getZ();
-		ICube cubeNX = cworld.getCubeCache().getLoadedCube(cubePosX-1, cubePosY, cubePosZ);
-		if (cubeNX != null && cubeNX.getStorage() != null) {
-			NibbleArray blockLightNX = cubeNX.getStorage().getBlockLight();
-			for(int iy=0;iy<16;iy++) {
-				for(int iz=0;iz<16;iz++) {
-					int blnx = blockLightNX.get(15, iy, iz);
-					int bl = blockLight.get(0, iy, iz);
-					if (blnx - bl >= 2) {
-						this.setLight(new BlockPos(0, iy, iz), blockLight, blnx-1, cstorage);
-					}
-					else if (bl - blnx >= 2) {
-						this.setLight(new BlockPos(15, iy, iz), blockLightNX, bl-1, cstorage);
-					}
-				}
 			}
+			if(cube1.getStorage() == null)
+				continue;
+			LightPropagator.spreadLight(cube1, cworld);
 		}
-		ICube cubePX = cworld.getCubeCache().getLoadedCube(cubePosX+1, cubePosY, cubePosZ);
-		if (cubePX != null && cubePX.getStorage() != null) {
-			NibbleArray blockLightPX = cubePX.getStorage().getBlockLight();
-			for(int iy=0;iy<16;iy++) {
-				for(int iz=0;iz<16;iz++) {
-					int blpx = blockLightPX.get(15, iy, iz);
-					int bl = blockLight.get(0, iy, iz);
-					if (blpx - bl >= 2) {
-						this.setLight(new BlockPos(15, iy, iz), blockLight, blpx-1, cstorage);
-					}
-					else if (bl - blpx >= 2) {
-						this.setLight(new BlockPos(0, iy, iz), blockLightPX, bl-1, cstorage);
-					}
-				}
-			}
-		}
-		ICube cubeNY = cworld.getCubeCache().getLoadedCube(cubePosX, cubePosY-1, cubePosZ);
-		if (cubeNY != null && cubeNY.getStorage() != null) {
-			NibbleArray blockLightNY = cubeNY.getStorage().getBlockLight();
-			for(int ix=0;ix<16;ix++) {
-				for(int iz=0;iz<16;iz++) {
-					int blny = blockLightNY.get(ix, 15, iz);
-					int bl = blockLight.get(ix, 0, iz);
-					if (blny - bl >= 2) {
-						this.setLight(new BlockPos(ix, 0, iz), blockLight, blny-1, cstorage);
-					}
-					else if (bl - blny >= 2) {
-						this.setLight(new BlockPos(ix, 15, iz), blockLightNY, bl-1, cstorage);
-					}
-				}
-			}
-		}
-		ICube cubePY = cworld.getCubeCache().getLoadedCube(cubePosX, cubePosY+1, cubePosZ);
-		if (cubePY != null && cubePY.getStorage() != null) {
-			NibbleArray blockLightPY = cubePY.getStorage().getBlockLight();
-			for(int ix=0;ix<16;ix++) {
-				for(int iz=0;iz<16;iz++) {
-					int blpy = blockLightPY.get(ix, 15, iz);
-					int bl = blockLight.get(ix, 0, iz);
-					if (blpy - bl >= 2) {
-						this.setLight(new BlockPos(ix, 15, iz), blockLight, blpy-1, cstorage);
-					}
-					else if (bl - blpy >= 2) {
-						this.setLight(new BlockPos(ix, 0, iz), blockLightPY, bl-1, cstorage);
-					}
-				}
-			}
-		}
-		ICube cubeNZ = cworld.getCubeCache().getLoadedCube(cubePosX, cubePosY, cubePosZ-1);
-		if (cubeNZ != null && cubeNZ.getStorage() != null) {
-			NibbleArray blockLightNZ = cubeNZ.getStorage().getBlockLight();
-			for(int ix=0;ix<16;ix++) {
-				for(int iy=0;iy<16;iy++) {
-					int blnz = blockLightNZ.get(ix, iy, 15);
-					int bl = blockLight.get(ix, iy, 0);
-					if (blnz - bl >= 2) {
-						this.setLight(new BlockPos(ix, iy, 0), blockLight, blnz-1, cstorage);
-					}
-					else if (bl - blnz >= 2) {
-						this.setLight(new BlockPos(ix, iy, 15), blockLightNZ, bl-1, cstorage);
-					}
-				}
-			}
-		}
-		ICube cubePZ = cworld.getCubeCache().getLoadedCube(cubePosX, cubePosY, cubePosZ+1);
-		if (cubePZ != null && cubePZ.getStorage() != null) {
-			NibbleArray blockLightPZ = cubePZ.getStorage().getBlockLight();
-			for(int ix=0;ix<16;ix++) {
-				for(int iy=0;iy<16;iy++) {
-					int blpz = blockLightPZ.get(ix, iy, 15);
-					int bl = blockLight.get(ix, iy, 0);
-					if (blpz - bl >= 2) {
-						this.setLight(new BlockPos(ix, iy, 15), blockLight, blpz-1, cstorage);
-					}
-					else if (bl - blpz >= 2) {
-						this.setLight(new BlockPos(ix, iy, 0), blockLightPZ, bl-1, cstorage);
-					}
-				}
-			}
-		}
-
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -308,30 +265,10 @@ public class DungeonLayer {
 			setLight(lightPos.east(), lightNibbleArray, lightValue-1, data);
 		}
 	}
-	
-	@SuppressWarnings("deprecation")
-	private void setLight(BlockPos lightPos, NibbleArray lightNibbleArray, int lightValue, ExtendedBlockStorage data) {
-		if(lightValue<=0 ||
-			lightPos.getX() < 0 ||
-			lightPos.getY() < 0 ||
-			lightPos.getZ() < 0 ||
-			lightPos.getX() > 15 ||
-			lightPos.getY() > 15 ||
-			lightPos.getZ() > 15){
+
+	public void decorate(ICube cube, DungeonCube is) {
+		if(decorators.size()==0)
 			return;
-		}
-		IBlockState bstate = data.get(lightPos.getX(), lightPos.getY(), lightPos.getZ());
-		if (bstate.getLightValue()==0 && bstate.getLightOpacity() >= 255) {
-			return;
-		}
-		if(lightNibbleArray.get(lightPos.getX(), lightPos.getY(), lightPos.getZ()) < lightValue){
-			lightNibbleArray.set(lightPos.getX(), lightPos.getY(), lightPos.getZ(),lightValue);
-			setLight(lightPos.up(), lightNibbleArray, lightValue-1, data);
-			setLight(lightPos.down(), lightNibbleArray, lightValue-1, data);
-			setLight(lightPos.north(), lightNibbleArray, lightValue-1, data);
-			setLight(lightPos.south(), lightNibbleArray, lightValue-1, data);
-			setLight(lightPos.west(), lightNibbleArray, lightValue-1, data);
-			setLight(lightPos.east(), lightNibbleArray, lightValue-1, data);
-		}
+		decorators.get(cube.getWorld().rand.nextInt(decorators.size())).decorateWithChance(cube, is);
 	}
 }

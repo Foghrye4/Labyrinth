@@ -174,7 +174,7 @@ public class LabyrinthCommands extends CommandBase {
 					int z1 = z - cpos.getMinBlockZ();
 					x1 = (x1 + ICube.SIZE/2) % ICube.SIZE;
 					z1 = (z1 + ICube.SIZE/2) % ICube.SIZE;
-					bf[x1<<8|y1<<4|z1] = (byte) bsid;
+					bf[DungeonCube.getIndex(x1,y1,z1)] = (byte) bsid;
 				}
 			}
 			this.place(world, cpos, bf);

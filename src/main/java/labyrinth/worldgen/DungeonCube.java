@@ -295,6 +295,7 @@ public enum DungeonCube {
 	
 	public void placeCube(ICube cube, WorldServer world, DungeonLayer layer) {
 		placeCube(cube, data, layer.mapping, world, this.isLibrary ? layer.libraryLootTable : layer.regularLootTable, false, this.isVillageHome);
+		layer.decorate(cube, this);
 		world.addScheduledTask(() -> {
 			layer.doInitialBlockLighting((ICubicWorld) world, cube, this);
 		});
@@ -378,5 +379,9 @@ public enum DungeonCube {
 			CORRAL, 
 			VILLAGE_HOME, 
 			MARKET;
+		}
+
+		public static int getIndex(int x, int y, int z) {
+			return x<<8|y<<4|z;
 		}
 }
