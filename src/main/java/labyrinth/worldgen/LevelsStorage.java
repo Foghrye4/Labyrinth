@@ -282,12 +282,12 @@ public class LevelsStorage {
 		ALIASES.put("", 247);
 		ALIASES.put("", 248);
 		ALIASES.put("", 249);
-		ALIASES.put("", 250);
-		ALIASES.put("", 251);
-		ALIASES.put("", 252);
-		ALIASES.put("", 253);
-		ALIASES.put("", 254);
-		ALIASES.put("", 255);*/
+		ALIASES.put("", 250);*/
+		ALIASES.put("monolith_misc_area", 251);
+		ALIASES.put("monolith_grav_area", 252);
+		ALIASES.put("monolith_tp_area", 253);
+		ALIASES.put("monolith_body", 254);
+		ALIASES.put("non-replaceable", 255);
 
 	}
 	
@@ -307,6 +307,15 @@ public class LevelsStorage {
 			this.readConfigFromJson(new FileInputStream(resourceFile));
 		} catch (IOException | NBTException e) {
 			e.printStackTrace();
+		}
+		for (DungeonCube cube : DungeonCube.values()) {
+			if (cube != DungeonCube.NOTHING && cube != DungeonCube.UNDEFINED) {
+				try {
+					cube.load(event.getWorld());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 	

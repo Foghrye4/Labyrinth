@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.JsonParseException;
 import com.google.gson.stream.JsonReader;
 
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
@@ -17,6 +18,7 @@ import labyrinth.noise.ManhattanNoise;
 import labyrinth.noise.SolidNoNoise;
 import labyrinth.noise.VillageNoise;
 import labyrinth.worldgen.generator.Decorator;
+import labyrinth.worldgen.generator.SingleCubeGenerator;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
@@ -34,12 +36,12 @@ public class DungeonLayer {
 	public final IBlockState[] mapping;
 	
 	public int priority = 0;
-	public int minX = -1000000000;
-	public int maxX = 1000000000;
-	public int minZ = -1000000000;
-	public int maxZ = 1000000000;
-	public int minY = -1000000000;
-	public int maxY = 0;
+	private int minX = -1000000000;
+	private int maxX = 1000000000;
+	private int minZ = -1000000000;
+	private int maxZ = 1000000000;
+	private int minY = -1000000000;
+	private int maxY = 0;
 	private ICubeStructureGenerator generator = LabyrinthWorldGen.instance.basicCubeStructureGenerator;
 	private INoise noise = new SolidNoNoise();
 	private Map<DungeonCube, byte[]> lightCache = new HashMap<DungeonCube, byte[]>();
@@ -50,6 +52,7 @@ public class DungeonLayer {
 	}
 
 	public DungeonLayer readFromJson(JsonReader reader) throws IOException, NBTException {
+		DungeonCube monotonicCubeType = null;
 		while (reader.hasNext()) {
 			String key = reader.nextName();
 			if (key.equals("library_loot_table")) {
@@ -70,6 +73,8 @@ public class DungeonLayer {
 				maxZ = reader.nextInt();
 			} else if (key.equals("priority")) {
 				priority = reader.nextInt();
+			} else if (key.equals("monotonic_cube")) {
+				monotonicCubeType = this.getCubeByName(reader.nextString());
 			} else if (key.equals("generator_type")) {
 				String generatorName = reader.nextString();
 				if(generatorName.equalsIgnoreCase("basic")) {
@@ -83,6 +88,12 @@ public class DungeonLayer {
 				}
 				else if(generatorName.equalsIgnoreCase("claustrophobic")) {
 					generator = LabyrinthWorldGen.instance.claustrophobicCubeStructureGenerator;
+				}
+				else if(generatorName.equalsIgnoreCase("monolith")) {
+					generator = LabyrinthWorldGen.instance.monolithCubeStructureGenerator;
+				}
+				else if(generatorName.equalsIgnoreCase("monotonic")) {
+					generator = new SingleCubeGenerator();
 				}
 			} else if (key.equals("noise_type")) {
 				String noiseName = reader.nextString();
@@ -173,9 +184,25 @@ public class DungeonLayer {
 				reader.endArray();
 			}
 		}
+		if(generator instanceof SingleCubeGenerator) {
+			((SingleCubeGenerator) generator).setCube(monotonicCubeType);
+		}
+		if(minX==maxX || minY==maxY || minY==maxY) {
+			throw new JsonParseException("Layer 'max' and 'min' borders should not be equal! "+toString());
+		}
 		return this;
 	}
 
+	private DungeonCube getCubeByName(String name) {
+		if (!name.endsWith(".cube_structure"))
+			name = name + ".cube_structure";
+		for (DungeonCube cube : DungeonCube.values) {
+			if (cube.name.equalsIgnoreCase(name))
+				return cube;
+		}
+		return new DungeonCube(name);
+	}
+	
 	public boolean isPosInside(CubePos pos, World world) {
 		if(minX<=pos.getX() && pos.getX()<maxX 
 			&& minY<=pos.getY() && pos.getY()<maxY 
@@ -270,5 +297,10 @@ public class DungeonLayer {
 		if(decorators.size()==0)
 			return;
 		decorators.get(cube.getWorld().rand.nextInt(decorators.size())).decorateWithChance(cube, is);
+	}
+	
+	@Override
+	public String toString() {
+		return "DungeonLayer:{"+minX+";"+minY+";"+minZ+"}{"+maxX+";"+maxY+";"+maxZ+"}";
 	}
 }

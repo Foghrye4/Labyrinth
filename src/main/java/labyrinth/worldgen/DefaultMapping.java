@@ -390,6 +390,10 @@ public class DefaultMapping {
 				.withProperty(BlockPistonBase.EXTENDED, Boolean.valueOf(false))
 				.withProperty(BlockDirectional.FACING, EnumFacing.EAST);
 		mapping[200] = Blocks.STONE_PRESSURE_PLATE.getDefaultState();
+		mapping[251] = Blocks.CYAN_GLAZED_TERRACOTTA.getBlockState().getBaseState().withProperty(BlockHorizontal.FACING, EnumFacing.WEST);
+		mapping[252] = Blocks.CYAN_GLAZED_TERRACOTTA.getBlockState().getBaseState().withProperty(BlockHorizontal.FACING, EnumFacing.NORTH);
+		mapping[253] = Blocks.NETHER_WART_BLOCK.getDefaultState();
+		mapping[254] = Blocks.BEDROCK.getDefaultState();
 		mapping[255] = Blocks.STONE.getDefaultState();
 	}
 

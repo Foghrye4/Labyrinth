@@ -1,6 +1,8 @@
 package labyrinth.command;
 
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -18,6 +20,8 @@ import io.github.opencubicchunks.cubicchunks.core.world.cube.Cube;
 import labyrinth.LabyrinthMod;
 import labyrinth.worldgen.DefaultMapping;
 import labyrinth.worldgen.DungeonCube;
+import labyrinth.worldgen.DungeonLayer;
+import labyrinth.worldgen.LabyrinthWorldGen;
 import labyrinth.worldgen.LevelsStorage;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandBase;
@@ -53,10 +57,17 @@ public class LabyrinthCommands extends CommandBase {
 	
 	private boolean save(World world, String filename, ByteBuffer bf) {
 		try {
-			DataOutputStream osWriter = new DataOutputStream(LabyrinthMod.getOutputStream(world, new ResourceLocation("labyrinth",  "cubes/" + filename)));
+			File folder = new File(world.getSaveHandler().getWorldDirectory(), "data/labyrinth/cubes/");
+			folder.mkdirs();
+			if (!folder.exists())
+				return false;
+			File resourceFile = new File(folder, filename);
+			DataOutputStream osWriter = new DataOutputStream(new FileOutputStream(resourceFile));
 			osWriter.write(bf.array());
 			osWriter.close();
-			return true;
+			if(resourceFile.exists())
+				return true;
+			return false;
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
@@ -73,9 +84,10 @@ public class LabyrinthCommands extends CommandBase {
 			int bsid = 0;
 			IBlockState bs = world.getBlockState(new BlockPos(x, y, z));
 			bsid = defaultMapping.getId(bs);
-			if (bsid!=-1) {
+			if (bsid!=-1)
 				bf.put((byte) bsid);
-			}
+			else
+				bf.put((byte) 0);
 		}
 		if(this.save(world, cubeName, bf))
 			sender.sendMessage(new TextComponentString("Successfully saved cube: " + cubeName));
@@ -236,6 +248,22 @@ public class LabyrinthCommands extends CommandBase {
 				}
 			}
 			this.place(world, cpos, bf);
+		}
+		else if(args[0].equalsIgnoreCase("layer-info")) {
+			DungeonLayer layer = LabyrinthWorldGen.instance.getDungeonLayer(cpos, world);
+			if(layer==null) {
+				sender.sendMessage(new TextComponentString("No layer at pos:"+cpos+"All layers:"));
+				for(DungeonLayer layer1:LabyrinthWorldGen.instance.storage.levels)
+					sender.sendMessage(new TextComponentString(layer1.toString()));
+				
+			}
+			else {
+				sender.sendMessage(new TextComponentString(layer.toString()));
+			}
+		}
+		else if(args[0].equalsIgnoreCase("cube-info")) {
+			DungeonCube cube = LabyrinthWorldGen.instance.getDungeonCubeType(cpos, world);
+			sender.sendMessage(new TextComponentString(cube.name));
 		}
 	}
 }
